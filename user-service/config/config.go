@@ -18,9 +18,9 @@ type AppConfig struct {
 
 func Load() *AppConfig {
 	return &AppConfig{
-		DSN:          os.Getenv("POSTGRES_DSN"),
+		DSN:          os.Getenv("DB_DSN"),
 		JWT_SECRET:   os.Getenv("JWT_SECRET"),
-		Port:         os.Getenv("PORT"),
+		Port:         os.Getenv("USER_SERVICE_PORT"),
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 10 * time.Second,
 	}

@@ -20,7 +20,7 @@ func init() {
 	// if err := godotenv.Load(); err != nil {
 	// 	log.Fatalf("No .env file found")
 	// }
-	LoadEnv()
+	// LoadEnv()
 }
 
 func main() {

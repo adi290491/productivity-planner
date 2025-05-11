@@ -15,7 +15,7 @@ import (
 )
 
 func init() {
-	LoadEnv()
+	// LoadEnv()
 }
 
 func main() {

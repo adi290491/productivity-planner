@@ -13,7 +13,7 @@ type AppConfig struct {
 
 func Load() *AppConfig {
 	return &AppConfig{
-		Port:         os.Getenv("PORT"),
+		Port:         os.Getenv("GATEWAY_PORT"),
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 10 * time.Second,
 	}

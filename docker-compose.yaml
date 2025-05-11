@@ -1,0 +1,88 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    environment:
+      - POSTGRES_DB=productivity_planner
+      - POSTGRES_USER=adityasawant
+      - POSTGRES_PASSWORD=S10dulkar
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "adityasawant"]
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 30s
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./init/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - backend
+
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres
+    networks:
+      - backend
+
+  user-service:
+    build: ./user-service
+    ports:
+      - "${USER_SERVICE_PORT}:${USER_SERVICE_PORT}"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file:
+      - ./.env
+    networks:
+      - backend
+
+  session-service:
+    build: ./session-service
+    ports:
+      - "${SESSION_SERVICE_PORT}:${SESSION_SERVICE_PORT}"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file:
+      - ./.env
+    networks:
+      - backend
+
+  summary-service:
+    build: ./summary-service
+    ports:
+      - "${SUMMARY_SERVICE_PORT}:${SUMMARY_SERVICE_PORT}"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file:
+      - ./.env
+    networks:
+      - backend
+
+  gateway:
+    build: ./gateway
+    ports:
+      - "${GATEWAY_PORT}:${GATEWAY_PORT}"
+    depends_on:
+      - session-service
+      - user-service
+      - summary-service
+    env_file:
+      - ./.env
+    networks:
+      - backend
+volumes:
+  pgdata:
+  
+networks:
+  backend:

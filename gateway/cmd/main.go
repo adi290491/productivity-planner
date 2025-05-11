@@ -10,14 +10,13 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
 )
 
 func init() {
 
-	if err := godotenv.Load(); err != nil {
-		log.Fatalf("No .env file found")
-	}
+	// if err := godotenv.Load(); err != nil {
+	// 	log.Fatalf("No .env file found")
+	// }
 	// LoadEnv()
 }
 
