@@ -34,13 +34,14 @@ func ProxyToSessionService(c *gin.Context) {
 func ProxyToSummaryService(c *gin.Context) {
 	summaryServiceUrl := os.Getenv("SUMMARY_SERVICE_URL")
 
-	log.Println("Session Service URL:", summaryServiceUrl+c.Request.URL.Path)
+	url := fmt.Sprintf("%s%s?%s", summaryServiceUrl, c.Request.URL.Path, c.Request.URL.RawQuery)
+	log.Println("Session Service URL:", url)
 
 	if userId, ok := c.Get("userId"); ok {
 		c.Request.Header.Set("X-USER-ID", fmt.Sprintf("%s", userId))
 	}
 
-	forward(c, summaryServiceUrl+c.Request.URL.Path)
+	forward(c, url)
 }
 
 func forward(c *gin.Context, targetUrl string) {

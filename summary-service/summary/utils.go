@@ -2,15 +2,30 @@ package summary
 
 import (
 	"fmt"
+	"log"
 	models "productivity-planner/summary-service/model"
+	"sort"
 	"strings"
 	"time"
 )
 
-func StartOfDayUTC(t time.Time) time.Time {
+func StartOfDayUTC(date string) (time.Time, error) {
+
+	log.Println("Date I received:", date)
+	var t time.Time
+	var err error
+	if len(date) == 0 {
+		t = time.Now().UTC()
+	} else {
+		t, err = time.Parse("2006-01-02", date)
+		if err != nil {
+			return time.Time{}, fmt.Errorf("invalid date format")
+		}
+	}
+
 	y, m, d := t.Date()
 
-	return time.Date(y, m, d, 0, 0, 0, 0, time.UTC)
+	return time.Date(y, m, d, 0, 0, 0, 0, time.UTC), nil
 }
 
 func EndOfDayUTC(t time.Time) time.Time {
@@ -39,7 +54,7 @@ func StartOfWeekUTC(date string) (time.Time, error) {
 		weekday = 7 // treat Sunday as 7
 	}
 	monday := base.AddDate(0, 0, -weekday+1)
-	return StartOfDayUTC(monday), nil
+	return StartOfDayUTC(monday.Format("2006-01-02"))
 }
 
 func CalculateSummary(sessions []models.Session, date time.Time) *DailySessionSummary {
@@ -91,6 +106,10 @@ func CalculateWeeklySummary(sessions []models.Session, startDate, endDate time.T
 		dailySummary := CalculateSummary(sessionGroup, parsedDate)
 		dailySummaries = append(dailySummaries, dailySummary)
 	}
+
+	sort.Slice(dailySummaries, func(i, j int) bool {
+		return dailySummaries[i].Date < dailySummaries[j].Date
+	})
 
 	weeklySessionSummary := &WeeklySessionSummary{
 		StartDate:      startDate.Format("2006-01-02"),

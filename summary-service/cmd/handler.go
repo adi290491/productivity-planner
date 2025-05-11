@@ -2,10 +2,10 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"productivity-planner/summary-service/summary"
 	"strings"
-	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -29,23 +29,16 @@ func (h *Handler) GetDailySummary(c *gin.Context) {
 	}
 
 	queryDate := c.Query("date")
-	var day time.Time
-	var err error
+	log.Println("Query Date:", queryDate)
+	summaryResponse, err := h.svc.GetDailySessionSummary(userId, queryDate)
 
-	if queryDate == "" {
-		day = time.Now().UTC()
-	} else {
-		day, err = time.Parse("2006-01-02", queryDate)
-		if err != nil {
-			HandleError(c, fmt.Errorf("invalid date format"), http.StatusBadRequest)
-			return
-		}
+	if err != nil && strings.Contains(err.Error(), "invalid date format") {
+		HandleError(c, err, http.StatusBadRequest)
+		return
 	}
-
-	summaryResponse, err := h.svc.GetDailySessionSummary(userId, day)
-
+	log.Println("Summary Response: ", summaryResponse)
 	if err != nil && strings.Contains(err.Error(), "no sessions found for the given day") {
-		HandleError(c, fmt.Errorf("no sessions found for user: %s on date: %s", userId, day.Format("2006-01-02")), http.StatusNotFound)
+		HandleError(c, fmt.Errorf("no sessions found for user: %s on date: %s", userId, queryDate), http.StatusNotFound)
 		return
 	}
 

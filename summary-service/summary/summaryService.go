@@ -2,9 +2,8 @@ package summary
 
 import (
 	"fmt"
+	"log"
 	models "productivity-planner/summary-service/model"
-
-	"time"
 )
 
 type SummaryService struct {
@@ -17,21 +16,30 @@ func NewSummaryService(repo models.Repository) *SummaryService {
 	}
 }
 
-func (s *SummaryService) GetDailySessionSummary(userId string, date time.Time) (*DailySessionSummary, error) {
+func (s *SummaryService) GetDailySessionSummary(userId string, date string) (*DailySessionSummary, error) {
 
-	summaryDao := &models.Summary{
-		UserId:    userId,
-		StartTime: StartOfDayUTC(date),
-		EndTime:   EndOfDayUTC(date),
+	startDate, err := StartOfDayUTC(date)
+
+	if err != nil {
+		return nil, err
 	}
 
+	endDate := EndOfDayUTC(startDate)
+	log.Println("Dates you fucking gave me. Start Date", startDate, " end date", endDate)
+	summaryDao := &models.Summary{
+		UserId:    userId,
+		StartTime: startDate,
+		EndTime:   endDate,
+	}
+
+	log.Println("Repository:", s.repo)
 	sessions, err := s.repo.FindAllSessionsBetweenDates(summaryDao)
 	if err != nil {
 		return nil, err
 	}
 
-	sessionSummary := CalculateSummary(sessions, date)
-
+	sessionSummary := CalculateSummary(sessions, startDate)
+	log.Println("Session Summary:", sessionSummary)
 	return sessionSummary, nil
 
 }
