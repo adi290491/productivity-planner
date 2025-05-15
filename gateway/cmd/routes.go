@@ -8,7 +8,7 @@ import (
 )
 
 func RegisterRoutes(r *gin.Engine) {
-
+	r.Use(middleware.CorsMiddleware())
 	{
 		usersRouter := r.Group("/")
 		usersRouter.POST("/users/signup", proxy.ProxyToUserService)

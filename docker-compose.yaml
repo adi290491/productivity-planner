@@ -81,6 +81,16 @@ services:
       - ./.env
     networks:
       - backend
+    
+  frontend:
+    build: ./productivity-frontend
+    ports:
+      - "4000:80"
+    depends_on:
+      - gateway
+    networks:
+      - backend
+      
 volumes:
   pgdata:
   

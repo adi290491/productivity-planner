@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/signal"
 	"productivity-planner/gateway/config"
+	"syscall"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -21,9 +22,8 @@ func init() {
 }
 
 func main() {
-
+	gin.ForceConsoleColor()
 	srv := gin.Default()
-
 	appConfig := config.Load()
 
 	RegisterRoutes(srv)
@@ -46,7 +46,7 @@ func main() {
 	}()
 
 	quit := make(chan os.Signal, 1)
-	signal.Notify(quit, os.Interrupt)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
 	<-quit
 
 	log.Println("Shutting down...")
@@ -58,5 +58,7 @@ func main() {
 	if err := s.Shutdown(ctx); err != nil {
 		log.Fatal("Server forced to shutdown:", err)
 	}
+	<-ctx.Done()
+	log.Println("timeout of 5 seconds")
 	log.Println("Server Exiting")
 }
