@@ -1,14 +1,23 @@
-FROM golang:1.21-alpine
-
+# Stage 1: Build
+FROM golang:1.23-alpine AS builder
 WORKDIR /app
-COPY trend-jobs/weekly/go.mod trend-jobs/weekly/go.sum ./
+
+# Copy go files
+COPY go.mod go.sum ./
 RUN go mod download
 
-COPY trend-jobs/weekly .
+COPY ./weekly-aggregates ./weekly-aggregates
 
-RUN go build -o weekly-job .
+RUN go build -o weekly-trend ./weekly-aggregates/main.go
 
-# Copy crontab
+# Stage 2: Run time with cron
+FROM alpine:latest
+
+RUN apk add --no-cache tzdata curl bash
+
+WORKDIR /app
+
+COPY --from=builder /app/weekly-trend .
 COPY crontab.weekly /etc/crontabs/root
 
-CMD ["crond", "-f", "-l", "2"]
+CMD ["crond", "-f"]
