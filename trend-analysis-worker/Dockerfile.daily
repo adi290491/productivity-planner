@@ -1,0 +1,23 @@
+# Stage 1: Build
+FROM golang:1.23-alpine AS builder
+WORKDIR /app
+
+# Copy go files
+COPY go.mod go.sum ./
+RUN go mod download
+
+COPY ./daily-aggregates ./daily-aggregates
+
+RUN go build -o daily-trend ./daily-aggregates/main.go
+
+# Stage 2: Run time with cron
+FROM alpine:latest
+
+RUN apk add --no-cache tzdata curl bash
+
+WORKDIR /app
+
+COPY --from=builder /app/daily-trend .
+COPY crontab.daily /etc/crontabs/root
+
+CMD ["crond", "-f"]

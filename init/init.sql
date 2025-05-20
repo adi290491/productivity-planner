@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS sessions (
     end_time TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS user_daily_trend (
+CREATE TABLE IF NOT EXISTS user_daily_trends (
 	id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID REFERENCES users(id) ON DELETE CASCADE,
     day DATE NOT NULL,
@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS user_daily_trend (
     UNIQUE (user_id, day)
 );
 
-CREATE TABLE IF NOT EXISTS user_weekly_trend (
+CREATE TABLE IF NOT EXISTS user_weekly_trends (
 	id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID REFERENCES users(id) ON DELETE CASCADE,
     week_start DATE NOT NULL,

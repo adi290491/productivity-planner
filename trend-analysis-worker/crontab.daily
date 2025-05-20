@@ -1,0 +1,1 @@
+0 0 * * * /app/daily-trend >> /var/log/cron.log 2>&1

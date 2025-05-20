@@ -1,0 +1,1 @@
+0 1 * * 1 /app/weekly-job >> /var/log/cron.log 2>&1

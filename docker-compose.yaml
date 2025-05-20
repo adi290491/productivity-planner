@@ -89,6 +89,18 @@ services:
       - gateway
     networks:
       - backend
+  
+  trend-workder:
+    build: ./trend-analysis-worker
+    depends_on:
+      postgres:
+        condition: service_healthy
+      restart: unless-stopped
+      networks:
+        - backend
+      env_file:
+        - ./.env        
+     
       
 volumes:
   pgdata:
