@@ -18,7 +18,7 @@ type AppConfig struct {
 func Load() *AppConfig {
 	return &AppConfig{
 		DSN:          os.Getenv("DB_DSN"),
-		Port:         os.Getenv("SUMMARY_SERVICE_PORT"),
+		Port:         os.Getenv("TREND_SERVICE_PORT"),
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 10 * time.Second,
 	}
