@@ -44,6 +44,19 @@ func ProxyToSummaryService(c *gin.Context) {
 	forward(c, url)
 }
 
+func ProxyToTrendService(c *gin.Context) {
+	summaryServiceUrl := os.Getenv("TREND_SERVICE_URL")
+
+	url := fmt.Sprintf("%s%s?%s", summaryServiceUrl, c.Request.URL.Path, c.Request.URL.RawQuery)
+	log.Println("Trend Service URL:", url)
+
+	if userId, ok := c.Get("userId"); ok {
+		c.Request.Header.Set("X-USER-ID", fmt.Sprintf("%s", userId))
+	}
+
+	forward(c, url)
+}
+
 func forward(c *gin.Context, targetUrl string) {
 	reqBody, _ := io.ReadAll(c.Request.Body)
 

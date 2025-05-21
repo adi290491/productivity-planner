@@ -28,4 +28,11 @@ func RegisterRoutes(r *gin.Engine) {
 		summaryRouter.GET("/daily", proxy.ProxyToSummaryService)
 		summaryRouter.GET("/weekly", proxy.ProxyToSummaryService)
 	}
+
+	{
+		trendRouter := r.Group("/trend")
+		trendRouter.Use(middleware.JWTMiddleware())
+		trendRouter.GET("/daily", proxy.ProxyToTrendService)
+		trendRouter.GET("/weekly", proxy.ProxyToTrendService)
+	}
 }
