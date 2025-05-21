@@ -1,8 +1,11 @@
 package main
 
 import (
+	"fmt"
 	"log"
+	"net/http"
 	"productivity-planner/trend-service/trend"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -20,15 +23,15 @@ func NewHandler(svc *trend.TrendService) *Handler {
 func (h *Handler) GetDailyTrend(c *gin.Context) {
 
 	log.Println("Inside Get Daily Trend...")
-	// userId := strings.TrimSpace(c.GetHeader("X-USER-ID"))
-	// if userId == "" {
-	// 	HandleError(c, fmt.Errorf("user id is missing"), http.StatusUnauthorized)
-	// 	return
-	// }
+	userId := strings.TrimSpace(c.GetHeader("X-USER-ID"))
+	if userId == "" {
+		HandleError(c, fmt.Errorf("user id is missing"), http.StatusUnauthorized)
+		return
+	}
 
-	// queryDate := c.Query("date")
-	// log.Println("Query Date:", queryDate)
-	// summaryResponse, err := h.svc.GetDailySessionSummary(userId, queryDate)
+	days := c.Query("days")
+	log.Println("No of days:", days)
+	dailyTrendResponse, err := h.svc.FetchDailyTrend(userId, days)
 
 	// if err != nil && strings.Contains(err.Error(), "invalid date format") {
 	// 	HandleError(c, err, http.StatusBadRequest)
@@ -40,12 +43,12 @@ func (h *Handler) GetDailyTrend(c *gin.Context) {
 	// 	return
 	// }
 
-	// if err != nil {
-	// 	HandleError(c, err, http.StatusInternalServerError)
-	// 	return
-	// }
+	if err != nil {
+		HandleError(c, err, http.StatusInternalServerError)
+		return
+	}
 
-	// c.JSON(http.StatusOK, summaryResponse)
+	c.JSON(http.StatusOK, dailyTrendResponse)
 
 }
 

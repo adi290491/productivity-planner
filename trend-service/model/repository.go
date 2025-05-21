@@ -3,8 +3,8 @@ package models
 import "gorm.io/gorm"
 
 type Repository interface {
-	FetchDailyTrend(dailyTrendDao *UserDailyTrend) ([]UserDailyTrend, error)
-	FetchWeeklyTrend(dailyTrendDao *UserWeeklyTrend) ([]UserWeeklyTrend, error)
+	FetchDailyTrend(dailyTrendDao *DailyTrendDao) ([]UserDailyTrend, error)
+	FetchWeeklyTrend(dailyTrendDao *WeeklyTrendDao) ([]UserWeeklyTrend, error)
 }
 
 type PostgresRepository struct {
