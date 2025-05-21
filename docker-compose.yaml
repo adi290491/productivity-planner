@@ -67,6 +67,18 @@ services:
       - ./.env
     networks:
       - backend
+    
+  trend-service:
+    build: ./trend-service
+    ports:
+      - "${TREND_SERVICE_PORT}:${TREND_SERVICE_PORT}"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file:
+      - ./.env
+    networks:
+      - backend
 
   gateway:
     build: ./gateway
@@ -90,17 +102,30 @@ services:
     networks:
       - backend
   
-  trend-workder:
-    build: ./trend-analysis-worker
+  daily-trend-job:
+    build:
+      context: ./trend-analysis-worker
+      dockerfile: ./Dockerfile.daily
+    container_name: daily-trend-job
+    env_file:
+      - .env
     depends_on:
-      postgres:
-        condition: service_healthy
-      restart: unless-stopped
-      networks:
-        - backend
-      env_file:
-        - ./.env        
-     
+      - postgres
+    networks:
+      - backend
+
+  weekly-trend-job:
+    build:
+      context: ./trend-analysis-worker
+      dockerfile: ./Dockerfile.weekly
+    container_name: weekly-trend-job
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+    networks:
+      - backend 
+    
       
 volumes:
   pgdata:
