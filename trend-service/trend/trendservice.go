@@ -25,12 +25,12 @@ func (t *TrendService) FetchDailyTrend(userId string, days string) (*DailyTrendR
 	noOfDays, ok := utils.ValidateDays(days)
 
 	if !ok {
-		return nil, errors.New("invalid value for 'days'. Required integer")
+		return nil, errors.New("invalid value for 'days'. A positive integer is required")
 	}
 
 	dailyTrendDao := &models.DailyTrendDao{
-		UserId:   userId,
-		NoOfDays: time.Now().AddDate(0, 0, -noOfDays),
+		UserId:       userId,
+		LookbackDays: time.Now().AddDate(0, 0, -noOfDays),
 	}
 
 	userDailyTrend, err := t.repo.FetchDailyTrend(dailyTrendDao)
@@ -39,7 +39,7 @@ func (t *TrendService) FetchDailyTrend(userId string, days string) (*DailyTrendR
 		return nil, err
 	}
 
-	dailyTrendResponse := MapModelToResponse(userDailyTrend)
+	dailyTrendResponse := MapModelToResponse(userDailyTrend, userId)
 
 	log.Println("Session Summary:", dailyTrendResponse)
 

@@ -14,11 +14,11 @@ func (p *PostgresRepository) FetchDailyTrend(dailyTrendDao *DailyTrendDao) ([]Us
 	var userDailyTrend []UserDailyTrend
 
 	err := p.DB.WithContext(ctx).
-		Where("user_id = ? AND day between ? AND CURRENT_DATE", dailyTrendDao.UserId, dailyTrendDao.NoOfDays).
+		Where("user_id = ? AND day between ? AND CURRENT_DATE", dailyTrendDao.UserId, dailyTrendDao.LookbackDays).
 		Find(&userDailyTrend).Error
 
 	if len(userDailyTrend) == 0 {
-		return nil, fmt.Errorf("no daily trends found for the last %v days", dailyTrendDao.NoOfDays)
+		return nil, fmt.Errorf("no daily trends found for the last %v days", dailyTrendDao.LookbackDays)
 	}
 
 	if err != nil {
