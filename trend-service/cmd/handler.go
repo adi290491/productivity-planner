@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"productivity-planner/trend-service/trend"
 
 	"github.com/gin-gonic/gin"
@@ -18,6 +19,7 @@ func NewHandler(svc *trend.TrendService) *Handler {
 
 func (h *Handler) GetDailyTrend(c *gin.Context) {
 
+	log.Println("Inside Get Daily Trend...")
 	// userId := strings.TrimSpace(c.GetHeader("X-USER-ID"))
 	// if userId == "" {
 	// 	HandleError(c, fmt.Errorf("user id is missing"), http.StatusUnauthorized)
@@ -48,7 +50,7 @@ func (h *Handler) GetDailyTrend(c *gin.Context) {
 }
 
 func (h *Handler) GetWeeklyTrend(c *gin.Context) {
-
+	log.Println("Inside Get Weekly Trend...")
 	// userId := strings.TrimSpace(c.GetHeader("X-USER-ID"))
 	// if userId == "" {
 	// 	HandleError(c, fmt.Errorf("user id is missing"), http.StatusUnauthorized)
