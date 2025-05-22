@@ -1,7 +1,6 @@
 package trend
 
 import (
-	"errors"
 	"log"
 	models "productivity-planner/trend-service/model"
 	"productivity-planner/trend-service/utils"
@@ -22,11 +21,12 @@ func (t *TrendService) FetchDailyTrend(userId string, days string) (*DailyTrendR
 
 	var noOfDays int
 
-	noOfDays, ok := utils.ValidateDays(days)
+	noOfDays, err := utils.ValidateDays(days)
 
-	if !ok {
-		return nil, errors.New("invalid value for 'days'. A positive integer is required")
+	if err != nil {
+		return nil, err
 	}
+	log.Println("No of days:", noOfDays)
 
 	dailyTrendDao := &models.DailyTrendDao{
 		UserId:       userId,
@@ -41,7 +41,33 @@ func (t *TrendService) FetchDailyTrend(userId string, days string) (*DailyTrendR
 
 	dailyTrendResponse := MapModelToResponse(userDailyTrend, userId)
 
-	log.Println("Session Summary:", dailyTrendResponse)
-
 	return dailyTrendResponse, nil
+}
+
+func (t *TrendService) FetchWeeklyTrend(userId string, weeks string) (*WeeklyTrendResponse, error) {
+
+	var noOfWeeks int
+
+	noOfWeeks, err := utils.ValidateDays(weeks)
+
+	if err != nil {
+		return nil, err
+	}
+
+	log.Println("No of weeks:", noOfWeeks)
+
+	weeklyTrendDao := &models.WeeklyTrendDao{
+		UserId:        userId,
+		LookbackWeeks: time.Now().AddDate(0, 0, -noOfWeeks*7),
+	}
+
+	userWeeklyTrend, err := t.repo.FetchWeeklyTrend(weeklyTrendDao)
+
+	if err != nil {
+		return nil, err
+	}
+
+	weeklyTrendResponse := MapWeeklyModelToResponse(userWeeklyTrend, userId)
+
+	return weeklyTrendResponse, nil
 }

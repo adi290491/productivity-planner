@@ -3,8 +3,6 @@ package trend
 import (
 	"fmt"
 	"strings"
-
-	"github.com/google/uuid"
 )
 
 type DailyTrendResponse struct {
@@ -19,7 +17,7 @@ type DailyTrend struct {
 }
 
 type WeeklyTrendResponse struct {
-	UserId       uuid.UUID     `json:"user_id"`
+	UserId       string        `json:"user_id"`
 	WeeklyTrends []WeeklyTrend `json:"weekly_trends"`
 }
 

@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"productivity-planner/trend-service/trend"
+	"productivity-planner/trend-service/utils"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -29,19 +30,9 @@ func (h *Handler) GetDailyTrend(c *gin.Context) {
 		return
 	}
 
-	days := c.Query("days")
+	days := c.DefaultQuery("days", utils.DEFAULT_DAYS)
 	log.Println("No of days:", days)
 	dailyTrendResponse, err := h.svc.FetchDailyTrend(userId, days)
-
-	// if err != nil && strings.Contains(err.Error(), "invalid date format") {
-	// 	HandleError(c, err, http.StatusBadRequest)
-	// 	return
-	// }
-	// log.Println("Summary Response: ", summaryResponse)
-	// if err != nil && strings.Contains(err.Error(), "no sessions found for the given day") {
-	// 	HandleError(c, fmt.Errorf("no sessions found for user: %s on date: %s", userId, queryDate), http.StatusNotFound)
-	// 	return
-	// }
 
 	if err != nil {
 		HandleError(c, err, http.StatusInternalServerError)
@@ -54,31 +45,21 @@ func (h *Handler) GetDailyTrend(c *gin.Context) {
 
 func (h *Handler) GetWeeklyTrend(c *gin.Context) {
 	log.Println("Inside Get Weekly Trend...")
-	// userId := strings.TrimSpace(c.GetHeader("X-USER-ID"))
-	// if userId == "" {
-	// 	HandleError(c, fmt.Errorf("user id is missing"), http.StatusUnauthorized)
-	// 	return
-	// }
+	userId := strings.TrimSpace(c.GetHeader("X-USER-ID"))
+	if userId == "" {
+		HandleError(c, fmt.Errorf("user id is missing"), http.StatusUnauthorized)
+		return
+	}
 
-	// start := c.Query("start_date")
+	weeks := c.DefaultQuery("weeks", utils.DEFAULT_WEEKS)
 
-	// summaryResponse, err := h.svc.GetWeeklySessionSummary(userId, start)
+	weelyTrendResponse, err := h.svc.FetchWeeklyTrend(userId, weeks)
 
-	// if err != nil && strings.Contains(err.Error(), "invalid date format") {
-	// 	HandleError(c, err, http.StatusBadRequest)
-	// 	return
-	// }
+	if err != nil {
+		HandleError(c, err, http.StatusInternalServerError)
+		return
+	}
 
-	// if err != nil && strings.Contains(err.Error(), "no sessions found") {
-	// 	HandleError(c, fmt.Errorf("no sessions found for user: %s", userId), http.StatusNotFound)
-	// 	return
-	// }
-
-	// if err != nil {
-	// 	HandleError(c, err, http.StatusInternalServerError)
-	// 	return
-	// }
-
-	// c.JSON(http.StatusOK, summaryResponse)
+	c.JSON(http.StatusOK, weelyTrendResponse)
 
 }

@@ -27,6 +27,23 @@ func (p *PostgresRepository) FetchDailyTrend(dailyTrendDao *DailyTrendDao) ([]Us
 	return userDailyTrend, nil
 }
 
-func (p *PostgresRepository) FetchWeeklyTrend(dailyTrendDao *WeeklyTrendDao) ([]UserWeeklyTrend, error) {
-	return nil, nil
+func (p *PostgresRepository) FetchWeeklyTrend(weeklyTrendDao *WeeklyTrendDao) ([]UserWeeklyTrend, error) {
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	var userWeeklyTrend []UserWeeklyTrend
+
+	err := p.DB.WithContext(ctx).
+		Where("user_id = ? AND week_start between ? AND CURRENT_DATE", weeklyTrendDao.UserId, weeklyTrendDao.LookbackWeeks).
+		Find(&userWeeklyTrend).Error
+
+	if len(userWeeklyTrend) == 0 {
+		return nil, fmt.Errorf("no weekly trends found for the last %v weeks", weeklyTrendDao.LookbackWeeks)
+	}
+
+	if err != nil {
+		return nil, err
+	}
+	return userWeeklyTrend, nil
 }

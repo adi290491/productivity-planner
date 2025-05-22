@@ -35,8 +35,8 @@ type UserWeeklyTrend struct {
 }
 
 type WeeklyTrendDao struct {
-	UserId   string
-	NoOfDays string
+	UserId        string
+	LookbackWeeks time.Time
 }
 
 func (u UserDailyTrend) String() string {
@@ -63,6 +63,6 @@ func (u UserWeeklyTrend) String() string {
 func (w WeeklyTrendDao) String() string {
 	return fmt.Sprintf(
 		"WeeklyTrendDao{UserId: %s, NoOfDays: %s}",
-		w.UserId, w.NoOfDays,
+		w.UserId, w.LookbackWeeks.Format(time.RFC3339),
 	)
 }

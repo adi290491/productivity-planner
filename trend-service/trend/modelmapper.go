@@ -43,17 +43,54 @@ func MapModelToResponse(dailyUserTrend []models.UserDailyTrend, userId string) *
 	return dailyTrendResponse
 }
 
-/*
- Model object:
- [UserDailyTrend
- {Id: 0ee1d2fc-f645-4460-b881-743c1d1a78ed,
- UserId: b6ac7789-2453-47c2-b4d8-6371d07b4450,
-  Day: 2025-05-20T00:00:00Z,
-  FocusMinutes: 300.00,
-   MeetingMinutes: 0.00,
-   BreakMinutes: 150.00,
-   CreatedAt: 2025-05-20T05:16:00Z,
-    UpdatedAt: 2025-05-20T05:49:00Z
+func MapWeeklyModelToResponse(weeklyUserTrend []models.UserWeeklyTrend, userId string) *WeeklyTrendResponse {
+
+	log.Println("Model object:", weeklyUserTrend)
+
+	if len(weeklyUserTrend) == 0 {
+		return &WeeklyTrendResponse{
+			UserId:       userId,
+			WeeklyTrends: []WeeklyTrend{},
+		}
 	}
-	 UserDailyTrend{Id: 10e7244b-acce-49ee-ada5-524aa829ed69, UserId: b6ac7789-2453-47c2-b4d8-6371d07b4450, Day: 2025-05-21T00:00:00Z, FocusMinutes: 0.00, MeetingMinutes: 30.00, BreakMinutes: 0.00, CreatedAt: 2025-05-21T00:00:00Z, UpdatedAt: 2025-05-21T00:00:00Z}]
-*/
+
+	/*Format:
+		{
+	  "user_id": "uuid",
+	  "weeks": [
+	    {
+	      "week_start": "2025-05-06",
+	      "total_time": "12h30m",
+	      "breakdown": {
+	        "focus": "8h",
+	        "meeting": "2h",
+	        "break": "2h30m"
+	      }
+	    },
+	    ...
+	  ]
+	}
+	*/
+	weeklyTrends := make([]WeeklyTrend, 0)
+	for _, trend := range weeklyUserTrend {
+		weeklyTrends = append(weeklyTrends, WeeklyTrend{
+			WeekStart: trend.WeekStart.Format("2006-01-02"),
+			TotalTime: utils.FormatTimeToHrMin(trend.FocusMinutes + trend.MeetingMinutes + trend.BreakMinutes),
+			Breakdown: map[string]string{
+				"focus":   utils.FormatTimeToHrMin(trend.FocusMinutes),
+				"meeting": utils.FormatTimeToHrMin(trend.MeetingMinutes),
+				"break":   utils.FormatTimeToHrMin(trend.BreakMinutes),
+			},
+		})
+	}
+	// Sort the weekly trends by week start date in ascending order
+	sort.Slice(weeklyTrends, func(i, j int) bool {
+		return weeklyTrends[i].WeekStart < weeklyTrends[j].WeekStart
+	})
+
+	weeklyTrendsResponse := &WeeklyTrendResponse{
+		UserId:       userId,
+		WeeklyTrends: weeklyTrends,
+	}
+	return weeklyTrendsResponse
+}
