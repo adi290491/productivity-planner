@@ -54,23 +54,6 @@ func MapWeeklyModelToResponse(weeklyUserTrend []models.UserWeeklyTrend, userId s
 		}
 	}
 
-	/*Format:
-		{
-	  "user_id": "uuid",
-	  "weeks": [
-	    {
-	      "week_start": "2025-05-06",
-	      "total_time": "12h30m",
-	      "breakdown": {
-	        "focus": "8h",
-	        "meeting": "2h",
-	        "break": "2h30m"
-	      }
-	    },
-	    ...
-	  ]
-	}
-	*/
 	weeklyTrends := make([]WeeklyTrend, 0)
 	for _, trend := range weeklyUserTrend {
 		weeklyTrends = append(weeklyTrends, WeeklyTrend{

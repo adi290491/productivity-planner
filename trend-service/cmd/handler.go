@@ -15,12 +15,6 @@ type Handler struct {
 	svc *trend.TrendService
 }
 
-func NewHandler(svc *trend.TrendService) *Handler {
-	return &Handler{
-		svc: svc,
-	}
-}
-
 func (h *Handler) GetDailyTrend(c *gin.Context) {
 
 	log.Println("Inside Get Daily Trend...")

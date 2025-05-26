@@ -8,12 +8,12 @@ import (
 )
 
 type TrendService struct {
-	repo models.Repository
+	Repo models.Repository
 }
 
 func NewTrendService(repo models.Repository) *TrendService {
 	return &TrendService{
-		repo: repo,
+		Repo: repo,
 	}
 }
 
@@ -33,7 +33,7 @@ func (t *TrendService) FetchDailyTrend(userId string, days string) (*DailyTrendR
 		LookbackDays: time.Now().AddDate(0, 0, -noOfDays),
 	}
 
-	userDailyTrend, err := t.repo.FetchDailyTrend(dailyTrendDao)
+	userDailyTrend, err := t.Repo.FetchDailyTrend(dailyTrendDao)
 
 	if err != nil {
 		return nil, err
@@ -61,7 +61,7 @@ func (t *TrendService) FetchWeeklyTrend(userId string, weeks string) (*WeeklyTre
 		LookbackWeeks: time.Now().AddDate(0, 0, -noOfWeeks*7),
 	}
 
-	userWeeklyTrend, err := t.repo.FetchWeeklyTrend(weeklyTrendDao)
+	userWeeklyTrend, err := t.Repo.FetchWeeklyTrend(weeklyTrendDao)
 
 	if err != nil {
 		return nil, err

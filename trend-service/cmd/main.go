@@ -22,8 +22,10 @@ func main() {
 
 	router := gin.Default()
 
-	svc := trend.NewTrendService(models.NewPostgresRepository(appConfig.DB))
-	handler := NewHandler(svc)
+	svc := trend.NewTrendService(&models.PostgresRepository{
+		DB: appConfig.DB,
+	})
+	handler := &Handler{svc: svc}
 
 	RegisterEndpoints(router, handler)
 
