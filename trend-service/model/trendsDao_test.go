@@ -160,8 +160,14 @@ func Test_FetchDailyTrend(t *testing.T) {
 	if len(result) != 2 {
 		t.Errorf("expected 2 records, got %d", len(result))
 	}
-}
 
+	// Validate that all returned records belong to the requested user
+	for _, trend := range result {
+		if trend.UserId.String() != dao.UserId {
+			t.Errorf("expected UserId %s, got %s", dao.UserId, trend.UserId.String())
+		}
+	}
+}
 func Test_FetchWeeklyTrend(t *testing.T) {
 	dao := &WeeklyTrendDao{
 		UserId:        "11111111-1111-1111-1111-111111111111",
@@ -175,5 +181,12 @@ func Test_FetchWeeklyTrend(t *testing.T) {
 
 	if len(result) != 2 {
 		t.Errorf("expected 2 records, got %d", len(result))
+	}
+
+	// Validate that all returned records belong to the requested user
+	for _, trend := range result {
+		if trend.UserId.String() != dao.UserId {
+			t.Errorf("expected UserId %s, got %s", dao.UserId, trend.UserId.String())
+		}
 	}
 }
