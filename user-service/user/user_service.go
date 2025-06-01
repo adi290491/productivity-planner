@@ -2,7 +2,6 @@ package user
 
 import (
 	"fmt"
-	"log"
 	"productivity-planner/user-service/models"
 	"productivity-planner/user-service/utils"
 
@@ -21,9 +20,8 @@ func NewUserService(repo models.Repository) *UserService {
 
 func (u *UserService) Signup(userDto SignupDTO) (*models.User, error) {
 	hashedPassword, err := utils.HashPassword(userDto.Password)
-
 	if err != nil {
-		log.Panic(err)
+		return nil, fmt.Errorf("hashing password failed: %w", err)
 	}
 
 	user := &models.User{

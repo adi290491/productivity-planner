@@ -25,6 +25,7 @@ func (h *Handler) Signup(c *gin.Context) {
 
 	if err != nil {
 		HandleError(c, err, 500)
+		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
@@ -48,12 +49,14 @@ func (h *Handler) Login(c *gin.Context) {
 
 	if err != nil {
 		HandleError(c, err, 400)
+		return
 	}
 
 	token, err := h.JwtUtil.GenerateToken(user)
 
 	if err != nil {
 		HandleError(c, err, 500)
+		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{"token": token})
