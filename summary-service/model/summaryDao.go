@@ -4,7 +4,13 @@ import (
 	"context"
 	"fmt"
 	"time"
+
+	"gorm.io/gorm"
 )
+
+type PostgresRepository struct {
+	DB *gorm.DB
+}
 
 func (p *PostgresRepository) FindAllSessionsBetweenDates(summaryDao *Summary) ([]Session, error) {
 
