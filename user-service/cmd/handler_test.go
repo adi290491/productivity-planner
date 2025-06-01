@@ -117,9 +117,15 @@ func TestLoginHandler(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			jsonBody, _ := json.Marshal(tc.body)
+			jsonBody, err := json.Marshal(tc.body)
+			if err != nil {
+				t.Fatalf("Failed to marshal test body: %v", err)
+			}
 
-			req, _ := http.NewRequest("POST", "/users/login", bytes.NewBuffer(jsonBody))
+			req, err := http.NewRequest("POST", "/users/login", bytes.NewBuffer(jsonBody))
+			if err != nil {
+				t.Fatalf("Failed to create request: %v", err)
+			}
 			req.Header.Set("Content-Type", "application/json")
 
 			w := httptest.NewRecorder()
