@@ -3,6 +3,8 @@ package user
 import (
 	"productivity-planner/user-service/models"
 	"testing"
+
+	"github.com/google/uuid"
 )
 
 func TestUserService_Signup(t *testing.T) {
@@ -21,6 +23,12 @@ func TestUserService_Signup(t *testing.T) {
 
 	if u.Email != dto.Email {
 		t.Errorf("expected email %s, got %s", dto.Email, u.Email)
+	}
+	if u.Name != dto.Name {
+		t.Errorf("expected name %s, got %s", dto.Name, u.Name)
+	}
+	if u.ID == uuid.Nil {
+		t.Error("expected non-zero user ID")
 	}
 }
 
@@ -53,5 +61,19 @@ func TestUserService_Login_InvalidPassword(t *testing.T) {
 	_, err := svc.Login(dto)
 	if err == nil {
 		t.Fatal("expected error for invalid password, got nil")
+	}
+}
+
+func TestUserService_Login_UserNotFound(t *testing.T) {
+	svc := &UserService{Repo: &models.TestDBRepo{}}
+
+	dto := LoginRequest{
+		Email:    "nonexistent@example.com",
+		Password: "1234",
+	}
+
+	_, err := svc.Login(dto)
+	if err == nil {
+		t.Fatal("expected error for non-existent user, got nil")
 	}
 }

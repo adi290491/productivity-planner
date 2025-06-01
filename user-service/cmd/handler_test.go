@@ -51,9 +51,15 @@ func TestSignupHandler(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		jsonBody, _ := json.Marshal(tc.body)
+		jsonBody, err := json.Marshal(tc.body)
+		if err != nil {
+			t.Fatalf("Failed to marshal test body: %v", err)
+		}
 
-		req, _ := http.NewRequest("POST", "/users/signup", bytes.NewBuffer(jsonBody))
+		req, err := http.NewRequest("POST", "/users/signup", bytes.NewBuffer(jsonBody))
+		if err != nil {
+			t.Fatalf("Failed to create request: %v", err)
+		}
 		req.Header.Set("Content-Type", "application/json")
 
 		w := httptest.NewRecorder()
