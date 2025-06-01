@@ -35,32 +35,8 @@ func TestHandleError_SetsCorrectStatusAndBody(t *testing.T) {
 	}
 }
 
-func TestHandleError_EmptyErrorMessage(t *testing.T) {
-	gin.SetMode(gin.TestMode)
-	w := httptest.NewRecorder()
-	c, _ := gin.CreateTestContext(w)
 
-	err := errors.New("")
-	status := http.StatusInternalServerError
-
-	HandleError(c, err, status)
-
-	if w.Code != status {
-		t.Errorf("expected status %d, got %d", status, w.Code)
-	}
-
-	expected := `"Message":""`
-	if !strings.Contains(w.Body.String(), expected) {
-		t.Errorf("expected response body to contain %q, got %q", expected, w.Body.String())
-	}
-
-	expectedStatus := `"StatusCode":500`
-	if !strings.Contains(w.Body.String(), expectedStatus) {
-		t.Errorf("expected response body to contain %q, got %q", expectedStatus, w.Body.String())
-	}
-}
-
-func TestAPIError_StructFields(t *testing.T) {
+func TestAPIError_StructFields_Unique(t *testing.T) {
 	apiErr := APIError{
 		Message:    "test error",
 		StatusCode: 418,

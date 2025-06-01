@@ -18,9 +18,7 @@ func TestMain(m *testing.M) {
 	router := gin.New()
 	appConfig = config.Load()
 
-	svc := trend.NewTrendService(&models.TestDBRepo{
-		DB: appConfig.DB,
-	})
+	svc := trend.NewTrendService(&models.TestDBRepo{})
 
 	handler := &Handler{svc: svc}
 
