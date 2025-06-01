@@ -9,6 +9,7 @@ import (
 	"productivity-planner/user-service/config"
 	"productivity-planner/user-service/models"
 	"productivity-planner/user-service/user"
+	"productivity-planner/user-service/utils"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -29,8 +30,14 @@ func main() {
 
 	server := gin.Default()
 
-	svc := user.NewUserService(models.NewPostgresRepository(appConfig.DB))
-	handler := NewHandler(svc, appConfig.JWT_SECRET)
+	svc := user.NewUserService(&models.PostgresRepository{
+		DB: appConfig.DB,
+	})
+	handler := &Handler{Svc: svc,
+		JwtUtil: utils.JWTUtil{
+			Secret: []byte(appConfig.JWT_SECRET),
+		},
+	}
 
 	RegisterEndpoints(server, handler)
 

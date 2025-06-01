@@ -9,15 +9,8 @@ import (
 )
 
 type Handler struct {
-	svc     *user.UserService
-	jwtUtil utils.JWTUtil
-}
-
-func NewHandler(svc *user.UserService, jwtSecret string) *Handler {
-	return &Handler{
-		svc:     svc,
-		jwtUtil: utils.JWTUtil{Secret: []byte(jwtSecret)},
-	}
+	Svc     *user.UserService
+	JwtUtil utils.JWTUtil
 }
 
 func (h *Handler) Signup(c *gin.Context) {
@@ -28,7 +21,7 @@ func (h *Handler) Signup(c *gin.Context) {
 		return
 	}
 
-	user, err := h.svc.Signup(req)
+	user, err := h.Svc.Signup(req)
 
 	if err != nil {
 		HandleError(c, err, 500)
@@ -51,13 +44,13 @@ func (h *Handler) Login(c *gin.Context) {
 		return
 	}
 
-	user, err := h.svc.Login(req)
+	user, err := h.Svc.Login(req)
 
 	if err != nil {
 		HandleError(c, err, 400)
 	}
 
-	token, err := h.jwtUtil.GenerateToken(user)
+	token, err := h.JwtUtil.GenerateToken(user)
 
 	if err != nil {
 		HandleError(c, err, 500)

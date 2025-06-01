@@ -10,13 +10,12 @@ import (
 )
 
 type UserService struct {
-	repo    models.Repository
-
+	Repo models.Repository
 }
 
 func NewUserService(repo models.Repository) *UserService {
 	return &UserService{
-		repo:    repo,
+		Repo: repo,
 	}
 }
 
@@ -34,7 +33,7 @@ func (u *UserService) Signup(userDto SignupDTO) (*models.User, error) {
 		Name:         userDto.Name,
 	}
 
-	response, err := u.repo.Create(user)
+	response, err := u.Repo.CreateUser(user)
 
 	if err != nil {
 		return nil, fmt.Errorf("user creation failed: %v", err)
@@ -49,7 +48,7 @@ func (u *UserService) Login(loginDto LoginRequest) (*models.User, error) {
 		Email: loginDto.Email,
 	}
 
-	userEntity, err := u.repo.FetchUser(userDao)
+	userEntity, err := u.Repo.GetUser(userDao)
 
 	if err != nil {
 		return nil, err

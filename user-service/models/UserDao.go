@@ -9,7 +9,11 @@ import (
 	"gorm.io/gorm"
 )
 
-func (p *postgresRepository) Create(user *User) (*User, error) {
+type PostgresRepository struct {
+	DB *gorm.DB
+}
+
+func (p *PostgresRepository) CreateUser(user *User) (*User, error) {
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
@@ -23,7 +27,7 @@ func (p *postgresRepository) Create(user *User) (*User, error) {
 	return user, nil
 }
 
-func (p *postgresRepository) FetchUser(userDao *User) (*User, error) {
+func (p *PostgresRepository) GetUser(userDao *User) (*User, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
@@ -31,7 +35,7 @@ func (p *postgresRepository) FetchUser(userDao *User) (*User, error) {
 	result := p.DB.WithContext(ctx).First(&user, "email = ?", userDao.Email)
 
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-		return nil, fmt.Errorf("user not found: %v", result.Error)
+		return nil, gorm.ErrRecordNotFound
 	}
 
 	if result.Error != nil {
