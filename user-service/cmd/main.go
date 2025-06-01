@@ -30,9 +30,11 @@ func main() {
 
 	server := gin.Default()
 
-	svc := user.NewUserService(&models.PostgresRepository{
-		DB: appConfig.DB,
-	})
+	svc := &user.UserService{
+		Repo: &models.PostgresRepository{
+			DB: appConfig.DB,
+		},
+	}
 	handler := &Handler{Svc: svc,
 		JwtUtil: utils.JWTUtil{
 			Secret: []byte(appConfig.JWT_SECRET),

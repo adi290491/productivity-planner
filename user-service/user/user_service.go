@@ -12,12 +12,6 @@ type UserService struct {
 	Repo models.Repository
 }
 
-func NewUserService(repo models.Repository) *UserService {
-	return &UserService{
-		Repo: repo,
-	}
-}
-
 func (u *UserService) Signup(userDto SignupDTO) (*models.User, error) {
 	hashedPassword, err := utils.HashPassword(userDto.Password)
 	if err != nil {

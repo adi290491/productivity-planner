@@ -9,7 +9,7 @@ import (
 )
 
 type Handler struct {
-	Svc     *user.UserService
+	Svc     user.UserServiceInterface
 	JwtUtil utils.JWTUtil
 }
 
