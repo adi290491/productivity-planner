@@ -1,4 +1,4 @@
-package repository
+package main
 
 import (
 	"log"
@@ -8,8 +8,6 @@ import (
 	"gorm.io/gorm"
 )
 
-var db *gorm.DB
-
 func InitDB(appConfig *config.AppConfig) {
 
 	db, err := gorm.Open(pg.Open(appConfig.DSN), &gorm.Config{})
@@ -18,6 +16,6 @@ func InitDB(appConfig *config.AppConfig) {
 		log.Fatalf("database connection error: %v", err)
 	}
 
-	log.Printf("Database connection successful. %v", db)
+	log.Printf("Database connection successful")
 	appConfig.DB = db
 }

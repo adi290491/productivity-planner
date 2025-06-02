@@ -1,4 +1,4 @@
-package controller
+package main
 
 import (
 	"fmt"
@@ -10,13 +10,7 @@ import (
 )
 
 type Handler struct {
-	svc *session.SessionService
-}
-
-func NewHandler(svc *session.SessionService) *Handler {
-	return &Handler{
-		svc: svc,
-	}
+	Svc session.SessionServiceInterface
 }
 
 func (h *Handler) StartSession(c *gin.Context) {
@@ -42,7 +36,7 @@ func (h *Handler) StartSession(c *gin.Context) {
 	}
 
 	// save the object
-	sessionResponse, err := h.svc.StartSession(sessionRequest, userId)
+	sessionResponse, err := h.Svc.StartSession(sessionRequest, userId)
 
 	if err != nil {
 		HandleError(c, err, http.StatusInternalServerError)
@@ -73,7 +67,7 @@ func (h *Handler) StopSession(c *gin.Context) {
 	}
 
 	// save the object
-	sessionResponse, err := h.svc.StopSession(sessionRequest, userId)
+	sessionResponse, err := h.Svc.StopSession(sessionRequest, userId)
 
 	if err != nil {
 		HandleError(c, err, http.StatusInternalServerError)

@@ -9,13 +9,7 @@ import (
 )
 
 type SessionService struct {
-	repo models.Repository
-}
-
-func NewSessionService(repo models.Repository) *SessionService {
-	return &SessionService{
-		repo: repo,
-	}
+	Repo models.Repository
 }
 
 func (s *SessionService) StartSession(sessionDto SessionRequest, userID string) (*SessionResponse, error) {
@@ -34,7 +28,7 @@ func (s *SessionService) StartSession(sessionDto SessionRequest, userID string) 
 		EndTime:     nil,
 	}
 
-	resp, err := s.repo.CreateSession(session)
+	resp, err := s.Repo.CreateSession(session)
 
 	if err != nil {
 		return nil, fmt.Errorf("session creation error: %w", err)
@@ -69,7 +63,7 @@ func (s *SessionService) StopSession(sessionDto SessionRequest, userID string) (
 		EndTime:     endTimePtr,
 	}
 
-	resp, err := s.repo.StopSession(session)
+	resp, err := s.Repo.StopSession(session)
 
 	if err != nil {
 		return nil, fmt.Errorf("error while ending session: %w", err)

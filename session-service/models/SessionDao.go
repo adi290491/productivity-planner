@@ -9,7 +9,11 @@ import (
 	"gorm.io/gorm"
 )
 
-func (p *postgresRepository) CreateSession(sessionDao *Session) (*Session, error) {
+type PostgresRepository struct {
+	DB *gorm.DB
+}
+
+func (p *PostgresRepository) CreateSession(sessionDao *Session) (*Session, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
@@ -36,7 +40,7 @@ func (p *postgresRepository) CreateSession(sessionDao *Session) (*Session, error
 	return nil, fmt.Errorf("error checking for active session: %w", err)
 }
 
-func (p *postgresRepository) StopSession(sessionDao *Session) (*Session, error) {
+func (p *PostgresRepository) StopSession(sessionDao *Session) (*Session, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 

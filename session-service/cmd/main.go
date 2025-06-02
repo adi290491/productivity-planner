@@ -7,9 +7,7 @@ import (
 	"os"
 	"os/signal"
 	"productivity-planner/task-service/config"
-	"productivity-planner/task-service/controller"
 	"productivity-planner/task-service/models"
-	"productivity-planner/task-service/repository"
 	"productivity-planner/task-service/session"
 	"time"
 
@@ -27,14 +25,19 @@ func main() {
 
 	appConfig := config.Load()
 
-	repository.InitDB(appConfig)
+	InitDB(appConfig)
 
 	server := gin.Default()
 
-	svc := session.NewSessionService(models.NewPostgresRepository(appConfig.DB))
-	handler := controller.NewHandler(svc)
+	svc := &session.SessionService{
+		Repo: &models.PostgresRepository{
+			DB: appConfig.DB,
+		},
+	}
 
-	controller.RegisterEndpoints(server, handler)
+	handler := Handler{Svc: svc}
+
+	RegisterEndpoints(server, &handler)
 
 	s := &http.Server{
 		Addr:         ":" + appConfig.Port,
