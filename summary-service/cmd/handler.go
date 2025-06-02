@@ -11,13 +11,7 @@ import (
 )
 
 type Handler struct {
-	svc *summary.SummaryService
-}
-
-func NewHandler(svc *summary.SummaryService) *Handler {
-	return &Handler{
-		svc: svc,
-	}
+	Svc summary.SummaryServiceInterface
 }
 
 func (h *Handler) GetDailySummary(c *gin.Context) {
@@ -30,7 +24,7 @@ func (h *Handler) GetDailySummary(c *gin.Context) {
 
 	queryDate := c.Query("date")
 	log.Println("Query Date:", queryDate)
-	summaryResponse, err := h.svc.GetDailySessionSummary(userId, queryDate)
+	summaryResponse, err := h.Svc.GetDailySessionSummary(userId, queryDate)
 
 	if err != nil && strings.Contains(err.Error(), "invalid date format") {
 		HandleError(c, err, http.StatusBadRequest)
@@ -61,7 +55,7 @@ func (h *Handler) GetWeeklySummary(c *gin.Context) {
 
 	start := c.Query("start_date")
 
-	summaryResponse, err := h.svc.GetWeeklySessionSummary(userId, start)
+	summaryResponse, err := h.Svc.GetWeeklySessionSummary(userId, start)
 
 	if err != nil && strings.Contains(err.Error(), "invalid date format") {
 		HandleError(c, err, http.StatusBadRequest)

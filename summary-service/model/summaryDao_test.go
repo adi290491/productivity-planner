@@ -123,8 +123,7 @@ func TestMain(m *testing.M) {
 func createTables() error {
 	tableSQL, err := os.ReadFile("./testdata/summary.sql")
 	if err != nil {
-		fmt.Println("error reading summary.sql: %w", err)
-		return err
+		return fmt.Errorf("error reading summary.sql: %w", err)
 	}
 
 	if err := db.Exec(string(tableSQL)).Error; err != nil {

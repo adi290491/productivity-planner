@@ -8,6 +8,7 @@ import (
 	"os/signal"
 	"productivity-planner/summary-service/config"
 	models "productivity-planner/summary-service/model"
+
 	"productivity-planner/summary-service/summary"
 	"time"
 
@@ -26,8 +27,14 @@ func main() {
 
 	router := gin.Default()
 
-	svc := summary.NewSummaryService(models.NewPostgresRepository(appConfig.DB))
-	handler := NewHandler(svc)
+	svc := &summary.SummaryService{
+		Repo: &models.PostgresRepository{
+			DB: appConfig.DB,
+		},
+	}
+	handler := &Handler{
+		Svc: svc,
+	}
 
 	RegisterEndpoints(router, handler)
 

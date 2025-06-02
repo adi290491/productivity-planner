@@ -7,13 +7,7 @@ import (
 )
 
 type SummaryService struct {
-	repo models.Repository
-}
-
-func NewSummaryService(repo models.Repository) *SummaryService {
-	return &SummaryService{
-		repo: repo,
-	}
+	Repo models.Repository
 }
 
 func (s *SummaryService) GetDailySessionSummary(userId string, date string) (*DailySessionSummary, error) {
@@ -25,15 +19,15 @@ func (s *SummaryService) GetDailySessionSummary(userId string, date string) (*Da
 	}
 
 	endDate := EndOfDayUTC(startDate)
-	log.Println("Dates you fucking gave me. Start Date", startDate, " end date", endDate)
+	log.Println("Processing dates. Start Date:", startDate, "End Date:", endDate)
 	summaryDao := &models.Summary{
 		UserId:    userId,
 		StartTime: startDate,
 		EndTime:   endDate,
 	}
 
-	log.Println("Repository:", s.repo)
-	sessions, err := s.repo.FindAllSessionsBetweenDates(summaryDao)
+	log.Println("Repository:", s.Repo)
+	sessions, err := s.Repo.FindAllSessionsBetweenDates(summaryDao)
 	if err != nil {
 		return nil, err
 	}
@@ -60,7 +54,7 @@ func (s *SummaryService) GetWeeklySessionSummary(userId string, start string) (*
 		EndTime:   endDate,
 	}
 
-	sessions, err := s.repo.FindAllSessionsBetweenDates(summaryDao)
+	sessions, err := s.Repo.FindAllSessionsBetweenDates(summaryDao)
 	if err != nil {
 		return nil, fmt.Errorf("no sessions found")
 	}

@@ -15,7 +15,7 @@ func (p *TestDBRepo) FindAllSessionsBetweenDates(summaryDao *Summary) ([]Session
 
 	return []Session{
 		{
-			ID:          uuid.MustParse("1"),
+			ID:          uuid.MustParse("11111111-1111-1111-1111-111111111111"),
 			UserId:      uuid.MustParse("11111111-1111-1111-1111-111111111111"),
 			SessionType: "focus",
 			StartTime:   time.Now().Add(-48 * time.Hour),
