@@ -3,6 +3,8 @@ package main
 import (
 	"os"
 	"productivity-planner/task-service/config"
+	"productivity-planner/task-service/models"
+	"productivity-planner/task-service/session"
 
 	"testing"
 
@@ -14,17 +16,17 @@ var router *gin.Engine
 
 func TestMain(m *testing.M) {
 
-	// gin.SetMode(gin.TestMode)
-	// router = gin.New()
+	gin.SetMode(gin.TestMode)
+	router = gin.New()
 	appConfig = config.Load()
 
-	// svc := &summary.MockSummaryService{
-	// 	Repo: &models.TestDBRepo{},
-	// }
+	svc := &session.MockSessionService{
+		Repo: &models.TestDBRepo{},
+	}
 
-	// handler := &Handler{Svc: svc}
+	handler := &Handler{Svc: svc}
 
-	// RegisterEndpoints(router, handler)
+	RegisterEndpoints(router, handler)
 
 	os.Exit(m.Run())
 }

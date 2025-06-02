@@ -1,7 +1,7 @@
 package session
 
 type SessionRequest struct {
-	SessionType SessionType `json:"type"`
+	SessionType SessionType `json:"session_type"`
 }
 
 type SessionResponse struct {
@@ -20,7 +20,7 @@ type SessionStatus string
 
 const (
 	STARTED SessionStatus = "started"
-	ENDED  SessionStatus = "ended"
+	ENDED   SessionStatus = "ended"
 )
 
 type SessionType string

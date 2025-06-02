@@ -16,3 +16,32 @@ CREATE TABLE IF NOT EXISTS sessions (
     end_time TIMESTAMP
 );
 
+-- User for CreateSession test
+INSERT INTO users (id, email, name, password_hash, created_at)
+VALUES (
+  'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+  'focususer@example.com',
+  'Focus User',
+  'hashed_password_1',
+  NOW()
+);
+
+-- User for StopSession test
+INSERT INTO users (id, email, name, password_hash, created_at)
+VALUES (
+  'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
+  'meetinguser@example.com',
+  'Meeting User',
+  'hashed_password_2',
+  NOW()
+);
+
+-- User for StopSession negative test
+INSERT INTO users (id, email, name, password_hash, created_at)
+VALUES (
+  'cccccccc-cccc-cccc-cccc-cccccccccccc',
+  'noactivesession@example.com',
+  'No Active',
+  'hashed_password_3',
+  NOW()
+);

@@ -43,8 +43,12 @@ func TestLoad(t *testing.T) {
 			//set env variables
 			for key, value := range tt.envVars {
 				os.Setenv(key, value)
-				defer os.Unsetenv(key) //clean up after test
 			}
+			defer func() {
+				for key := range tt.envVars {
+					os.Unsetenv(key)
+				}
+			}()
 
 			config := Load()
 

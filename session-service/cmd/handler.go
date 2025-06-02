@@ -40,6 +40,7 @@ func (h *Handler) StartSession(c *gin.Context) {
 
 	if err != nil {
 		HandleError(c, err, http.StatusInternalServerError)
+		return
 	}
 
 	c.JSON(http.StatusOK, sessionResponse)
