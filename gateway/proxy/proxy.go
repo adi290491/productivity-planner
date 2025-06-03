@@ -58,7 +58,13 @@ func ProxyToTrendService(c *gin.Context) {
 }
 
 func forward(c *gin.Context, targetUrl string) {
-	reqBody, _ := io.ReadAll(c.Request.Body)
+	var reqBody []byte
+	if c.Request.Body != nil {
+		reqBody, _ = io.ReadAll(c.Request.Body)
+		c.Request.Body = io.NopCloser(bytes.NewBuffer(reqBody))
+	} else {
+		reqBody = nil
+	}
 
 	req, err := http.NewRequest(c.Request.Method, targetUrl, bytes.NewReader(reqBody))
 
@@ -77,5 +83,11 @@ func forward(c *gin.Context, targetUrl string) {
 	}
 
 	defer resp.Body.Close()
+
+	for k, v := range resp.Header {
+		for _, vv := range v {
+			c.Writer.Header().Add(k, vv)
+		}
+	}
 	c.DataFromReader(resp.StatusCode, resp.ContentLength, resp.Header.Get("Content-Type"), resp.Body, nil)
 }
