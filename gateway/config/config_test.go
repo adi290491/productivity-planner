@@ -51,6 +51,11 @@ func TestLoad(t *testing.T) {
 
 			config := Load()
 
+			// Clean up environment variables
+			for key := range tt.envVars {
+				os.Unsetenv(key)
+			}
+
 			if config.Port != tt.expectedConfig.Port {
 				t.Errorf("expected Port %s, got %s", tt.expectedConfig.Port, config.Port)
 			}

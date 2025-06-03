@@ -84,14 +84,14 @@ func TestValidateToken_ExpiredToken(t *testing.T) {
 
 func TestValidateToken_InvalidSigningMethod(t *testing.T) {
 	secret := "mysecret"
-	claims := jwt.MapClaims{
-		"userId": "12345",
-		"exp":    time.Now().Add(time.Hour).Unix(),
-	}
+	// claims := jwt.MapClaims{
+	// 	"userId": "12345",
+	// 	"exp":    time.Now().Add(time.Hour).Unix(),
+	// }
 
-	// Create a token with RS256 (should fail since we're using HMAC secret)
-	token := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
-	tokenString := token.Raw // Use raw unsigned token or create properly with RSA key
+	// Create a malformed token to simulate invalid signing method
+	// Since RS256 requires RSA keys, we'll create an invalid token string
+	tokenString := "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.invalid.signature"
 
 	j := &JWTUtil{
 		Secret:      secret,
