@@ -1,9 +1,8 @@
-package dailytrend
+package main
 
 import (
 	"context"
 	"log"
-	"productivity-planner/trend-analysis-worker/daily-aggregates/db"
 	"productivity-planner/trend-analysis-worker/daily-aggregates/models"
 
 	"time"
@@ -12,9 +11,9 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-func FetchDailyTrends() {
+func (a *Application) FetchDailyTrends() {
 
-	db := db.GetInstance()
+	db := a.DB
 
 	log.Println("Fetching daily trends...")
 	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)

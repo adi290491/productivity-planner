@@ -1,9 +1,8 @@
-package weeklytrend
+package main
 
 import (
 	"context"
 	"log"
-	"productivity-planner/trend-analysis-worker/weekly-aggregates/db"
 	"productivity-planner/trend-analysis-worker/weekly-aggregates/models"
 
 	"time"
@@ -12,11 +11,11 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-func FetchWeeklyTrend() {
+func (a *Application) FetchWeeklyTrend() {
 
 	log.Println("Fetching weekly trends...")
 
-	db := db.GetInstance()
+	db := a.DB
 
 	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 	defer cancel()

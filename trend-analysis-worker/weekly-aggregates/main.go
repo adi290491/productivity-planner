@@ -3,15 +3,20 @@ package main
 import (
 	"log"
 	"os"
-	"productivity-planner/trend-analysis-worker/weekly-aggregates/db"
-	"productivity-planner/trend-analysis-worker/weekly-aggregates/weeklytrend"
+
+	"gorm.io/gorm"
 )
 
-func main() {
+type Application struct {
+	DB  *gorm.DB
+	DSN string
+}
 
+func main() {
+	app := LoadConfig()
 	log.SetOutput(os.Stdout)
 	log.Println("Daily trend job started")
 
-	db.InitDB()
-	weeklytrend.FetchWeeklyTrend()
+	app.InitDB()
+	app.FetchWeeklyTrend()
 }
