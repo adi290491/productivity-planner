@@ -9,8 +9,12 @@ import (
 )
 
 func LoadConfig() *Application {
+	dsn := os.Getenv("DB_DSN")
+	if dsn == "" {
+		log.Fatal("DB_DSN environment variable is required")
+	}
 	return &Application{
-		DSN: os.Getenv("DB_DSN"),
+		DSN: dsn,
 	}
 }
 

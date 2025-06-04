@@ -15,7 +15,7 @@ type Application struct {
 func main() {
 	app := LoadConfig()
 	log.SetOutput(os.Stdout)
-	log.Println("Daily trend job started")
+	log.Println("Weekly trend job started")
 
 	app.InitDB()
 	app.FetchWeeklyTrend()
