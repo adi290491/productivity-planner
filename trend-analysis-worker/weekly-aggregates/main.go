@@ -13,10 +13,18 @@ type Application struct {
 }
 
 func main() {
-	app := LoadConfig()
+	app, err := LoadConfig()
+
+	if err != nil {
+		log.Fatal(err)
+	}
 	log.SetOutput(os.Stdout)
 	log.Println("Weekly trend job started")
 
 	app.InitDB()
-	app.FetchWeeklyTrend()
+	repo := &PostgresRepository{
+		DB: app.DB,
+	}
+
+	repo.FetchWeeklyTrend()
 }

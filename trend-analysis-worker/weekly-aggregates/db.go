@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 
@@ -8,14 +9,14 @@ import (
 	"gorm.io/gorm"
 )
 
-func LoadConfig() *Application {
+func LoadConfig() (*Application, error) {
 	dsn := os.Getenv("DB_DSN")
 	if dsn == "" {
-		log.Fatal("DB_DSN environment variable is required")
+		return nil, fmt.Errorf("DB_DSN environment variable is required")
 	}
 	return &Application{
 		DSN: dsn,
-	}
+	}, nil
 }
 
 func (a *Application) InitDB() {

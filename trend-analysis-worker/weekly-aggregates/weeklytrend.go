@@ -11,11 +11,15 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-func (a *Application) FetchWeeklyTrend() {
+type PostgresRepository struct {
+	DB *gorm.DB
+}
+
+func (p *PostgresRepository) FetchWeeklyTrend() {
 
 	log.Println("Fetching weekly trends...")
 
-	db := a.DB
+	db := p.DB
 
 	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 	defer cancel()
