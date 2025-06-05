@@ -64,7 +64,7 @@ func (p *PostgresRepository) FetchWeeklyTrend() {
 			}).Create(&weeklyTrend)
 
 		if result.Error != nil {
-			log.Printf("failed to upsert for user: %v: %v", row.UserId, err)
+			log.Printf("failed to upsert for user %v: %v", row.UserId, result.Error)
 		}
 
 		log.Println("Rows inserted:", result.RowsAffected)
