@@ -43,7 +43,7 @@ jobs:
             
             - name: Build Go worker services
               run: |
-                cd $GITHUB_WORKSPACE  # ensures you're at the root where go.mod exists
+                # cd $GITHUB_WORKSPACE  # ensures you're at the root where go.mod exists
                 mkdir -p bin
                 for dir in trend-analysis-worker/daily-aggregates trend-analysis-worker/weekly-aggregates; do
                     echo "Building $dir"
