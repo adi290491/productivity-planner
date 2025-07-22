@@ -43,9 +43,11 @@ jobs:
             
             - name: Build Go worker services
               run: |
+                cd $GITHUB_WORKSPACE  # ensures you're at the root where go.mod exists
+                mkdir -p bin
                 for dir in trend-analysis-worker/daily-aggregates trend-analysis-worker/weekly-aggregates; do
-                    go build -o bin/$(basename $dir) ./$dir/cmd
-                    cd ..
+                    echo "Building $dir"
+                    go build -o bin/$(basename $dir) ./$dir/cmd/main.go
                 done
 
     frontend:
