@@ -3,10 +3,10 @@ package main
 import (
 	"context"
 	"log"
-	"productivity-planner/trend-analysis-worker/weekly-aggregates/models"
 
 	"time"
 
+	"github.com/adi290491/productivity-planner/trend-analysis-worker/weekly-aggregates/models"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
