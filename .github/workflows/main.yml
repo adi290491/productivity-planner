@@ -34,9 +34,9 @@ jobs:
             
             - name: Build Go services
               run: |
-                for dir in user-service session-service summary-service gateway trend-service trend-analysis-worker do
+                for dir in user-service session-service summary-service gateway trend-service trend-analysis-worker; do
                     cd $dir
-                    go build -o cmd/main .
+                    go build -o bin/main .
                     cd ..
                 done
 
