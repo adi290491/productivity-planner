@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"productivity-planner/summary-service/summary"
+
 	"strings"
 
+	"github.com/adi290491/productivity-planner/summary-service/summary"
 	"github.com/gin-gonic/gin"
 )
 

@@ -1,9 +1,10 @@
 package summary
 
 import (
-	models "productivity-planner/summary-service/model"
 	"testing"
 	"time"
+
+	models "github.com/adi290491/productivity-planner/summary-service/model"
 )
 
 func TestGetDailySessionSummary(t *testing.T) {

@@ -3,7 +3,8 @@ package summary
 import (
 	"fmt"
 	"log"
-	models "productivity-planner/summary-service/model"
+
+	models "github.com/adi290491/productivity-planner/summary-service/model"
 )
 
 type SummaryService struct {

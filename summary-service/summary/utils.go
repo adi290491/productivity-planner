@@ -3,10 +3,12 @@ package summary
 import (
 	"fmt"
 	"log"
-	models "productivity-planner/summary-service/model"
+
 	"sort"
 	"strings"
 	"time"
+
+	models "github.com/adi290491/productivity-planner/summary-service/model"
 )
 
 func StartOfDayUTC(date string) (time.Time, error) {

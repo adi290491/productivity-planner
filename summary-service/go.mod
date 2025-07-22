@@ -1,11 +1,11 @@
-module productivity-planner/summary-service
+module github.com/adi290491/productivity-planner/summary-service
 
 go 1.23.0
 
 require (
 	github.com/gin-gonic/gin v1.10.0
 	github.com/google/uuid v1.6.0
-	github.com/joho/godotenv v1.5.1
+	github.com/ory/dockertest/v3 v3.12.0
 	gorm.io/driver/postgres v1.5.11
 	gorm.io/gorm v1.26.1
 )
@@ -52,7 +52,6 @@ require (
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.1.1 // indirect
 	github.com/opencontainers/runc v1.3.0 // indirect
-	github.com/ory/dockertest/v3 v3.12.0 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.4 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/rogpeppe/go-internal v1.14.1 // indirect
@@ -69,6 +68,5 @@ require (
 	golang.org/x/sys v0.33.0 // indirect
 	golang.org/x/text v0.25.0 // indirect
 	google.golang.org/protobuf v1.36.6 // indirect
-	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

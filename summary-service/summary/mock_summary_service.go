@@ -2,7 +2,8 @@ package summary
 
 import (
 	"fmt"
-	models "productivity-planner/summary-service/model"
+
+	models "github.com/adi290491/productivity-planner/summary-service/model"
 )
 
 type MockSummaryService struct {

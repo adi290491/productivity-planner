@@ -2,11 +2,12 @@ package main
 
 import (
 	"os"
-	"productivity-planner/summary-service/config"
-	models "productivity-planner/summary-service/model"
-	"productivity-planner/summary-service/summary"
+
 	"testing"
 
+	"github.com/adi290491/productivity-planner/summary-service/config"
+	models "github.com/adi290491/productivity-planner/summary-service/model"
+	"github.com/adi290491/productivity-planner/summary-service/summary"
 	"github.com/gin-gonic/gin"
 )
 
