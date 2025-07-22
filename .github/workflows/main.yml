@@ -36,7 +36,7 @@ jobs:
               run: |
                 for dir in user-service session-service summary-service gateway trend-service trend-analysis-worker; do
                     cd $dir
-                    go build -o cmd/main .
+                    go build -o $dir ./cmd
                     cd ..
                 done
 
