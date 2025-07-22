@@ -27,7 +27,7 @@ jobs:
             - name: Run Go unit tests
               run: |
                 for dir in session-service summary-service gateway trend-service trend-analysis-worker; do
-                    cd $dir
+                    cd $dir/cmd
                     go test ./...
                     cd ..
                 done
