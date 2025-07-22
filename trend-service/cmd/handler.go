@@ -4,10 +4,11 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"productivity-planner/trend-service/trend"
-	"productivity-planner/trend-service/utils"
+
 	"strings"
 
+	"github.com/adi290491/productivity-planner/trend-service/trend"
+	"github.com/adi290491/productivity-planner/trend-service/utils"
 	"github.com/gin-gonic/gin"
 )
 

@@ -2,11 +2,12 @@ package main
 
 import (
 	"os"
-	"productivity-planner/trend-service/config"
-	models "productivity-planner/trend-service/model"
-	"productivity-planner/trend-service/trend"
+
 	"testing"
 
+	"github.com/adi290491/productivity-planner/trend-service/config"
+	models "github.com/adi290491/productivity-planner/trend-service/model"
+	"github.com/adi290491/productivity-planner/trend-service/trend"
 	"github.com/gin-gonic/gin"
 )
 

@@ -1,4 +1,4 @@
-module productivity-planner/trend-service
+module github.com/adi290491/productivity-planner/trend-service
 
 go 1.23.0
 

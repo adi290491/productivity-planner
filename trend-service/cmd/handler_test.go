@@ -3,10 +3,12 @@ package main
 import (
 	"net/http"
 	"net/http/httptest"
-	models "productivity-planner/trend-service/model"
-	"productivity-planner/trend-service/trend"
+
+	models "github.com/adi290491/productivity-planner/trend-service/model"
+
 	"testing"
 
+	"github.com/adi290491/productivity-planner/trend-service/trend"
 	"github.com/gin-gonic/gin"
 )
 

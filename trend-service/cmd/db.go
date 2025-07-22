@@ -2,8 +2,8 @@ package main
 
 import (
 	"log"
-	"productivity-planner/trend-service/config"
 
+	"github.com/adi290491/productivity-planner/trend-service/config"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )

@@ -2,9 +2,11 @@ package trend
 
 import (
 	"log"
-	models "productivity-planner/trend-service/model"
-	"productivity-planner/trend-service/utils"
+
 	"sort"
+
+	models "github.com/adi290491/productivity-planner/trend-service/model"
+	"github.com/adi290491/productivity-planner/trend-service/utils"
 )
 
 func MapModelToResponse(dailyUserTrend []models.UserDailyTrend, userId string) *DailyTrendResponse {
