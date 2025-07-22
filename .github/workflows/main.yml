@@ -26,7 +26,7 @@ jobs:
 
             - name: Run Go unit tests
               run: |
-                for dir in user-service session-service, summary-service, gateway, trend-service trend-analysis-worker; do
+                for dir in user-service session-service summary-service gateway trend-service trend-analysis-worker; do
                     cd $dir
                     go test ./...
                     cd ..
@@ -34,7 +34,7 @@ jobs:
             
             - name: Build Go services
               run: |
-                for dir in user-service, session-service, summary-service gateway, trend-service, trend-analysis-worker do
+                for dir in user-service session-service summary-service gateway trend-service trend-analysis-worker do
                     cd $dir
                     go build -o cmd/main .
                     cd ..
@@ -51,7 +51,7 @@ jobs:
             - name: Setup Node.js
               uses: actions/setup-node@v4
               with:
-                node-version: $${{env.NODE_VERSION}}
+                node-version: ${{env.NODE_VERSION}}
             
             - name: Install dependencies
               run: |
