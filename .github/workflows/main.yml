@@ -1,1 +1,65 @@
+name: CI Pipeline
+
+on:
+    push:
+        branches: [main]
+    pull_request:
+        branches: [main]
+
+env:
+    GO_VERSION: '1.23'
+    NODE_VERSION: '20'
+
+jobs:
+    backend:
+        name: Build & Test Go Services
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout repo
+              uses: actions/checkout@v4
+
+            - name: Set up Go
+              uses: actions/setup-go@v5
+              with:
+                go-version: ${{env.GO_VERSION}}
+
+            - name: Run Go unit tests
+              run: |
+                for dir in user-service session-service, summary-service, gateway, trend-service trend-analysis-worker; do
+                    cd $dir
+                    go test ./...
+                    cd ..
+                done
+            
+            - name: Build Go services
+              run: |
+                for dir in user-service, session-service, summary-service gateway, trend-service, trend-analysis-worker do
+                    cd $dir
+                    go build -o cmd/main .
+                    cd ..
+                done
+
+    frontend:
+        name: Build Frontend
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout repo
+              uses: actions/checkout@v4
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                node-version: $${{env.NODE_VERSION}}
+            
+            - name: Install dependencies
+              run: |
+                cd productivity-frontend
+                npm ci
+            
+            - name: Build Frontend
+              run: |
+                cd productivity-frontend
+                npm run build
 
