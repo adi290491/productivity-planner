@@ -2,10 +2,11 @@ package main
 
 import (
 	"os"
-	"productivity-planner/gateway/middleware"
-	"productivity-planner/gateway/proxy"
+
 	"time"
 
+	"github.com/adi290491/productivity-planner/gateway/middleware"
+	"github.com/adi290491/productivity-planner/gateway/proxy"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )

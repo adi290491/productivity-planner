@@ -6,10 +6,11 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"productivity-planner/gateway/config"
+
 	"syscall"
 	"time"
 
+	"github.com/adi290491/productivity-planner/gateway/config"
 	"github.com/gin-gonic/gin"
 )
 
