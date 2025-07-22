@@ -2,9 +2,10 @@ package utils
 
 import (
 	"fmt"
-	"productivity-planner/user-service/models"
+
 	"time"
 
+	"github.com/adi290491/productivity-planner/user-service/models"
 	"github.com/golang-jwt/jwt/v5"
 )
 

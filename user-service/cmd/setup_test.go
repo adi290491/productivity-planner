@@ -2,11 +2,12 @@ package main
 
 import (
 	"os"
-	"productivity-planner/user-service/config"
-	"productivity-planner/user-service/user"
-	"productivity-planner/user-service/utils"
+
 	"testing"
 
+	"github.com/adi290491/productivity-planner/user-service/config"
+	"github.com/adi290491/productivity-planner/user-service/user"
+	"github.com/adi290491/productivity-planner/user-service/utils"
 	"github.com/gin-gonic/gin"
 )
 

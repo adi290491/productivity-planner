@@ -2,9 +2,9 @@ package user
 
 import (
 	"fmt"
-	"productivity-planner/user-service/models"
-	"productivity-planner/user-service/utils"
 
+	"github.com/adi290491/productivity-planner/user-service/models"
+	"github.com/adi290491/productivity-planner/user-service/utils"
 	"github.com/google/uuid"
 )
 

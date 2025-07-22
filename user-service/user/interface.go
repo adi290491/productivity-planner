@@ -1,6 +1,6 @@
 package user
 
-import "productivity-planner/user-service/models"
+import "github.com/adi290491/productivity-planner/user-service/models"
 
 type UserServiceInterface interface {
 	Signup(userDto SignupDTO) (*models.User, error)

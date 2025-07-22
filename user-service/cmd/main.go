@@ -6,12 +6,13 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"productivity-planner/user-service/config"
-	"productivity-planner/user-service/models"
-	"productivity-planner/user-service/user"
-	"productivity-planner/user-service/utils"
+
 	"time"
 
+	"github.com/adi290491/productivity-planner/user-service/config"
+	"github.com/adi290491/productivity-planner/user-service/models"
+	"github.com/adi290491/productivity-planner/user-service/user"
+	"github.com/adi290491/productivity-planner/user-service/utils"
 	"github.com/gin-gonic/gin"
 )
 

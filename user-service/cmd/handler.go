@@ -2,8 +2,9 @@ package main
 
 import (
 	"net/http"
-	"productivity-planner/user-service/user"
-	"productivity-planner/user-service/utils"
+
+	"github.com/adi290491/productivity-planner/user-service/user"
+	"github.com/adi290491/productivity-planner/user-service/utils"
 
 	"github.com/gin-gonic/gin"
 )

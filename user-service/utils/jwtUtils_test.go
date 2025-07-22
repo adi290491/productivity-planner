@@ -1,10 +1,10 @@
 package utils
 
 import (
-	"productivity-planner/user-service/models"
 	"testing"
 	"time"
 
+	"github.com/adi290491/productivity-planner/user-service/models"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 )

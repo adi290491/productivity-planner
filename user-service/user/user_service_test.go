@@ -1,8 +1,9 @@
 package user
 
 import (
-	"productivity-planner/user-service/models"
 	"testing"
+
+	"github.com/adi290491/productivity-planner/user-service/models"
 
 	"github.com/google/uuid"
 )

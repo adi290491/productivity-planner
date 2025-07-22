@@ -1,4 +1,4 @@
-module productivity-planner/user-service
+module github.com/adi290491/productivity-planner/user-service
 
 go 1.23.0
 
