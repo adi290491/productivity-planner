@@ -35,9 +35,17 @@ jobs:
             
             - name: Build Go services
               run: |
-                for dir in user-service session-service summary-service gateway trend-service trend-analysis-worker; do
+                for dir in user-service session-service summary-service gateway trend-service; do
                     cd $dir
                     go build -o $dir ./cmd
+                    cd ..
+                done
+            
+            - name: Build Go worker services
+              run: |
+                for dir in trend-analysis-worker/daily-aggregates trend-analysis-worker/weekly-aggregates; do
+                    cd $dir
+                    go build -o $dir .
                     cd ..
                 done
 
