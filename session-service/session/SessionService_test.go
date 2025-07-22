@@ -1,11 +1,11 @@
 package session
 
 import (
-	"productivity-planner/task-service/models"
 	"strings"
 	"testing"
 	"time"
 
+	"github.com/adi290491/productivity-planner/task-service/models"
 	"github.com/google/uuid"
 )
 

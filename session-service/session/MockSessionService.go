@@ -1,8 +1,9 @@
 package session
 
 import (
-	"productivity-planner/task-service/models"
 	"time"
+
+	"github.com/adi290491/productivity-planner/task-service/models"
 )
 
 type MockSessionService struct {

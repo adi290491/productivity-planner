@@ -2,12 +2,12 @@ package main
 
 import (
 	"os"
-	"productivity-planner/task-service/config"
-	"productivity-planner/task-service/models"
-	"productivity-planner/task-service/session"
 
 	"testing"
 
+	"github.com/adi290491/productivity-planner/task-service/config"
+	"github.com/adi290491/productivity-planner/task-service/models"
+	"github.com/adi290491/productivity-planner/task-service/session"
 	"github.com/gin-gonic/gin"
 )
 

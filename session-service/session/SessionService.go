@@ -2,9 +2,10 @@ package session
 
 import (
 	"fmt"
-	"productivity-planner/task-service/models"
+
 	"time"
 
+	"github.com/adi290491/productivity-planner/task-service/models"
 	"github.com/google/uuid"
 )
 

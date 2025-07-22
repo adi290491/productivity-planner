@@ -3,9 +3,10 @@ package main
 import (
 	"fmt"
 	"net/http"
-	"productivity-planner/task-service/session"
+
 	"strings"
 
+	"github.com/adi290491/productivity-planner/task-service/session"
 	"github.com/gin-gonic/gin"
 )
 

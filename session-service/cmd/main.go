@@ -6,11 +6,12 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"productivity-planner/task-service/config"
-	"productivity-planner/task-service/models"
-	"productivity-planner/task-service/session"
+
 	"time"
 
+	"github.com/adi290491/productivity-planner/task-service/config"
+	"github.com/adi290491/productivity-planner/task-service/models"
+	"github.com/adi290491/productivity-planner/task-service/session"
 	"github.com/gin-gonic/gin"
 )
 
