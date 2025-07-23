@@ -41,10 +41,10 @@ jobs:
                 docker build -t ${{ secrets.DOCKER_USERNAME }}/trend-service ./trend-service
                 docker push ${{ secrets.DOCKER_USERNAME }}/trend-service
 
-                docker build -t ${{ secrets.DOCKER_USERNAME }}/trend-worker-daily ./trend-analysis-worker/daily-aggregates
+                docker build -f trend-analysis-worker/Dockerfile.daily -t ${{ secrets.DOCKER_USERNAME }}/trend-worker-daily ./trend-analysis-worker/daily-aggregates
                 docker push ${{ secrets.DOCKER_USERNAME }}/trend-worker-daily
 
-                docker build -t ${{ secrets.DOCKER_USERNAME }}/trend-worker-weekly ./trend-analysis-worker/weekly-aggregates
+                docker build -f trend-analysis-worker/Dockerfile.weekly -t ${{ secrets.DOCKER_USERNAME }}/trend-worker-weekly ./trend-analysis-worker/weekly-aggregates
                 docker push ${{ secrets.DOCKER_USERNAME }}/trend-worker-weekly
 
                 docker build -t ${{ secrets.DOCKER_USERNAME }}/frontend ./productivity-frontend
