@@ -1,0 +1,51 @@
+name: Dockerize and Push
+
+on:
+    workflow_run: 
+        workflows: ["Build and Test"]
+        types:
+            - completed
+
+jobs:
+    dockerize:
+        if: ${{ github.event.workflow_run.conclusion == 'success'}}
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Set up Docker buildx
+              uses: docker/setup-buildx-action@v3
+
+            - name: Log in to Docker Hub
+              uses: docker/login-action@v4
+              with:
+                username: ${{secrets.DOCKER_USERNAME}}
+                password: ${{secrets.DOCKER_PASSWORD}}
+            
+            - name: Build and push all service images
+              run: |
+                docker build -t ${{ secrets.DOCKER_USERNAME }}/user-service ./user-service
+                docker push ${{ secrets.DOCKER_USERNAME }}/user-service
+
+                docker build -t ${{ secrets.DOCKER_USERNAME }}/session-service ./session-service
+                docker push ${{ secrets.DOCKER_USERNAME }}/session-service
+
+                docker build -t ${{ secrets.DOCKER_USERNAME }}/summary-service ./summary-service
+                docker push ${{ secrets.DOCKER_USERNAME }}/summary-service
+
+                docker build -t ${{ secrets.DOCKER_USERNAME }}/gateway ./gateway
+                docker push ${{ secrets.DOCKER_USERNAME }}/gateway
+
+                docker build -t ${{ secrets.DOCKER_USERNAME }}/trend-service ./trend-service
+                docker push ${{ secrets.DOCKER_USERNAME }}/trend-service
+
+                docker build -t ${{ secrets.DOCKER_USERNAME }}/trend-worker-daily ./trend-analysis-worker/daily-aggregates
+                docker push ${{ secrets.DOCKER_USERNAME }}/trend-worker-daily
+
+                docker build -t ${{ secrets.DOCKER_USERNAME }}/trend-worker-weekly ./trend-analysis-worker/weekly-aggregates
+                docker push ${{ secrets.DOCKER_USERNAME }}/trend-worker-weekly
+
+                docker build -t ${{ secrets.DOCKER_USERNAME }}/frontend ./productivity-frontend
+                docker push ${{ secrets.DOCKER_USERNAME }}/frontend
