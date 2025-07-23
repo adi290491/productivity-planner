@@ -46,7 +46,7 @@ jobs:
                 cd trend-analysis-worker
                 go build -o daily-trend ./daily-aggregates
                 go build -o weekly-trend ./weekly-aggregates
-                cd..
+                cd ..
 
     frontend:
         name: Build Frontend
