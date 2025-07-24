@@ -8,7 +8,7 @@ RUN go mod download
 
 COPY ./daily-aggregates ./daily-aggregates
 
-RUN go build -o daily-trend ./daily-aggregates/main.go
+RUN go build -o daily-trend ./daily-aggregates
 
 # Stage 2: Run time with cron
 FROM alpine:latest
