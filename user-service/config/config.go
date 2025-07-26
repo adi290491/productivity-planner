@@ -17,10 +17,16 @@ type AppConfig struct {
 }
 
 func Load() *AppConfig {
+
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = os.Getenv("USER_SERVICE_PORT")
+	}
+
 	return &AppConfig{
 		DSN:          os.Getenv("DB_DSN"),
 		JWT_SECRET:   os.Getenv("JWT_SECRET"),
-		Port:         os.Getenv("USER_SERVICE_PORT"),
+		Port:         port,
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 10 * time.Second,
 	}
