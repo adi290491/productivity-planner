@@ -16,9 +16,14 @@ type AppConfig struct {
 }
 
 func Load() *AppConfig {
+
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = os.Getenv("SESSION_SERVICE_PORT")
+	}
 	return &AppConfig{
 		DSN:          os.Getenv("DB_DSN"),
-		Port:         os.Getenv("SESSION_SERVICE_PORT"),
+		Port:         port,
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 10 * time.Second,
 	}
