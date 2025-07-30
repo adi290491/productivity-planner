@@ -26,26 +26,34 @@ jobs:
             
             - name: Build and push all service images
               run: |
-                docker build -t ${{ secrets.DOCKER_USERNAME }}/user-service ./user-service
-                docker push ${{ secrets.DOCKER_USERNAME }}/user-service
+                # docker build -t ${{ secrets.DOCKER_USERNAME }}/user-service ./user-service
+                # docker push ${{ secrets.DOCKER_USERNAME }}/user-service
+                docker buildx build --platform linux/amd64 -t ${{ secrets. DOCKER_USERNAME }}/user-service ./user-service --push
 
-                docker build -t ${{ secrets.DOCKER_USERNAME }}/session-service ./session-service
-                docker push ${{ secrets.DOCKER_USERNAME }}/session-service
+                # docker build -t ${{ secrets.DOCKER_USERNAME }}/session-service ./session-service
+                # docker push ${{ secrets.DOCKER_USERNAME }}/session-service
+                docker buildx build --platform linux/amd64 -t ${{ secrets. DOCKER_USERNAME }}/session-service ./session-service --push
 
-                docker build -t ${{ secrets.DOCKER_USERNAME }}/summary-service ./summary-service
-                docker push ${{ secrets.DOCKER_USERNAME }}/summary-service
+                # docker build -t ${{ secrets.DOCKER_USERNAME }}/summary-service ./summary-service
+                # docker push ${{ secrets.DOCKER_USERNAME }}/summary-service
+                docker buildx build --platform linux/amd64 -t ${{ secrets. DOCKER_USERNAME }}/summary-service ./summary-service --push
 
-                docker build -t ${{ secrets.DOCKER_USERNAME }}/gateway ./gateway
-                docker push ${{ secrets.DOCKER_USERNAME }}/gateway
+                # docker build -t ${{ secrets.DOCKER_USERNAME }}/gateway ./gateway
+                # docker push ${{ secrets.DOCKER_USERNAME }}/gateway
+                docker buildx build --platform linux/amd64 -t ${{ secrets. DOCKER_USERNAME }}/gateway ./gateway --push
 
-                docker build -t ${{ secrets.DOCKER_USERNAME }}/trend-service ./trend-service
-                docker push ${{ secrets.DOCKER_USERNAME }}/trend-service
+                # docker build -t ${{ secrets.DOCKER_USERNAME }}/trend-service ./trend-service
+                # docker push ${{ secrets.DOCKER_USERNAME }}/trend-service
+                docker buildx build --platform linux/amd64 -t ${{ secrets. DOCKER_USERNAME }}/trend-service ./trend-service --push
 
-                docker build -f trend-analysis-worker/Dockerfile.daily -t ${{ secrets.DOCKER_USERNAME }}/trend-worker-daily ./trend-analysis-worker
-                docker push ${{ secrets.DOCKER_USERNAME }}/trend-worker-daily
+                # docker build -f trend-analysis-worker/Dockerfile.daily -t ${{ secrets.DOCKER_USERNAME }}/trend-worker-daily ./trend-analysis-worker
+                # docker push ${{ secrets.DOCKER_USERNAME }}/trend-worker-daily
+                docker buildx build --platform linux/amd64 -t ${{ secrets. DOCKER_USERNAME }}/trend-worker-daily ./trend-analysis-worker --push
 
-                docker build -f trend-analysis-worker/Dockerfile.weekly -t ${{ secrets.DOCKER_USERNAME }}/trend-worker-weekly ./trend-analysis-worker
-                docker push ${{ secrets.DOCKER_USERNAME }}/trend-worker-weekly
+                # docker build -f trend-analysis-worker/Dockerfile.weekly -t ${{ secrets.DOCKER_USERNAME }}/trend-worker-weekly ./trend-analysis-worker
+                # docker push ${{ secrets.DOCKER_USERNAME }}/trend-worker-weekly
+                docker buildx build --platform linux/amd64 -t ${{ secrets. DOCKER_USERNAME }}/trend-worker-weekly ./trend-analysis-worker --push
 
-                docker build -t ${{ secrets.DOCKER_USERNAME }}/frontend ./productivity-frontend
-                docker push ${{ secrets.DOCKER_USERNAME }}/frontend
+                # docker build -t ${{ secrets.DOCKER_USERNAME }}/frontend ./productivity-frontend
+                # docker push ${{ secrets.DOCKER_USERNAME }}/frontend
+                docker buildx build --platform linux/amd64 -t ${{ secrets. DOCKER_USERNAME }}/frontend ./productivity-frontend --push
