@@ -22,6 +22,6 @@ WORKDIR /root/
 COPY --from=builder /app/app .
 
 # Expose port (optional, mostly for documentation)
-EXPOSE 8080 
+EXPOSE 8081 
 
 CMD ["./app"]

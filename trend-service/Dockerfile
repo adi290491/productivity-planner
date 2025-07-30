@@ -22,7 +22,7 @@
     COPY --from=builder /app/app .
     
     # Expose port (optional, mostly for documentation)
-    EXPOSE 8085
+    EXPOSE 8083
     
     CMD ["./app"]
     

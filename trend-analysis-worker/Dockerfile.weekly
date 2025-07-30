@@ -22,6 +22,6 @@ COPY ./weekly-aggregates/crontab.weekly /etc/crontabs/root
 
 RUN chmod +x /app/weekly-trend
 
-EXPOSE 8087
+EXPOSE 8086
 
 CMD ["/bin/sh", "-c", "crond -f -L /var/log/cron.log"]
