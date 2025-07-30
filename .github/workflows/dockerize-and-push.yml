@@ -48,11 +48,11 @@ jobs:
 
                 # docker build -f trend-analysis-worker/Dockerfile.daily -t ${{ secrets.DOCKER_USERNAME }}/trend-worker-daily ./trend-analysis-worker
                 # docker push ${{ secrets.DOCKER_USERNAME }}/trend-worker-daily
-                docker buildx build --platform linux/amd64 -t ${{ secrets. DOCKER_USERNAME }}/trend-worker-daily ./trend-analysis-worker --push
+                docker buildx build --platform linux/amd64 -f trend-analysis-worker/Dockerfile.daily -t ${{ secrets. DOCKER_USERNAME }}/trend-worker-daily ./trend-analysis-worker --push
 
                 # docker build -f trend-analysis-worker/Dockerfile.weekly -t ${{ secrets.DOCKER_USERNAME }}/trend-worker-weekly ./trend-analysis-worker
                 # docker push ${{ secrets.DOCKER_USERNAME }}/trend-worker-weekly
-                docker buildx build --platform linux/amd64 -t ${{ secrets. DOCKER_USERNAME }}/trend-worker-weekly ./trend-analysis-worker --push
+                docker buildx build --platform linux/amd64 -f trend-analysis-worker/Dockerfile.weekly -t ${{ secrets. DOCKER_USERNAME }}/trend-worker-weekly ./trend-analysis-worker --push
 
                 # docker build -t ${{ secrets.DOCKER_USERNAME }}/frontend ./productivity-frontend
                 # docker push ${{ secrets.DOCKER_USERNAME }}/frontend
