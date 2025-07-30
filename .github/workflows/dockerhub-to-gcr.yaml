@@ -1,0 +1,45 @@
+name: Mirror DockerHub to GCR
+
+on:
+  workflow_dispatch:  # Trigger manually when needed
+  schedule:
+    - cron: '0 6 * * *'  # Optional: runs every day at 6 AM UTC
+
+jobs:
+  mirror-images:
+    runs-on: ubuntu-latest
+
+    env:
+      PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up gcloud CLI
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          service_account_key: ${{ secrets.GCP_SA_KEY }}
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+
+      - name: Configure Docker for GCR
+        run: gcloud auth configure-docker
+
+      - name: Pull from Docker Hub and push to GCR
+        run: |
+          IMAGES=(
+            user-service
+            session-service
+            summary-service
+            gateway
+            trend-service
+            trend-worker-daily
+            trend-worker-weekly
+            frontend
+          )
+
+          for IMAGE in "${IMAGES[@]}"; do
+            docker pull ${{ secrets.DOCKER_USERNAME }}/$IMAGE:latest
+            docker tag ${{ secrets.DOCKER_USERNAME }}/$IMAGE:latest gcr.io/${{ secrets.GCP_PROJECT_ID }}/$IMAGE:latest
+            docker push gcr.io/${{ secrets.GCP_PROJECT_ID }}/$IMAGE:latest
+          done
