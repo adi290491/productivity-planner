@@ -1,16 +1,18 @@
-name: Mirror DockerHub to GCR
+name: Mirror DockerHub to Artifact Registry
 
 on:
-  workflow_dispatch:  # Trigger manually when needed
+  workflow_dispatch:
   schedule:
-    - cron: '0 6 * * *'  # Optional: runs every day at 6 AM UTC
+    - cron: '0 6 * * *'
 
 jobs:
   mirror-images:
     runs-on: ubuntu-latest
 
     env:
-      PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+      PROJECT_ID: systemic-productivity-planner
+      REGION: us-central1
+      REPOSITORY: prod-planner-repo
 
     steps:
       - name: Checkout repository
@@ -20,12 +22,15 @@ jobs:
         uses: google-github-actions/setup-gcloud@v2
         with:
           service_account_key: ${{ secrets.GCP_SA_KEY }}
-          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          project_id: systemic-productivity-planner
 
-      - name: Configure Docker for GCR
-        run: gcloud auth configure-docker
+      - name: Configure Docker for Artifact Registry
+        run: |
+          gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev
 
-      - name: Pull from Docker Hub and push to GCR
+      - name: Pull from Docker Hub and push to Artifact Registry
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
         run: |
           IMAGES=(
             user-service
@@ -37,9 +42,9 @@ jobs:
             trend-worker-weekly
             frontend
           )
-
           for IMAGE in "${IMAGES[@]}"; do
-            docker pull ${{ secrets.DOCKER_USERNAME }}/$IMAGE:latest
-            docker tag ${{ secrets.DOCKER_USERNAME }}/$IMAGE:latest gcr.io/${{ secrets.GCP_PROJECT_ID }}/$IMAGE:latest
-            docker push gcr.io/${{ secrets.GCP_PROJECT_ID }}/$IMAGE:latest
+            docker pull $DOCKER_USERNAME/$IMAGE:latest
+            docker tag $DOCKER_USERNAME/$IMAGE:latest $REGION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE:latest
+            docker push $REGION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE:latest
           done
+
