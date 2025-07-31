@@ -45,8 +45,8 @@ jobs:
             frontend
           )
           for IMAGE in "${IMAGES[@]}"; do
-            docker pull $DOCKER_USERNAME/$IMAGE:latest
+            docker pull $DOCKER_USERNAME/$IMAGE:latest --platform=linux/amd64
             docker tag $DOCKER_USERNAME/$IMAGE:latest $REGION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE:latest
-            docker push $REGION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE:latest
+            docker push $REGION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE:latest --platform=linux/amd64
           done
 
