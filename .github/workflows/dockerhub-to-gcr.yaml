@@ -31,6 +31,7 @@ jobs:
       - name: Pull from Docker Hub and push to Artifact Registry
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
         run: |
           IMAGES=(
             user-service
