@@ -1,6 +1,7 @@
 package config
 
 import (
+	"log"
 	"os"
 	"time"
 
@@ -20,7 +21,7 @@ func Load() *AppConfig {
 
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = os.Getenv("USER_SERVICE_PORT")
+		log.Fatal("PORT must be set by Cloud Run.")
 	}
 
 	return &AppConfig{

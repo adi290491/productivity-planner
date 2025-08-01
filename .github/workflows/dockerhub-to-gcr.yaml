@@ -53,3 +53,10 @@ jobs:
             docker push $REGION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE:latest
           done
 
+### docker pull adi290491/frontend:latest --platform=linux/amd64
+
+# docker tag adi290491/frontend:latest us-central1-docker.pkg.dev/systemic-productivity-planner/prod-planner-repo/frontend:latest
+
+# docker push us-central1-docker.pkg.dev/systemic-productivity-planner/prod-planner-repo/frontend:latest
+###
+###
