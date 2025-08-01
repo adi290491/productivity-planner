@@ -1,7 +1,6 @@
 package config
 
 import (
-	"log"
 	"os"
 	"time"
 
@@ -20,9 +19,6 @@ type AppConfig struct {
 func Load() *AppConfig {
 
 	port := os.Getenv("PORT")
-	if port == "" {
-		log.Fatal("PORT must be set by Cloud Run.")
-	}
 
 	return &AppConfig{
 		DSN:          os.Getenv("DB_DSN"),

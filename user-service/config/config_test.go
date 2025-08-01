@@ -15,8 +15,8 @@ func TestLoad(t *testing.T) {
 		{
 			name: "Valid environment variables",
 			envVars: map[string]string{
-				"DB_DSN":            "postgres://user:password@localhost:5432/dbname",
-				"USER_SERVICE_PORT": "8080",
+				"DB_DSN": "postgres://user:password@localhost:5432/dbname",
+				"PORT":   "8080",
 			},
 			expectedConfig: &AppConfig{
 				DSN:          "postgres://user:password@localhost:5432/dbname",

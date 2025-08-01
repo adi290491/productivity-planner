@@ -27,6 +27,10 @@ func main() {
 
 	appConfig := config.Load()
 
+	if appConfig.Port == "" {
+		log.Fatal("PORT environment variable not set")
+	}
+
 	InitDB(appConfig)
 
 	server := gin.Default()
@@ -45,7 +49,7 @@ func main() {
 	RegisterEndpoints(server, handler)
 
 	s := &http.Server{
-		Addr:         ":" + appConfig.Port,
+		Addr:         "0.0.0.0:" + appConfig.Port,
 		ReadTimeout:  appConfig.ReadTimeout,
 		WriteTimeout: appConfig.WriteTimeout,
 		Handler:      server,
