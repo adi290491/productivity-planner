@@ -29,6 +29,9 @@ jobs:
         run: |
           gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev
 
+      - name: Log in to Docker Hub
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
       - name: Pull from Docker Hub and push to Artifact Registry
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
@@ -47,6 +50,6 @@ jobs:
           for IMAGE in "${IMAGES[@]}"; do
             docker pull $DOCKER_USERNAME/$IMAGE:latest --platform=linux/amd64
             docker tag $DOCKER_USERNAME/$IMAGE:latest $REGION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE:latest
-            docker push $REGION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE:latest --platform=linux/amd64
+            docker push $REGION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE:latest
           done
 
