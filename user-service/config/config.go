@@ -20,6 +20,10 @@ func Load() *AppConfig {
 
 	port := os.Getenv("PORT")
 
+	if port == "" {
+		port = "8080"
+	}
+
 	return &AppConfig{
 		DSN:          os.Getenv("DB_DSN"),
 		JWT_SECRET:   os.Getenv("JWT_SECRET"),
