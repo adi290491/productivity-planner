@@ -21,7 +21,7 @@ func LoadEnv() {
 	// } else {
 	// 	log.Printf(".env loaded from %s\n", rootPath)
 	// }
-	secretPath := "./secrets/env-vars"
+	secretPath := "./secrets/env-var"
 
 	// Local .env fallback path
 	localPath := ".env"
