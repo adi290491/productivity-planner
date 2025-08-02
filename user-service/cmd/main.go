@@ -47,9 +47,9 @@ func main() {
 	}
 
 	RegisterEndpoints(server, handler)
-
+	
 	s := &http.Server{
-		Addr:         "0.0.0.0:8080",
+		Addr:         "0.0.0.0:" + appConfig.Port,
 		ReadTimeout:  appConfig.ReadTimeout,
 		WriteTimeout: appConfig.WriteTimeout,
 		Handler:      server,
