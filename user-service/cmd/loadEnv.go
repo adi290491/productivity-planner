@@ -30,9 +30,9 @@ func LoadEnv() {
 	if _, err := os.Stat(secretPath); err == nil {
 		err := godotenv.Load(secretPath)
 		if err != nil {
-			log.Printf("⚠️ Failed to load env from secret mount %s: %v", secretPath, err)
+			log.Printf("Failed to load env from secret mount %s: %v", secretPath, err)
 		} else {
-			log.Printf("✅ Loaded env from secret mount %s", secretPath)
+			log.Printf("Loaded env from secret mount %s", secretPath)
 			return
 		}
 	}
@@ -41,11 +41,11 @@ func LoadEnv() {
 	if _, err := os.Stat(localPath); err == nil {
 		err := godotenv.Load(localPath)
 		if err != nil {
-			log.Printf("⚠️ Failed to load local .env: %v", err)
+			log.Printf("Failed to load local .env: %v", err)
 		} else {
-			log.Println("✅ Loaded local .env")
+			log.Println("Loaded local .env")
 		}
 	} else {
-		log.Println("⚠️ No .env file found locally or in secrets. Proceeding with existing env vars.")
+		log.Println(" No .env file found locally or in secrets. Proceeding with existing env vars.")
 	}
 }

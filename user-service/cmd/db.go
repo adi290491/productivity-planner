@@ -9,7 +9,7 @@ import (
 )
 
 func InitDB(appConfig *config.AppConfig) {
-
+	log.Printf("DSN: %s", appConfig.DSN)
 	db, err := gorm.Open(postgres.Open(appConfig.DSN), &gorm.Config{})
 
 	if err != nil {
