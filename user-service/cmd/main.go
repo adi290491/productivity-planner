@@ -1,13 +1,8 @@
 package main
 
 import (
-	"context"
 	"log"
 	"net/http"
-	"os"
-	"os/signal"
-
-	"time"
 
 	"github.com/adi290491/productivity-planner/user-service/config"
 	"github.com/adi290491/productivity-planner/user-service/models"
@@ -47,7 +42,7 @@ func main() {
 	}
 
 	RegisterEndpoints(server, handler)
-	
+
 	s := &http.Server{
 		Addr:         "0.0.0.0:" + appConfig.Port,
 		ReadTimeout:  appConfig.ReadTimeout,
@@ -55,6 +50,11 @@ func main() {
 		Handler:      server,
 	}
 
+	if err := s.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		log.Fatalf("Server failed: %v", err)
+	}
+
+	/**
 	go func() {
 		log.Println("Server running on port", appConfig.Port)
 		if err := s.ListenAndServe(); err != nil && err != http.ErrServerClosed {
@@ -76,4 +76,5 @@ func main() {
 		log.Fatal("Server forced to shutdown:", err)
 	}
 	log.Println("Server Exiting")
+	*/
 }
