@@ -9,6 +9,7 @@ import (
 )
 
 func InitDB(appConfig *config.AppConfig) {
+	log.Println("AppConfig:", appConfig)
 	log.Printf("DSN: %s", appConfig.DSN)
 	db, err := gorm.Open(postgres.Open(appConfig.DSN), &gorm.Config{})
 
