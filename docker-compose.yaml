@@ -41,7 +41,7 @@ services:
         condition: service_healthy
     environment:
       - PROFILE=local
-      - PORT=8081
+      # - PORT=${USER_SERVICE_PORT}
     # volumes:
     #   - /user-service/config/config.local.yaml
     networks:

@@ -150,6 +150,3 @@ func (d *DBConfig) DSN() string {
 		d.User, d.Password, d.Host, d.Port, d.Database, d.SSLMode,
 	)
 }
-
-/*
- */
