@@ -15,7 +15,7 @@ func init() {
 	// if err := godotenv.Load("/secrets/env-vars"); err != nil {
 	// 	log.Fatalf("No .env file found")
 	// }
-	LoadEnv()
+	// LoadEnv()
 }
 
 func main() {

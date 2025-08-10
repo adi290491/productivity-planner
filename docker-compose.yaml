@@ -39,8 +39,11 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    env_file:
-      - ./.env
+    environment:
+      - PROFILE=local
+      - PORT=8081
+    # volumes:
+    #   - /user-service/config/config.local.yaml
     networks:
       - backend
 

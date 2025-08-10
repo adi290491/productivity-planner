@@ -1,2 +1,4 @@
 .env
+.env copy
 .vscode/
+**/config/config.local.yaml
