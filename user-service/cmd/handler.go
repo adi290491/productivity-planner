@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/adi290491/productivity-planner/user-service/user"
@@ -15,6 +16,7 @@ type Handler struct {
 }
 
 func (h *Handler) Signup(c *gin.Context) {
+	log.Println("--------Called Signup function---------")
 	var req user.SignupDTO
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -22,9 +24,12 @@ func (h *Handler) Signup(c *gin.Context) {
 		return
 	}
 
+	log.Printf("Request: %+v", req)
+
 	user, err := h.Svc.Signup(req)
 
 	if err != nil {
+		log.Println("--------Error on Signup---------")
 		HandleError(c, err, 500)
 		return
 	}

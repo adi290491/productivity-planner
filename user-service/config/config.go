@@ -83,6 +83,7 @@ func Load() *AppConfig {
 	}
 	rc.Port = os.ExpandEnv(rc.Port)
 	if profile == "prod" {
+		log.Println("Fetching env variables for prod....")
 		// rc.Port = os.ExpandEnv(rc.Port)
 		rc.DB.Username = os.ExpandEnv(rc.DB.Username)
 		rc.DB.Password = os.ExpandEnv(rc.DB.Password)

@@ -2,6 +2,7 @@ package user
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/adi290491/productivity-planner/user-service/models"
 	"github.com/adi290491/productivity-planner/user-service/utils"
@@ -13,6 +14,7 @@ type UserService struct {
 }
 
 func (u *UserService) Signup(userDto SignupDTO) (*models.User, error) {
+	log.Println("----------Inside UserService.Signup-------------")
 	hashedPassword, err := utils.HashPassword(userDto.Password)
 	if err != nil {
 		return nil, fmt.Errorf("hashing password failed: %w", err)
@@ -28,7 +30,8 @@ func (u *UserService) Signup(userDto SignupDTO) (*models.User, error) {
 	response, err := u.Repo.CreateUser(user)
 
 	if err != nil {
-		return nil, fmt.Errorf("user creation failed: %v", err)
+		log.Println("--------Error creating user--------")
+		return nil, fmt.Errorf("user creation failed: %+v", err)
 	}
 
 	return response, nil
