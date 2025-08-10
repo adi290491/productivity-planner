@@ -31,7 +31,7 @@ func (u *UserService) Signup(userDto SignupDTO) (*models.User, error) {
 
 	if err != nil {
 		log.Println("--------Error creating user--------")
-		return nil, fmt.Errorf("user creation failed: %+v", err)
+		return nil, fmt.Errorf("user creation failed: %+w", err)
 	}
 
 	return response, nil

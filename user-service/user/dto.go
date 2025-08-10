@@ -13,6 +13,11 @@ type LoginRequest struct {
 	Password string `json:"password" binding:"required"`
 }
 
-func (s *SignupDTO) String() string {
-	return fmt.Sprintf("{Name: %s,\tEmail: %s}", s.Name, s.Email)
+
+// SafeString returns a safe, redacted representation of SignupDTO for logging
+func (s *SignupDTO) SafeString() string {
+	if s == nil {
+		return "<nil SignupDTO>"
+	}
+	return "{SignupDTO: <redacted>}"
 }

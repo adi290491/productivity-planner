@@ -24,12 +24,11 @@ func (h *Handler) Signup(c *gin.Context) {
 		return
 	}
 
-	log.Printf("Request: %+v", req)
-
 	user, err := h.Svc.Signup(req)
 
 	if err != nil {
 		log.Println("--------Error on Signup---------")
+		log.Printf("Signup failed method=%s path=%s ip=%s err=%v", c.Request.Method, c.FullPath(), c.ClientIP(), err)
 		HandleError(c, err, 500)
 		return
 	}

@@ -28,7 +28,7 @@ func (p *PostgresRepository) CreateUser(user *User) (*User, error) {
 
 	if result.Error != nil {
 		log.Println("--------User creation error--------")
-		return nil, fmt.Errorf("user creation failed. %+v", result.Error.Error())
+		return nil, fmt.Errorf("user creation failed. %w", result.Error.Error())
 	}
 
 	return user, nil
@@ -49,7 +49,7 @@ func (p *PostgresRepository) GetUser(userDao *User) (*User, error) {
 
 	if result.Error != nil {
 		log.Println("--------User fetch error--------")
-		return nil, fmt.Errorf("error when fetching user: %+v", result.Error)
+		return nil, fmt.Errorf("error when fetching user: %w", result.Error)
 	}
 
 	return &user, nil
