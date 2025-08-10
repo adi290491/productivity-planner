@@ -1,7 +1,5 @@
 package user
 
-import "fmt"
-
 type SignupDTO struct {
 	Email    string `json:"email" binding:"required,email"`
 	Password string `json:"password" binding:"required"`
@@ -12,7 +10,6 @@ type LoginRequest struct {
 	Email    string `json:"email" binding:"required,email"`
 	Password string `json:"password" binding:"required"`
 }
-
 
 // SafeString returns a safe, redacted representation of SignupDTO for logging
 func (s *SignupDTO) SafeString() string {
