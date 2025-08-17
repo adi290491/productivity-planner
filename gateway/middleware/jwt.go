@@ -2,13 +2,13 @@ package middleware
 
 import (
 	"net/http"
-	"os"
 	"strings"
 
+	"github.com/adi290491/productivity-planner/gateway/config"
 	"github.com/gin-gonic/gin"
 )
 
-func JWTMiddleware() gin.HandlerFunc {
+func JWTMiddleware(cfg *config.AppConfig) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		auth := c.GetHeader("Authorization")
 
@@ -20,7 +20,8 @@ func JWTMiddleware() gin.HandlerFunc {
 		tokenStr := strings.TrimPrefix(auth, "Bearer ")
 
 		jwtUtil := JWTUtil{
-			Secret:      os.Getenv("JWT_SECRET"),
+			// Secret:      os.Getenv("JWT_SECRET"),
+			Secret:      cfg.JWT_SECRET,
 			tokenString: tokenStr,
 		}
 

@@ -6,7 +6,7 @@ import (
 
 	"strings"
 
-	"github.com/adi290491/productivity-planner/task-service/session"
+	"github.com/adi290491/productivity-planner/session-service/session"
 	"github.com/gin-gonic/gin"
 )
 

@@ -13,6 +13,7 @@ func generateToken(secret string, claims jwt.MapClaims, method jwt.SigningMethod
 }
 
 func TestValidateToken_ValidToken(t *testing.T) {
+	t.Parallel()
 	secret := "mysecret"
 	claims := jwt.MapClaims{
 		"userId": "12345",

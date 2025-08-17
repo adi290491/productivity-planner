@@ -3,7 +3,7 @@ package session
 import (
 	"time"
 
-	"github.com/adi290491/productivity-planner/task-service/models"
+	"github.com/adi290491/productivity-planner/session-service/models"
 )
 
 type MockSessionService struct {

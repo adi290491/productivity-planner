@@ -12,6 +12,7 @@ import (
 )
 
 func TestProxyToUserService(t *testing.T) {
+	t.Parallel()
 	mockServer := startMockBackend(t)
 	defer mockServer.Close()
 

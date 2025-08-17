@@ -1,0 +1,3 @@
+profile: prod
+port: "${PORT}"
+jwt_secret: "${JWT_SECRET}"

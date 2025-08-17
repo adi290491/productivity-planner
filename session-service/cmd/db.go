@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	"github.com/adi290491/productivity-planner/task-service/config"
+	"github.com/adi290491/productivity-planner/session-service/config"
 	pg "gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )

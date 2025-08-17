@@ -7,6 +7,7 @@ import (
 )
 
 func TestLoad(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name           string
 		envVars        map[string]string

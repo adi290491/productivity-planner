@@ -9,9 +9,9 @@ import (
 
 	"time"
 
-	"github.com/adi290491/productivity-planner/task-service/config"
-	"github.com/adi290491/productivity-planner/task-service/models"
-	"github.com/adi290491/productivity-planner/task-service/session"
+	"github.com/adi290491/productivity-planner/session-service/config"
+	"github.com/adi290491/productivity-planner/session-service/models"
+	"github.com/adi290491/productivity-planner/session-service/session"
 	"github.com/gin-gonic/gin"
 )
 

@@ -9,6 +9,7 @@ RUN go mod download
 
 # Copy all source
 COPY . .
+COPY config/*.yaml ./config/
 
 # Build the Go binary
 RUN go build -o app ./cmd
@@ -20,6 +21,7 @@ WORKDIR /root/
 
 # Copy binary from build stage
 COPY --from=builder /app/app .
+COPY --from=builder /app/config ./config
 
 # Expose port (optional, mostly for documentation)
 EXPOSE 8080

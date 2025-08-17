@@ -7,17 +7,19 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/adi290491/productivity-planner/gateway/config"
 	"github.com/gin-gonic/gin"
 )
 
 func TestRegisterRoutes(t *testing.T) {
+	t.Parallel()
 	gin.SetMode(gin.TestMode)
 
 	// Set a test frontend origin
 	os.Setenv("FRONTEND_ORIGIN", "http://localhost:5173")
 
 	router := gin.New()
-	RegisterRoutes(router)
+	RegisterRoutes(router, &config.AppConfig{})
 
 	tests := []struct {
 		name               string

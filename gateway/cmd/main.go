@@ -27,7 +27,7 @@ func main() {
 	srv := gin.Default()
 	appConfig := config.Load()
 
-	RegisterRoutes(srv)
+	RegisterRoutes(srv, appConfig)
 	log.Println("Port:", appConfig.Port)
 
 	s := &http.Server{

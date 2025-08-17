@@ -5,13 +5,14 @@ import (
 
 	"time"
 
+	"github.com/adi290491/productivity-planner/gateway/config"
 	"github.com/adi290491/productivity-planner/gateway/middleware"
 	"github.com/adi290491/productivity-planner/gateway/proxy"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
-func RegisterRoutes(r *gin.Engine) {
+func RegisterRoutes(r *gin.Engine, cfg *config.AppConfig) {
 
 	frontendOrigin := os.Getenv("FRONTEND_ORIGIN")
 
@@ -37,21 +38,21 @@ func RegisterRoutes(r *gin.Engine) {
 
 	{
 		sessionsRouter := r.Group("/sessions")
-		sessionsRouter.Use(middleware.JWTMiddleware())
+		sessionsRouter.Use(middleware.JWTMiddleware(cfg))
 		sessionsRouter.POST("/v1/start-session", proxy.ProxyToSessionService)
 		sessionsRouter.PATCH("/v1/stop-session", proxy.ProxyToSessionService)
 	}
 
 	{
 		summaryRouter := r.Group("/summary")
-		summaryRouter.Use(middleware.JWTMiddleware())
+		summaryRouter.Use(middleware.JWTMiddleware(cfg))
 		summaryRouter.GET("/daily", proxy.ProxyToSummaryService)
 		summaryRouter.GET("/weekly", proxy.ProxyToSummaryService)
 	}
 
 	{
 		trendRouter := r.Group("/trend")
-		trendRouter.Use(middleware.JWTMiddleware())
+		trendRouter.Use(middleware.JWTMiddleware(cfg))
 		trendRouter.GET("/daily", proxy.ProxyToTrendService)
 		trendRouter.GET("/weekly", proxy.ProxyToTrendService)
 	}

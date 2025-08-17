@@ -7,11 +7,13 @@ import (
 	"testing"
 	"time"
 
+	"github.com/adi290491/productivity-planner/gateway/config"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 )
 
 func TestJWTMiddleware(t *testing.T) {
+	t.Parallel()
 	secret := "mysecret"
 	validToken := generateValidJWT(secret, "1234")
 
@@ -42,12 +44,18 @@ func TestJWTMiddleware(t *testing.T) {
 		},
 	}
 
+	cfg := &config.AppConfig{
+		Port:         "8080",
+		ReadTimeout:  10 * time.Second,
+		WriteTimeout: 10 * time.Second,
+	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			os.Setenv("JWT_SECRET", secret)
 
 			r := gin.New()
-			r.Use(JWTMiddleware())
+			r.Use(JWTMiddleware(cfg))
 			r.GET("/protected", func(c *gin.Context) {
 				c.JSON(http.StatusOK, gin.H{"message": "authorized"})
 			})

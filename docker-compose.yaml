@@ -66,8 +66,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    env_file:
-      - ./.env
+    environment:
+      - PROFILE=local
     networks:
       - backend
     
@@ -87,12 +87,12 @@ services:
     build: ./gateway
     ports:
       - "${GATEWAY_PORT}:${GATEWAY_PORT}"
-    depends_on:
-      - session-service
-      - user-service
-      - summary-service
-    env_file:
-      - ./.env
+    # depends_on:
+    #   - session-service
+    #   - user-service
+    #   - summary-service
+    environment:
+      - PROFILE=local
     networks:
       - backend
     
