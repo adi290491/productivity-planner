@@ -1,7 +1,8 @@
-import axios from "axios";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import CarouselHeader from "../components/CarouselHeader";
+import api from "../api/api";
+
 
 const Signup = () => {
     const [form, setForm] = useState({name: '', email: '', password:''});
@@ -15,7 +16,7 @@ const Signup = () => {
 
         console.log("Signup form:", form)
         try {
-            const response = await axios.post("http://localhost:8000/users/signup", form)
+            const response = await api.post("/users/signup", form)
             alert(`Signup successful! Welcome ${response.data.user.name}`)
             navigate("/login")
         } catch (error: any) {

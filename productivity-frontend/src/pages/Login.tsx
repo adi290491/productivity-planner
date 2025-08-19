@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import CarouselHeader from "../components/CarouselHeader";
-import axios from "axios";
+import api from "../api/api";
+
 
 const Login = () => {
     const [form, setForm] = useState({email: '', password: ''});
@@ -15,7 +16,7 @@ const Login = () => {
         e.preventDefault();
 
         try {
-            const response = await axios.post("http://localhost:8000/users/login", form)
+            const response = await api.post("/users/login", form)
             localStorage.setItem("token", response.data.token)
             console.log('Response:', response)
             // alert(`Signin successful! Welcome ${response.data.user.name}`)
