@@ -47,27 +47,3 @@ jobs:
                 go build -o daily-trend ./daily-aggregates
                 go build -o weekly-trend ./weekly-aggregates
                 cd ..
-
-    frontend:
-        name: Build Frontend
-        runs-on: ubuntu-latest
-
-        steps:
-            - name: Checkout repo
-              uses: actions/checkout@v4
-
-            - name: Setup Node.js
-              uses: actions/setup-node@v4
-              with:
-                node-version: ${{env.NODE_VERSION}}
-            
-            - name: Install dependencies
-              run: |
-                cd productivity-frontend
-                npm ci
-            
-            - name: Build Frontend
-              run: |
-                cd productivity-frontend
-                npm run build
-

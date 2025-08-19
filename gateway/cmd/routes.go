@@ -17,7 +17,15 @@ func RegisterRoutes(r *gin.Engine, cfg *config.AppConfig) {
 	frontendOrigin := os.Getenv("FRONTEND_ORIGIN")
 
 	if frontendOrigin == "" {
-		frontendOrigin = "http://localhost:5173" // fallback
+		frontendOrigin = os.Getenv("FRONTEND_ORIGIN_2")
+
+		if frontendOrigin == "" {
+			frontendOrigin = "http://localhost:4200" 
+		}
+	}
+
+	if frontendOrigin == "" {
+		// fallback
 	}
 
 	r.Use(cors.New(cors.Config{

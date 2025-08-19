@@ -43,8 +43,8 @@ func Load() *AppConfig {
 	}
 
 	type RawConfig struct {
-		Profile   string
-		Port      string
+		Profile   string `yaml:"profile"`
+		Port      string `yaml:"port"`
 		JWTSecret string `yaml:"jwt_secret"`
 	}
 
@@ -55,7 +55,12 @@ func Load() *AppConfig {
 	if err != nil {
 		log.Fatalf("Failed to parse config: %v", err)
 	}
-	rc.Port = os.ExpandEnv(rc.Port)
+	log.Printf("%+v", rc)
+	// if profile == "local" {
+	// 	rc.Port = os.Getenv("PORT")
+	// 	rc.JWTSecret = os.Getenv(rc.JWTSecret)
+	// }
+
 	if profile == "prod" {
 		log.Println("Fetching env variables for prod....")
 		rc.Port = os.ExpandEnv(rc.Port)
@@ -69,7 +74,7 @@ func Load() *AppConfig {
 		WriteTimeout: 10 * time.Second,
 	}
 
-	log.Println("-------------Read application config-------------")
+	log.Println("-------------Finished application config-------------")
 	return appConfig
 
 }
