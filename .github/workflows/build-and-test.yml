@@ -3,6 +3,7 @@ name: Build and Test
 on:
     push:
         branches: [master]
+        paths: ./user-service
     pull_request:
         branches: [master]
 
@@ -11,8 +12,8 @@ env:
     NODE_VERSION: '20'
 
 jobs:
-    backend:
-        name: Build & Test Go Services
+    user_service:
+        name: Build & Test User Service
         runs-on: ubuntu-latest
 
         steps:
@@ -25,25 +26,15 @@ jobs:
                 go-version: ${{env.GO_VERSION}}
 
             - name: Run Go unit tests
-              run: |
-                for dir in user-service session-service summary-service gateway trend-service trend-analysis-worker; do
-                    cd $dir
-                    go mod tidy
-                    go test ./...
-                    cd ..
-                done
+              run: |               
+                cd user-service
+                go mod tidy
+                go test ./...
+                cd ..
+                
             
             - name: Build Go services
               run: |
-                for dir in user-service session-service summary-service gateway trend-service; do
-                    cd $dir
-                    go build -o $dir ./cmd
-                    cd ..
-                done
-            
-            - name: Build Go worker services
-              run: |
-                cd trend-analysis-worker
-                go build -o daily-trend ./daily-aggregates
-                go build -o weekly-trend ./weekly-aggregates
+                cd user-service
+                go build -o $dir ./cmd
                 cd ..
