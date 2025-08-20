@@ -11,13 +11,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func init() {
-	// if err := godotenv.Load("/secrets/env-vars"); err != nil {
-	// 	log.Fatalf("No .env file found")
-	// }
-	// LoadEnv()
-}
-
 func main() {
 
 	appConfig := config.Load()
