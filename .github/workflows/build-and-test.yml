@@ -2,20 +2,24 @@ name: Build and Test
 
 on:
     push:
-        branches: [master]
-        paths: ./user-service
+        # branches: [master]
+        paths:
+          - 'user-service/**'
+          - 'gateway/**'
     pull_request:
-        branches: [master]
+        # branches: [master]
+        paths:
+          - 'user-service/**'
+          - 'gateway/**'
 
 env:
     GO_VERSION: '1.23'
-    NODE_VERSION: '20'
 
 jobs:
     user_service:
-        name: Build & Test User Service
+        name: Build & Test user-service
         runs-on: ubuntu-latest
-
+        if: contains(github.event.head_commit.message, 'user-service') || github.event_name == 'pull_request'
         steps:
             - name: Checkout repo
               uses: actions/checkout@v4
@@ -29,12 +33,9 @@ jobs:
               run: |               
                 cd user-service
                 go mod tidy
-                go test ./...
-                cd ..
-                
+                go test ./...          
             
             - name: Build Go services
               run: |
                 cd user-service
                 go build -o $dir ./cmd
-                cd ..

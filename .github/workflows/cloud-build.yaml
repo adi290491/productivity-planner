@@ -1,0 +1,28 @@
+name: Cloud Build Deploy
+
+on:
+  workflow_run:
+    workflows: ["Build and Test"]
+    types: [completed]
+
+jobs:
+  user_service_build:
+    if: ${{github.event.workflow_run.conclusion == 'success'}}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+    
+      - name: Authenticate with GCP
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_CREDENTIALS }}
+        
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Cloud Build user-service
+        run: |
+          gcloud builds submit ./user-service \
+            --project ${{ secrets.GCP_PROJECT_ID }} \
+            --tag ${{ secrets.ARTIFACT_REPO }}/user-service:latest
