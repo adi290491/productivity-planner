@@ -32,7 +32,6 @@ type AppConfig struct {
 func (c *AppConfig) String() string {
 	return "AppConfig{" +
 		"DSN:" + c.DSN +
-		", JWT_SECRET:" + c.JWT_SECRET +
 		", Port:" + c.Port +
 		", ReadTimeout:" + c.ReadTimeout.String() +
 		", WriteTimeout:" + c.WriteTimeout.String() +
@@ -108,6 +107,16 @@ func Load() *AppConfig {
 		SSLMode:  os.Getenv("DB_SSLMODE"),
 	}
 
+	// Validate required fields
+	if dbConfig.Host == "" || dbConfig.Port == "" || dbConfig.DbName == "" ||
+		dbConfig.User == "" || dbConfig.Password == "" {
+		log.Fatal("Missing required database configuration. Please ensure DB_HOST, DB_PORT, DB_NAME, DB_USERNAME, and DB_PASSWORD are set")
+	}
+
+	// Set default for optional fields
+	if dbConfig.SSLMode == "" {
+		dbConfig.SSLMode = "disable"
+	}
 	appConfig := &AppConfig{
 		DSN:          dbConfig.DSN(),
 		JWT_SECRET:   os.Getenv("JWT_SECRET"),
@@ -115,6 +124,16 @@ func Load() *AppConfig {
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 10 * time.Second,
 		DB:           nil, // DB connection can be set up elsewhere
+	}
+
+	// Validate required application settings
+	if appConfig.JWT_SECRET == "" {
+		log.Fatal("Missing required JWT_SECRET environment variable")
+	}
+
+	if appConfig.Port == "" {
+		appConfig.Port = "8080" // Set default port
+		log.Printf("PORT not specified, using default: %s", appConfig.Port)
 	}
 
 	log.Println("-------------Exiting application config-------------")

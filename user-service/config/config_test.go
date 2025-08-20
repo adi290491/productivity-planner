@@ -89,7 +89,7 @@ func TestLoad_WithEnvVars(t *testing.T) {
 }
 
 func TestLoad_MissingEnvVars(t *testing.T) {
-	t.Parallel()
+
 	os.Unsetenv("DB_HOST")
 	os.Unsetenv("DB_PORT")
 	os.Unsetenv("DB_NAME")

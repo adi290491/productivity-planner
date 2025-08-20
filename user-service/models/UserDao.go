@@ -28,7 +28,7 @@ func (p *PostgresRepository) CreateUser(user *User) (*User, error) {
 
 	if result.Error != nil {
 		log.Println("--------User creation error--------")
-		return nil, fmt.Errorf("user creation failed. %v", result.Error.Error())
+		return nil, fmt.Errorf("user creation failed. %w", result.Error)
 	}
 
 	return user, nil
