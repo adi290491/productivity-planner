@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"os"
 
 	"time"
@@ -20,14 +21,14 @@ func RegisterRoutes(r *gin.Engine, cfg *config.AppConfig) {
 		frontendOrigin = os.Getenv("FRONTEND_ORIGIN_2")
 
 		if frontendOrigin == "" {
-			frontendOrigin = "http://localhost:4200" 
+			frontendOrigin = "http://localhost:4200"
 		}
 	}
 
 	if frontendOrigin == "" {
 		// fallback
 	}
-
+	log.Printf("Origin: %+s\n", frontendOrigin)
 	r.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{frontendOrigin},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},

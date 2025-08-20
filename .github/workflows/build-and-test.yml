@@ -2,12 +2,12 @@ name: Build and Test
 
 on:
     push:
-        # branches: [master]
+        branches: [master]
         paths:
           - 'user-service/**'
           - 'gateway/**'
     pull_request:
-        # branches: [master]
+        branches: [master]
         paths:
           - 'user-service/**'
           - 'gateway/**'
