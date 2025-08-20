@@ -48,50 +48,6 @@ func dbStatus(db *gorm.DB) string {
 
 func Load() *AppConfig {
 
-	// profile := os.Getenv("PROFILE")
-	// if profile == "" {
-	// 	profile = "local"
-	// }
-
-	// configData, err := os.ReadFile(getConfigPath(profile))
-	// if err != nil {
-	// 	log.Fatalf("failed to read config file: %v", err)
-	// }
-
-	// type RawConfig struct {
-	// 	Profile string
-	// 	Port    string
-	// 	DB      struct {
-	// 		Username string `yaml:"username"`
-	// 		Password string `yaml:"password"`
-	// 		Host     string `yaml:"host"`
-	// 		Port     string `yaml:"port"`
-	// 		Database string `yaml:"database"`
-	// 		SSLMode  string `yaml:"sslmode"`
-	// 	} `yaml:"db"`
-	// 	JWTSecret string `yaml:"jwt_secret"`
-	// }
-
-	// var rc RawConfig
-
-	// err = yaml.Unmarshal(configData, &rc)
-
-	// if err != nil {
-	// 	log.Fatalf("Failed to parse config: %v", err)
-	// }
-	// rc.Port = os.ExpandEnv(rc.Port)
-	// if profile == "prod" {
-	// 	log.Println("Fetching env variables for prod....")
-	// 	// rc.Port = os.ExpandEnv(rc.Port)
-	// 	rc.DB.Username = os.ExpandEnv(rc.DB.Username)
-	// 	rc.DB.Password = os.ExpandEnv(rc.DB.Password)
-	// 	rc.DB.Host = os.ExpandEnv(rc.DB.Host)
-	// 	rc.DB.Port = os.ExpandEnv(rc.DB.Port)
-	// 	rc.DB.Database = os.ExpandEnv(rc.DB.Database)
-	// 	rc.DB.SSLMode = os.ExpandEnv(rc.DB.SSLMode)
-	// 	rc.JWTSecret = os.ExpandEnv(rc.JWTSecret)
-	// }
-
 	_ = godotenv.Load()
 
 	profile := os.Getenv("PROFILE")
@@ -140,34 +96,6 @@ func Load() *AppConfig {
 	return appConfig
 
 }
-
-// func getConfigPath(profile string) string {
-// 	var configPath string
-
-// 	dir, _ := os.Getwd()
-// 	log.Printf("Profile : %s\n, CWD: %s", profile, dir)
-// 	// if profile == "prod" {
-// 	// 	configPath = "/config/config.prod.yaml"
-// 	// } else {
-// 	// 	configPath = "/config/config.local.yaml"
-// 	// }
-
-// 	configPath = fmt.Sprintf("config/config.%s.yaml", profile)
-
-// 	return configPath
-// }
-
-// func readFromFile(path string) string {
-// 	data, err := os.ReadFile(path)
-
-// 	if err != nil {
-// 		log.Printf("Warning: could not read file at %s\n", err)
-// 		return ""
-// 	}
-
-// 	return strings.TrimSpace(string(data))
-
-// }
 
 func (d *DBConfig) DSN() string {
 	return fmt.Sprintf(
