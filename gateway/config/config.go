@@ -6,7 +6,7 @@ import (
 	"os"
 	"time"
 
-	"gopkg.in/yaml.v3"
+	"github.com/joho/godotenv"
 )
 
 type AppConfig struct {
@@ -16,81 +16,35 @@ type AppConfig struct {
 	JWT_SECRET   string
 }
 
-// func Load() *AppConfig {
-
-// 	port := os.Getenv("PORT")
-// 	if port == "" {
-// 		port = os.Getenv("GATEWAY_PORT")
-// 	}
-
-// 	return &AppConfig{
-// 		Port:         port,
-// 		ReadTimeout:  10 * time.Second,
-// 		WriteTimeout: 10 * time.Second,
-// 	}
-// }
+func (c *AppConfig) String() string {
+	return fmt.Sprintf("AppConfig{Port:%s, ReadTimeout:%s, WriteTimeout:%s}", c.Port, c.ReadTimeout, c.WriteTimeout)
+}
 
 func Load() *AppConfig {
 
+	_ = godotenv.Load()
+
 	profile := os.Getenv("PROFILE")
-	if profile == "" {
-		profile = "local"
-	}
-
-	configData, err := os.ReadFile(getConfigPath(profile))
-	if err != nil {
-		log.Fatalf("failed to read config file: %v", err)
-	}
-
-	type RawConfig struct {
-		Profile   string `yaml:"profile"`
-		Port      string `yaml:"port"`
-		JWTSecret string `yaml:"jwt_secret"`
-	}
-
-	var rc RawConfig
-
-	err = yaml.Unmarshal(configData, &rc)
-
-	if err != nil {
-		log.Fatalf("Failed to parse config: %v", err)
-	}
-	log.Printf("%+v", rc)
-	// if profile == "local" {
-	// 	rc.Port = os.Getenv("PORT")
-	// 	rc.JWTSecret = os.Getenv(rc.JWTSecret)
-	// }
-
-	if profile == "prod" {
-		log.Println("Fetching env variables for prod....")
-		rc.Port = os.ExpandEnv(rc.Port)
-		rc.JWTSecret = os.ExpandEnv(rc.JWTSecret)
-	}
+	log.Printf("Loading configurations for %+s\n", profile)
 
 	appConfig := &AppConfig{
-		JWT_SECRET:   rc.JWTSecret,
-		Port:         rc.Port,
+		JWT_SECRET:   os.Getenv("JWT_SECRET"),
+		Port:         os.Getenv("PORT"),
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 10 * time.Second,
+	}
+
+	// Validate required application settings
+	if appConfig.JWT_SECRET == "" {
+		log.Fatal("Missing required JWT_SECRET environment variable")
+	}
+
+	if appConfig.Port == "" {
+		appConfig.Port = "8081" // Set default port
+		log.Printf("PORT not specified, using default: %s", appConfig.Port)
 	}
 
 	log.Println("-------------Finished application config-------------")
 	return appConfig
 
-}
-
-func getConfigPath(profile string) string {
-	var configPath string
-
-	dir, _ := os.Getwd()
-	log.Printf("Profile : %s\n, CWD: %s", profile, dir)
-	// if profile == "prod" {
-	// 	configPath = "/config/config.prod.yaml"
-	// } else {
-	// 	configPath = "/config/config.local.yaml"
-	// }
-
-	configPath = fmt.Sprintf("config/config.%s.yaml", profile)
-
-	return configPath
 }

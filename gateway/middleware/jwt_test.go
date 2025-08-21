@@ -3,7 +3,6 @@ package middleware
 import (
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"testing"
 	"time"
 
@@ -13,7 +12,6 @@ import (
 )
 
 func TestJWTMiddleware(t *testing.T) {
-	t.Parallel()
 	secret := "mysecret"
 	validToken := generateValidJWT(secret, "1234")
 
@@ -48,12 +46,11 @@ func TestJWTMiddleware(t *testing.T) {
 		Port:         "8080",
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 10 * time.Second,
+		JWT_SECRET:   secret,
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			os.Setenv("JWT_SECRET", secret)
-
 			r := gin.New()
 			r.Use(JWTMiddleware(cfg))
 			r.GET("/protected", func(c *gin.Context) {

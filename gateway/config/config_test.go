@@ -6,66 +6,52 @@ import (
 	"time"
 )
 
-func TestLoad(t *testing.T) {
-	t.Parallel()
-	tests := []struct {
-		name           string
-		envVars        map[string]string
-		expectedConfig *AppConfig
-	}{
-		{
-			name: "Valid environment variables",
-			envVars: map[string]string{
-				"GATEWAY_PORT": "8080",
-			},
-			expectedConfig: &AppConfig{
-				Port:         "8080",
-				ReadTimeout:  10 * time.Second,
-				WriteTimeout: 10 * time.Second,
-			},
-		},
-		{
-			name:    "Missing environment variables",
-			envVars: map[string]string{},
-			expectedConfig: &AppConfig{
-				Port:         "",
-				ReadTimeout:  10 * time.Second,
-				WriteTimeout: 10 * time.Second,
-			},
-		},
+func TestLoad_ValidEnvVars(t *testing.T) {
+	os.Setenv("PORT", "9000")
+	os.Setenv("JWT_SECRET", "testsecret")
+	defer func() {
+		os.Unsetenv("PORT")
+		os.Unsetenv("JWT_SECRET")
+	}()
+
+	cfg := Load()
+	if cfg.Port != "9000" {
+		t.Errorf("expected port 9000, got %s", cfg.Port)
 	}
+	if cfg.JWT_SECRET != "testsecret" {
+		t.Errorf("expected JWT_SECRET testsecret, got %s", cfg.JWT_SECRET)
+	}
+	if cfg.ReadTimeout != 10*time.Second {
+		t.Errorf("expected ReadTimeout 10s, got %v", cfg.ReadTimeout)
+	}
+	if cfg.WriteTimeout != 10*time.Second {
+		t.Errorf("expected WriteTimeout 10s, got %v", cfg.WriteTimeout)
+	}
+}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+func TestLoad_DefaultPort(t *testing.T) {
+	os.Unsetenv("PORT")
+	os.Setenv("JWT_SECRET", "testsecret")
+	defer func() {
+		os.Unsetenv("PORT")
+		os.Unsetenv("JWT_SECRET")
+	}()
 
-			//set env variables
-			for key, value := range tt.envVars {
-				os.Setenv(key, value)
-			}
+	cfg := Load()
+	if cfg.Port != "8081" {
+		t.Errorf("expected default port 8081, got %s", cfg.Port)
+	}
+}
 
-			// Clean up environment variables after this test case
-			defer func() {
-				for key := range tt.envVars {
-					os.Unsetenv(key)
-				}
-			}()
-
-			config := Load()
-
-			// Clean up environment variables
-			for key := range tt.envVars {
-				os.Unsetenv(key)
-			}
-
-			if config.Port != tt.expectedConfig.Port {
-				t.Errorf("expected Port %s, got %s", tt.expectedConfig.Port, config.Port)
-			}
-			if config.ReadTimeout != tt.expectedConfig.ReadTimeout {
-				t.Errorf("expected ReadTimeout %v, got %v", tt.expectedConfig.ReadTimeout, config.ReadTimeout)
-			}
-			if config.WriteTimeout != tt.expectedConfig.WriteTimeout {
-				t.Errorf("expected WriteTimeout %v, got %v", tt.expectedConfig.WriteTimeout, config.WriteTimeout)
-			}
-		})
+func TestAppConfig_String(t *testing.T) {
+	cfg := &AppConfig{
+		Port:         "9000",
+		ReadTimeout:  10 * time.Second,
+		WriteTimeout: 10 * time.Second,
+		JWT_SECRET:   "testsecret",
+	}
+	str := cfg.String()
+	if str == "" || str == "AppConfig{}" {
+		t.Errorf("unexpected string output: %s", str)
 	}
 }
