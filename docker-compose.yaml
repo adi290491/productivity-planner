@@ -48,12 +48,12 @@ services:
   session-service:
     build: ./session-service
     ports:
-      - "${SESSION_SERVICE_PORT}:${SESSION_SERVICE_PORT}"
+      - "8085:8085"
     depends_on:
       postgres:
         condition: service_healthy
     env_file:
-      - ./.env
+      - ./session-service/.env
     networks:
       - backend
 
@@ -84,19 +84,13 @@ services:
   gateway:
     build: ./gateway
     ports:
-      - "8081:8081"
+      - "8000:8000"
     # depends_on:
     #   - session-service
     #   - user-service
     #   - summary-service
-    environment:
-      - PROFILE=local
-      # - PORT=${GATEWAY_PORT}
-      - USER_SERVICE_URL=${USER_SERVICE_URL}
-      - SESSION_SERVICE_URL=${SESSION_SERVICE_URL}
-      - SUMMARY_SERVICE_URL=${SUMMARY_SERVICE_URL}
-      - TREND_SERVICE_URL=${TREND_SERVICE_URL}
-      - FRONTEND_ORIGIN="http://localhost:4200"
+    env_file:
+      - ./gateway/.env
     networks:
       - backend
   

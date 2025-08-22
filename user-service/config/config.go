@@ -55,7 +55,7 @@ func Load() *AppConfig {
 	log.Printf("Loading configurations for %+s\n", profile)
 
 	dbConfig := &DBConfig{
-		Host:     os.Getenv("DB_HOST"),
+		Host:     os.Getenv("DB_HOSTNAME"),
 		Port:     os.Getenv("DB_PORT"),
 		DbName:   os.Getenv("DB_NAME"),
 		User:     os.Getenv("DB_USERNAME"),

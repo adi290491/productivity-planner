@@ -4,20 +4,19 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"strings"
 	"time"
 
-	"gopkg.in/yaml.v3"
+	"github.com/joho/godotenv"
 	"gorm.io/gorm"
 )
 
 type DBConfig struct {
-	Host     string `yaml:"host"`
-	Port     string `yaml:"port"`
-	Database string `yaml:"database"`
-	User     string `yaml:"username"`
-	Password string `yaml:"password"`
-	SSLMode  string `yaml:"sslmode"`
+	Host     string
+	Port     string
+	DBName   string
+	User     string
+	Password string
+	SSLMode  string
 }
 
 type AppConfig struct {
@@ -28,117 +27,61 @@ type AppConfig struct {
 	DB           *gorm.DB
 }
 
-// func Load() *AppConfig {
-
-// 	port := os.Getenv("PORT")
-// 	if port == "" {
-// 		port = os.Getenv("SESSION_SERVICE_PORT")
-// 	}
-// 	return &AppConfig{
-// 		DSN:          os.Getenv("DB_DSN"),
-// 		Port:         port,
-// 		ReadTimeout:  10 * time.Second,
-// 		WriteTimeout: 10 * time.Second,
-// 	}
-// }
+func dbStatus(db *gorm.DB) string {
+	if db == nil {
+		return "nil"
+	}
+	return "initialized"
+}
 
 func Load() *AppConfig {
 
+	_ = godotenv.Load()
+
 	profile := os.Getenv("PROFILE")
-	if profile == "" {
-		profile = "local"
-	}
 
-	configData, err := os.ReadFile(getConfigPath(profile))
-	if err != nil {
-		log.Fatalf("failed to read config file: %v", err)
-	}
-
-	type RawConfig struct {
-		Profile string
-		Port    string
-		DB      struct {
-			Username string `yaml:"username"`
-			Password string `yaml:"password"`
-			Host     string `yaml:"host"`
-			Port     string `yaml:"port"`
-			Database string `yaml:"database"`
-			SSLMode  string `yaml:"sslmode"`
-		} `yaml:"db"`
-	}
-
-	var rc RawConfig
-
-	err = yaml.Unmarshal(configData, &rc)
-
-	if err != nil {
-		log.Fatalf("Failed to parse config: %v", err)
-	}
-	rc.Port = os.ExpandEnv(rc.Port)
-	if profile == "prod" {
-		log.Println("Fetching env variables for prod....")
-		// rc.Port = os.ExpandEnv(rc.Port)
-		rc.DB.Username = os.ExpandEnv(rc.DB.Username)
-		rc.DB.Password = os.ExpandEnv(rc.DB.Password)
-		rc.DB.Host = os.ExpandEnv(rc.DB.Host)
-		rc.DB.Port = os.ExpandEnv(rc.DB.Port)
-		rc.DB.Database = os.ExpandEnv(rc.DB.Database)
-		rc.DB.SSLMode = os.ExpandEnv(rc.DB.SSLMode)
-	}
+	log.Printf("Loading configurations for %+s\n", profile)
 
 	dbConfig := &DBConfig{
-		Host:     rc.DB.Host,
-		Port:     rc.DB.Port,
-		Database: rc.DB.Database,
-		User:     rc.DB.Username,
-		Password: rc.DB.Password,
-		SSLMode:  rc.DB.SSLMode,
+		Host:     os.Getenv("DB_HOSTNAME"),
+		Port:     os.Getenv("DB_PORT"),
+		DBName:   os.Getenv("DB_NAME"),
+		User:     os.Getenv("DB_USERNAME"),
+		Password: os.Getenv("DB_PASSWORD"),
+		SSLMode:  os.Getenv("DB_SSLMODE"),
 	}
 
+	// Validate required fields
+	if dbConfig.Host == "" || dbConfig.Port == "" || dbConfig.DBName == "" ||
+		dbConfig.User == "" || dbConfig.Password == "" {
+		log.Fatal("Missing required database configuration. Please ensure DB_HOST, DB_PORT, DB_NAME, DB_USERNAME, and DB_PASSWORD are set")
+	}
+
+	// Set default for optional fields
+	if dbConfig.SSLMode == "" {
+		dbConfig.SSLMode = "disable"
+	}
 	appConfig := &AppConfig{
 		DSN:          dbConfig.DSN(),
-		Port:         rc.Port,
+		Port:         os.Getenv("PORT"),
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 10 * time.Second,
 		DB:           nil, // DB connection can be set up elsewhere
 	}
 
-	log.Println("-------------Read application config-------------")
-	return appConfig
-
-}
-
-func getConfigPath(profile string) string {
-	var configPath string
-
-	dir, _ := os.Getwd()
-	log.Printf("Profile : %s\n, CWD: %s", profile, dir)
-	// if profile == "prod" {
-	// 	configPath = "/config/config.prod.yaml"
-	// } else {
-	// 	configPath = "/config/config.local.yaml"
-	// }
-
-	configPath = fmt.Sprintf("./config/config.%s.yaml", profile)
-
-	return configPath
-}
-
-func readFromFile(path string) string {
-	data, err := os.ReadFile(path)
-
-	if err != nil {
-		log.Printf("Warning: could not read file at %s\n", err)
-		return ""
+	if appConfig.Port == "" {
+		appConfig.Port = "8080" // Set default port
+		log.Printf("PORT not specified, using default: %s", appConfig.Port)
 	}
 
-	return strings.TrimSpace(string(data))
+	log.Println("-------------Exiting application config-------------")
+	return appConfig
 
 }
 
 func (d *DBConfig) DSN() string {
 	return fmt.Sprintf(
 		"postgres://%s:%s@%s:%s/%s?sslmode=%s",
-		d.User, d.Password, d.Host, d.Port, d.Database, d.SSLMode,
+		d.User, d.Password, d.Host, d.Port, d.DBName, d.SSLMode,
 	)
 }

@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 
 	"strings"
@@ -30,6 +31,7 @@ func (h *Handler) StartSession(c *gin.Context) {
 		HandleError(c, fmt.Errorf("invalid request body, %v", err), http.StatusBadRequest)
 		return
 	}
+	log.Printf("Session Request: %+v", sessionRequest)
 
 	if !sessionRequest.SessionType.IsValid() {
 		HandleError(c, fmt.Errorf("invalid session type"), http.StatusBadRequest)

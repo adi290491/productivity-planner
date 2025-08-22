@@ -1,5 +1,7 @@
 package session
 
+import "log"
+
 type SessionRequest struct {
 	SessionType SessionType `json:"session_type"`
 }
@@ -31,8 +33,9 @@ const (
 	BREAK   SessionType = "break"
 )
 
-func (t SessionType) IsValid() bool {
-	switch t {
+func (t *SessionType) IsValid() bool {
+	log.Println("Current Session Type:", *t)
+	switch *t {
 	case FOCUS, MEETING, BREAK:
 		return true
 	default:
