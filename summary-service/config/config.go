@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"log"
+	"net/url"
 	"os"
 	"time"
 
@@ -42,12 +43,26 @@ type AppConfig struct {
 
 func (c *AppConfig) String() string {
 	return "AppConfig{" +
-		"DSN:" + c.DSN +
+		"DSN:" + redactDSN(c.DSN) +
 		", Port:" + c.Port +
 		", ReadTimeout:" + c.ReadTimeout.String() +
 		", WriteTimeout:" + c.WriteTimeout.String() +
 		", DB:" + dbStatus(c.DB) +
 		"}"
+}
+
+// redactDSN masks the password in a DSN string. Returns original DSN on parse error or if no user info.
+func redactDSN(dsn string) string {
+	u, err := url.Parse(dsn)
+	if err != nil || u == nil || u.User == nil {
+		return dsn
+	}
+	pw, _ := u.User.Password()
+	if pw == "" {
+		return dsn
+	}
+	u.User = url.UserPassword(u.User.Username(), "*****")
+	return u.String()
 }
 
 func Load() (*AppConfig, error) {

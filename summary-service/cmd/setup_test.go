@@ -25,15 +25,6 @@ func TestMain(m *testing.M) {
 	os.Setenv("DB_PASSWORD", "testpass")
 	os.Setenv("JWT_SECRET", "NxrWXLL7kc")
 	os.Setenv("PORT", "1234")
-	defer func() {
-		os.Unsetenv("DB_HOST")
-		os.Unsetenv("DB_PORT")
-		os.Unsetenv("DB_NAME")
-		os.Unsetenv("DB_USERNAME")
-		os.Unsetenv("DB_PASSWORD")
-		os.Unsetenv("JWT_SECRET")
-		os.Unsetenv("PORT")
-	}()
 	appConfig, _ = config.Load()
 
 	svc := &summary.MockSummaryService{
@@ -44,5 +35,18 @@ func TestMain(m *testing.M) {
 
 	RegisterEndpoints(router, handler)
 
+	cleanup := func() {
+		os.Unsetenv("DB_HOST")
+		os.Unsetenv("DB_PORT")
+		os.Unsetenv("DB_NAME")
+		os.Unsetenv("DB_USERNAME")
+		os.Unsetenv("DB_PASSWORD")
+		os.Unsetenv("JWT_SECRET")
+		os.Unsetenv("PORT")
+	}
+
+	exitCode := m.Run()
+	cleanup()
+	os.Exit(exitCode)
 	os.Exit(m.Run())
 }

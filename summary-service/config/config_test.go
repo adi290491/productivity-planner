@@ -76,13 +76,14 @@ func TestLoad_DefaultPortAndSSLMode(t *testing.T) {
 }
 
 func TestLoad_MissingRequiredEnvVars(t *testing.T) {
-	os.Unsetenv("DB_HOSTNAME")
-	os.Unsetenv("DB_PORT")
-	os.Unsetenv("DB_NAME")
-	os.Unsetenv("DB_USERNAME")
-	os.Unsetenv("DB_PASSWORD")
-	os.Unsetenv("DB_SSLMODE")
-	os.Unsetenv("PORT")
+	// Explicitly set all required vars to empty to override any existing values
+	t.Setenv("DB_HOSTNAME", "")
+	t.Setenv("DB_PORT", "")
+	t.Setenv("DB_NAME", "")
+	t.Setenv("DB_USERNAME", "")
+	t.Setenv("DB_PASSWORD", "")
+	t.Setenv("DB_SSLMODE", "")
+	t.Setenv("PORT", "")
 
 	cfg, err := Load()
 	if cfg != nil {
