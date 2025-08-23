@@ -60,12 +60,12 @@ services:
   summary-service:
     build: ./summary-service
     ports:
-      - "${SUMMARY_SERVICE_PORT}:${SUMMARY_SERVICE_PORT}"
+      - "8082:8082"
     depends_on:
       postgres:
         condition: service_healthy
-    environment:
-      - PROFILE=local
+    env_file:
+      - ./summary-service/.env
     networks:
       - backend
     
@@ -77,7 +77,7 @@ services:
       postgres:
         condition: service_healthy
     env_file:
-      - ./.env
+      - ./trend-service/.env
     networks:
       - backend
 
