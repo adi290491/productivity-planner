@@ -50,3 +50,25 @@ func TestMain(m *testing.M) {
 	os.Exit(exitCode)
 	os.Exit(m.Run())
 }
+
+/*
+create a cloud run deploy command for the newly created summary-service. 
+Use these details
+region: us-central, 
+image tag: us-central1-docker.pkg.dev/systemic-productivity-planner/prod-planner-repo/summary-service:manual-v1.
+env variables:
+PROFILE=prod
+
+secrets
+DB_HOSTNAME=DB_HOSTNAME version:latest
+DB_NAME=DB_NAME version:latest
+DB_PASSWORD=DB_PASSWORD version:lates
+DB_PORT=DB_PORT version:latest
+DB_SSLMODE=DB_SSLMODE versoin:latest
+DB_USERNAME=DB_USERNAME version:latest
+
+allow unauthenticated
+Cloud SQL Connection: systemic-productivity-planner:us-central1:planner-prod
+connect to vcpc from outbound traffic
+- directly send traffic to a VCP
+*/
