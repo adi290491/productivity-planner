@@ -17,7 +17,11 @@ import (
 
 func main() {
 
-	appConfig := config.Load()
+	appConfig, err := config.Load()
+
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	InitDB(appConfig)
 

@@ -1,66 +1,128 @@
 package config
 
 import (
+	"net/url"
 	"os"
+	"strings"
 	"testing"
 	"time"
 )
 
-func TestLoad(t *testing.T) {
-	tests := []struct {
-		name           string
-		envVars        map[string]string
-		expectedConfig *AppConfig
-	}{
-		{
-			name: "Valid environment variables",
-			envVars: map[string]string{
-				"DB_DSN":             "postgres://user:password@localhost:5432/dbname",
-				"TREND_SERVICE_PORT": "8080",
-			},
-			expectedConfig: &AppConfig{
-				DSN:          "postgres://user:password@localhost:5432/dbname",
-				Port:         "8080",
-				ReadTimeout:  10 * time.Second,
-				WriteTimeout: 10 * time.Second,
-			},
-		},
-		{
-			name:    "Missing environment variables",
-			envVars: map[string]string{},
-			expectedConfig: &AppConfig{
-				DSN:          "",
-				Port:         "",
-				ReadTimeout:  10 * time.Second,
-				WriteTimeout: 10 * time.Second,
-			},
-		},
+func TestLoad_ValidEnvVars(t *testing.T) {
+	os.Setenv("DB_HOSTNAME", "localhost")
+	os.Setenv("DB_PORT", "5432")
+	os.Setenv("DB_NAME", "testdb")
+	os.Setenv("DB_USERNAME", "testuser")
+	os.Setenv("DB_PASSWORD", "testpass")
+	os.Setenv("DB_SSLMODE", "disable")
+	os.Setenv("PORT", "1234")
+	defer func() {
+		os.Unsetenv("DB_HOSTNAME")
+		os.Unsetenv("DB_PORT")
+		os.Unsetenv("DB_NAME")
+		os.Unsetenv("DB_USERNAME")
+		os.Unsetenv("DB_PASSWORD")
+		os.Unsetenv("DB_SSLMODE")
+		os.Unsetenv("PORT")
+	}()
+
+	cfg, err := Load()
+	expectedDSN := "postgres://testuser:testpass@localhost:5432/testdb?sslmode=disable"
+	if err != nil {
+		t.Errorf("expected no error, got %v", err)
 	}
+	if cfg.DSN != expectedDSN {
+		t.Errorf("expected DSN %s, got %s", expectedDSN, cfg.DSN)
+	}
+	if cfg.Port != "1234" {
+		t.Errorf("expected port 1234, got %s", cfg.Port)
+	}
+	if cfg.ReadTimeout != 10*time.Second {
+		t.Errorf("expected ReadTimeout 10s, got %v", cfg.ReadTimeout)
+	}
+	if cfg.WriteTimeout != 10*time.Second {
+		t.Errorf("expected WriteTimeout 10s, got %v", cfg.WriteTimeout)
+	}
+}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+func TestLoad_DefaultPortAndSSLMode(t *testing.T) {
+	os.Setenv("DB_HOSTNAME", "localhost")
+	os.Setenv("DB_PORT", "5432")
+	os.Setenv("DB_NAME", "testdb")
+	os.Setenv("DB_USERNAME", "testuser")
+	os.Setenv("DB_PASSWORD", "testpass")
+	os.Unsetenv("DB_SSLMODE")
+	os.Unsetenv("PORT")
+	defer func() {
+		os.Unsetenv("DB_HOSTNAME")
+		os.Unsetenv("DB_PORT")
+		os.Unsetenv("DB_NAME")
+		os.Unsetenv("DB_USERNAME")
+		os.Unsetenv("DB_PASSWORD")
+		os.Unsetenv("DB_SSLMODE")
+		os.Unsetenv("PORT")
+	}()
 
-			//set env variables
-			for key, value := range tt.envVars {
-				os.Setenv(key, value)
-				defer os.Unsetenv(key) //clean up after test
-			}
+	cfg, err := Load()
+	expectedDSN := "postgres://testuser:testpass@localhost:5432/testdb?sslmode=disable"
+	if err != nil {
+		t.Errorf("expected no error, got %v", err)
+	}
+	if cfg.DSN != expectedDSN {
+		t.Errorf("expected DSN %s, got %s", expectedDSN, cfg.DSN)
+	}
+	if cfg.Port != "8082" {
+		t.Errorf("expected default port 8082, got %s", cfg.Port)
+	}
+}
 
-			config := Load()
+func TestLoad_MissingRequiredEnvVars(t *testing.T) {
+	os.Unsetenv("DB_HOSTNAME")
+	os.Unsetenv("DB_PORT")
+	os.Unsetenv("DB_NAME")
+	os.Unsetenv("DB_USERNAME")
+	os.Unsetenv("DB_PASSWORD")
+	os.Unsetenv("DB_SSLMODE")
+	os.Unsetenv("PORT")
 
-			// assert the config values
-			if config.DSN != tt.expectedConfig.DSN {
-				t.Errorf("expected DSN %s, got %s", tt.expectedConfig.DSN, config.DSN)
-			}
-			if config.Port != tt.expectedConfig.Port {
-				t.Errorf("expected Port %s, got %s", tt.expectedConfig.Port, config.Port)
-			}
-			if config.ReadTimeout != tt.expectedConfig.ReadTimeout {
-				t.Errorf("expected ReadTimeout %v, got %v", tt.expectedConfig.ReadTimeout, config.ReadTimeout)
-			}
-			if config.WriteTimeout != tt.expectedConfig.WriteTimeout {
-				t.Errorf("expected WriteTimeout %v, got %v", tt.expectedConfig.WriteTimeout, config.WriteTimeout)
-			}
-		})
+	cfg, err := Load()
+	if cfg != nil {
+		t.Errorf("expected nil config, got %+v", cfg)
+	}
+	if err == nil || !strings.Contains(err.Error(), "missing required database configuration") {
+		t.Errorf("expected missing config error, got %v", err)
+	}
+}
+
+func TestDBConfig_DSN(t *testing.T) {
+	dbConf := &DBConfig{
+		Host:     "localhost",
+		Port:     "5432",
+		DBName:   "testdb",
+		User:     "testuser",
+		Password: "testpass",
+		SSLMode:  "disable",
+	}
+	expected := "postgres://testuser:testpass@localhost:5432/testdb?sslmode=disable"
+	if dbConf.DSN() != expected {
+		t.Errorf("expected %s, got %s", expected, dbConf.DSN())
+	}
+}
+
+func TestRedactDSN(t *testing.T) {
+	dsn := "postgres://testuser:testpass@localhost:5432/testdb?sslmode=disable"
+	masked := redactDSN(dsn)
+	if !strings.Contains(masked, url.QueryEscape("*****")) {
+		t.Errorf("expected password to be masked, got %s", masked)
+	}
+	// Should return original if no password
+	dsnNoPass := "postgres://testuser@localhost:5432/testdb?sslmode=disable"
+	if redactDSN(dsnNoPass) != dsnNoPass {
+		t.Errorf("expected original DSN when no password")
+	}
+	// Should return original on parse error
+	badDSN := "not-a-valid-dsn"
+	if redactDSN(badDSN) != badDSN {
+		t.Errorf("expected original DSN on parse error")
 	}
 }

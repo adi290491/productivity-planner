@@ -7,6 +7,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/joho/godotenv"
 	"gorm.io/gorm"
 )
 
@@ -66,6 +67,12 @@ func redactDSN(dsn string) string {
 }
 
 func Load() (*AppConfig, error) {
+
+	err := godotenv.Load()
+
+	if err != nil {
+		return nil, err
+	}
 
 	profile := os.Getenv("PROFILE")
 
