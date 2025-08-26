@@ -41,6 +41,8 @@ func (p *PostgresRepository) FetchWeeklyTrend() {
 		log.Fatalf("aggregation error: %v", err)
 	}
 
+	log.Printf("Weekly Aggregation: %+v", weeklyResults)
+
 	for _, row := range weeklyResults {
 		weeklyTrend := models.UserWeeklyTrend{
 			UserId:         row.UserId,

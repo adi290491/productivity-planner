@@ -25,4 +25,6 @@ func main() {
 	}
 
 	repo.FetchWeeklyTrend()
+
+	log.Println("-------Job Execution Completed-------")
 }
