@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"net/url"
 	"os"
 
 	"github.com/joho/godotenv"
@@ -26,9 +27,36 @@ func (d *DBConfig) DSN() string {
 	)
 }
 
+func dbStatus(db *gorm.DB) string {
+	if db == nil {
+		return "nil"
+	}
+	return "initialized"
+}
+
 type Application struct {
 	DB  *gorm.DB
 	DSN string
+}
+
+func (c *Application) String() string {
+	return "AppConfig{" +
+		"DSN:" + redactDSN(c.DSN) +
+		", DB:" + dbStatus(c.DB) +
+		"}"
+}
+
+func redactDSN(dsn string) string {
+	u, err := url.Parse(dsn)
+	if err != nil || u == nil || u.User == nil {
+		return dsn
+	}
+	pw, _ := u.User.Password()
+	if pw == "" {
+		return dsn
+	}
+	u.User = url.UserPassword(u.User.Username(), "*****")
+	return u.String()
 }
 
 func LoadConfig() (*Application, error) {

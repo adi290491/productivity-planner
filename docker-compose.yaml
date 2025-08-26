@@ -96,12 +96,9 @@ services:
   
   daily-trend-job:
     build:
-      context: ./trend-analysis-worker
-      dockerfile: ./Dockerfile.daily
-    container_name: daily-trend-job
-    
+      context: ./daily-trend-analysis-worker    
     env_file:
-      - .env
+      - ./daily-trend-analysis-worker/.env
     depends_on:
       - postgres
     networks:

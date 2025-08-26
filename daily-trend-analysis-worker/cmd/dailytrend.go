@@ -40,6 +40,7 @@ func (p *PostgresRepository) FetchDailyTrends() {
 		log.Fatalf("aggregation error: %v", err)
 	}
 
+	log.Printf("Daily Aggregate: %+v", dailyAggregate)
 	for _, row := range dailyAggregate {
 		dailyTrend := models.UserDailyTrend{
 			UserId:         row.UserId,
@@ -51,6 +52,7 @@ func (p *PostgresRepository) FetchDailyTrends() {
 			UpdatedAt:      time.Now(),
 		}
 
+		// log.Printf("Daily Trend: %+v\n", dailyTrend)
 		result := db.WithContext(ctx).
 			Clauses(clause.OnConflict{
 				Columns: []clause.Column{{Name: "user_id"}, {Name: "day"}},

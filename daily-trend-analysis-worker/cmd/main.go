@@ -27,4 +27,6 @@ func main() {
 	}
 
 	repo.FetchDailyTrends()
+
+	log.Println("-------Job Execution Finished--------")
 }
