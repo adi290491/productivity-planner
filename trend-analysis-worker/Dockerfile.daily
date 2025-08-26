@@ -22,6 +22,6 @@ COPY ./daily-aggregates/crontab.daily /etc/crontabs/root
 
 RUN chmod +x /app/daily-trend
 
-EXPOSE 8085
+EXPOSE 8080
 
 CMD ["/bin/sh", "-c", "crond -f -L /var/log/cron.log"]

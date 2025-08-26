@@ -99,6 +99,7 @@ services:
       context: ./trend-analysis-worker
       dockerfile: ./Dockerfile.daily
     container_name: daily-trend-job
+    
     env_file:
       - .env
     depends_on:
