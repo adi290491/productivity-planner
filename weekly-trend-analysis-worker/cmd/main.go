@@ -6,21 +6,23 @@ import (
 )
 
 func main() {
-
 	app, err := LoadConfig()
 
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	log.SetOutput(os.Stdout)
-	log.Println("Daily trend job started")
+	log.Println("Weekly trend job started")
 
-	app.InitDB()
+	err = app.InitDB()
+
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	repo := &PostgresRepository{
 		DB: app.DB,
 	}
 
-	repo.FetchDailyTrends()
+	repo.FetchWeeklyTrend()
 }

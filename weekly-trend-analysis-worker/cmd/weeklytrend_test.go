@@ -6,11 +6,11 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"productivity-planner/trend-analysis-worker/weekly-aggregates/models"
 
 	"testing"
 	"time"
 
+	"github.com/adi290491/productivity-planner/trend-analysis-worker/weekly-aggregates/models"
 	"github.com/ory/dockertest/v3"
 	"github.com/ory/dockertest/v3/docker"
 	"gorm.io/driver/postgres"
