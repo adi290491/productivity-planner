@@ -5,6 +5,7 @@ import DailySummary from "../components/DailySummary";
 import { fetchDailySummary, fetchWeeklySummary } from "../api/summary";
 import WeeklySummary from "../components/WeeklySummary";
 import SessionControl from "../components/SessionControl";
+import TrendTabs from "../components/TrendTabs";
 
 
 const Dashboard = () => {
@@ -50,6 +51,7 @@ const Dashboard = () => {
             {dailySummary && <DailySummary data={dailySummary} />}
             {weeklySummary && <WeeklySummary data={weeklySummary} />}
             </div>
+            <TrendTabs />
         </div>
     );
 };
