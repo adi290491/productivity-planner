@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import TrendItem from './TrendItem';
 
 interface TrendData {
@@ -12,9 +12,12 @@ interface TrendListProps {
 }
 
 const TrendList: React.FC<TrendListProps> = ({ trends }) => {
+  // Sort trends by date in descending order
+  const sortedTrends = [...trends].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
   return (
     <ul>
-      {trends.map((trend, index) => (
+      {sortedTrends.map((trend, index) => (
         <TrendItem key={index} trend={trend} />
       ))}
     </ul>

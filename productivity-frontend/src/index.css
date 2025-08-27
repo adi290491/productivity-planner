@@ -80,6 +80,18 @@ button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
+.trend-analysis-container {
+ @apply mt-8 mb-8;
+}
+
+.trend-tab-button {
+ @apply px-4 py-2 rounded-t-lg text-accent font-semibold border-b-2 border-transparent;
+ @apply hover:border-accent;
+ @apply focus:outline-none;
+}
+.trend-tab-button.active {
+ @apply border-accent text-accent; /* Use accent color for active tab */
+}
 
 @media (prefers-color-scheme: light) {
   :root {
