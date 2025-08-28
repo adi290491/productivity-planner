@@ -1,17 +1,7 @@
-import type { DailyTrend } from "../types/trend";
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
-import { formatMinutesToLabel, parseTimeToMinutes } from "../utils/format";
+import type { DailySummary as DailySummaryType } from "../types/summary";
 
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#A28DFF']; // Example colors, adjust as needed
-
-const DailySummary = ({ data }: { data: DailyTrend | null }) => {
+const DailySummary = ({ data }: { data: DailySummaryType | null }) => {
   const noSessions = !data || !data.breakdown || Object.keys(data.breakdown).length === 0;
-  const pieChartData = noSessions ? [] : Object.entries(data.breakdown).map(([name, value]) => ({
-    name,
-    value: parseTimeToMinutes(value as string),
-  }));
-
-  const totalTimeMinutes = noSessions ? 0 : Object.values(data.breakdown).reduce((sum, time) => sum + parseTimeToMinutes(time as string), 0);
 
   return (
   <div className="bg-card border border-border rounded p-4 shadow">

@@ -1,4 +1,4 @@
-import type { WeeklyTrend } from "../types/trend";
+import type { WeeklySummaryResponse } from "../types/summary";
 import { parseTimeToMinutes, formatMinutesToLabel } from "../utils/format";
 import {
   ResponsiveContainer, 
@@ -9,17 +9,17 @@ import {
   Legend,
   Bar
 } from "recharts";
-const WeeklySummary = ({ data }: { data: WeeklyTrend | null }) => {
+const WeeklySummary = ({ data }: { data: WeeklySummaryResponse | null }) => {
   return (
     <div className="bg-card border border-border rounded p-4 shadow">
       <h3 className="text-lg font-semibold text-text mb-2">Weekly Summary</h3>
-      {data && data.daily_trends && data.daily_trends.length > 0 ? (
+      {data && data.daily_summaries && data.daily_summaries.length > 0 ? (
         <>
           <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={data.daily_trends.map(day => {
-              const result: any = { date: new Date(day.date).toLocaleDateString() };
+            <BarChart data={data.daily_summaries.map((day) => {
+              const result: Record<string, any> = { date: new Date(day.date).toLocaleDateString() };
               for (const [type, value] of Object.entries(day.breakdown)) {
-                result[type] = parseTimeToMinutes(value);
+                result[type] = parseTimeToMinutes(value as string);
               }
               return result;
             })} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}> 

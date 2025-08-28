@@ -5,6 +5,7 @@ import DailySummary from "../components/DailySummary";
 import { fetchDailySummary, fetchWeeklySummary } from "../api/summary";
 import WeeklySummary from "../components/WeeklySummary";
 import SessionControl from "../components/SessionControl";
+import TrendTabs from "../components/TrendTabs";
 
 
 const Dashboard = () => {
@@ -47,9 +48,10 @@ const Dashboard = () => {
             />
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <DailySummary data={dailySummary} />
-            <WeeklySummary data={weeklySummary} />
+                <DailySummary data={dailySummary} />
+                <WeeklySummary data={weeklySummary} />
             </div>
+            
             <TrendTabs />
         </div>
     );

@@ -85,12 +85,13 @@ button:focus-visible {
 }
 
 .trend-tab-button {
- @apply px-4 py-2 rounded-t-lg text-accent font-semibold border-b-2 border-transparent;
- @apply hover:border-accent;
+ @apply px-4 py-2 rounded transition text-white font-semibold;
+ @apply bg-gray-500 hover:brightness-110;
  @apply focus:outline-none;
+ @apply mr-2;
 }
 .trend-tab-button.active {
- @apply border-accent text-accent; /* Use accent color for active tab */
+ @apply bg-accent hover:brightness-110;
 }
 
 @media (prefers-color-scheme: light) {
