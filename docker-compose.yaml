@@ -72,7 +72,7 @@ services:
   trend-service:
     build: ./trend-service
     ports:
-      - "${TREND_SERVICE_PORT}:${TREND_SERVICE_PORT}"
+      - "8083:8083"
     depends_on:
       postgres:
         condition: service_healthy
