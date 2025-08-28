@@ -18,7 +18,6 @@ const SessionControl = ({sessionType, lastSession, setSessionType, setDailySumma
     const timerRef = useRef<NodeJS.Timeout | null>(null);
 
     const token = localStorage.getItem("token")
-    console.log("Last session inside session control:", lastSession)
 
     const handleStart = async () => {
         try {
