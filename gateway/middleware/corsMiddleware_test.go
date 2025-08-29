@@ -23,7 +23,7 @@ func TestCorsMiddleware(t *testing.T) {
 	tests := map[string]string{
 		"Access-Control-Allow-Origin":      "*",
 		"Access-Control-Allow-Methods":     "GET, POST, PUT, PATCH, DELETE, OPTIONS",
-		"Access-Control-Allow-Headers":     "Content-Type, Authorization",
+		"Access-Control-Allow-Headers":     "Content-Type, Authorization, X-USER-ID",
 		"Access-Control-Allow-Credentials": "true",
 	}
 

@@ -60,34 +60,54 @@ func ProxyToTrendService(c *gin.Context) {
 func forward(c *gin.Context, targetUrl string) {
 	var reqBody []byte
 	if c.Request.Body != nil {
-		reqBody, _ = io.ReadAll(c.Request.Body)
+		var err error
+		reqBody, err = io.ReadAll(c.Request.Body)
+		if err != nil {
+			log.Printf("Error reading request body: %v", err)
+			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request body"})
+			return
+		}
 		c.Request.Body = io.NopCloser(bytes.NewBuffer(reqBody))
-	} else {
-		reqBody = nil
 	}
 
 	req, err := http.NewRequest(c.Request.Method, targetUrl, bytes.NewReader(reqBody))
-
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("Error creating request to %s: %v", targetUrl, err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to create request"})
+		return
 	}
 
+	// Clone headers but ensure we don't copy problematic headers
 	req.Header = c.Request.Header.Clone()
+
+	// Remove Content-Length to avoid conflicts since we're using a new reader
+	req.Header.Del("Content-Length")
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
-
 	if err != nil {
-		c.JSON(http.StatusBadGateway, gin.H{"error": "user service unavailable"})
+		log.Printf("Error forwarding request to %s: %v", targetUrl, err)
+		c.JSON(http.StatusBadGateway, gin.H{"error": "service unavailable"})
 		return
 	}
 
 	defer resp.Body.Close()
 
+	// Copy headers from response, but be selective to avoid conflicts
 	for k, v := range resp.Header {
+		// Skip headers that Gin handles automatically
+		if k == "Content-Length" || k == "Transfer-Encoding" {
+			continue
+		}
 		for _, vv := range v {
 			c.Writer.Header().Add(k, vv)
 		}
 	}
-	c.DataFromReader(resp.StatusCode, resp.ContentLength, resp.Header.Get("Content-Type"), resp.Body, nil)
+
+	// Use io.Copy instead of DataFromReader for better reliability
+	c.Writer.WriteHeader(resp.StatusCode)
+	_, err = io.Copy(c.Writer, resp.Body)
+	if err != nil {
+		log.Printf("Error copying response body: %v", err)
+	}
 }
