@@ -1,7 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import type { DailyTrendResponse, WeeklyTrendResponse } from '../types/trend';
 import { DailyTrendItem, WeeklyTrendItem } from './TrendChart';
-import { fetchDailyTrends, fetchWeeklyTrends } from '../api/trend-analysis';
 
 // Dummy data for testing
 const dummyDailyTrends: DailyTrendResponse = {
