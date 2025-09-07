@@ -1,30 +1,15 @@
 package main
 
 import (
-	"os"
-
-	"time"
-
 	"github.com/adi290491/productivity-planner/gateway/config"
 	"github.com/adi290491/productivity-planner/gateway/middleware"
 	"github.com/adi290491/productivity-planner/gateway/proxy"
-	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
 func RegisterRoutes(r *gin.Engine, cfg *config.AppConfig) {
 
-	frontendOrigin := os.Getenv("FRONTEND_ORIGIN")
-
-	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{frontendOrigin},
-		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"},
-		AllowHeaders:     []string{"Origin", "Authorization", "Content-Type", "X-USER-ID"},
-		ExposeHeaders:    []string{"Content-Length"},
-		AllowCredentials: true,
-		MaxAge:           12 * time.Hour,
-	}))
-
+	// Use only one CORS middleware to avoid conflicts
 	r.Use(middleware.CorsMiddleware())
 	{
 		usersRouter := r.Group("/")
