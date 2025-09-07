@@ -17,8 +17,8 @@ const CarouselHeader = () => {
         <header className="w-full bg-primary text-text border-b border-border shadow-sm">
             <div className="max-w-screen-xl mx-auto px-8 py-6 flex flex-col md:flex-row justify-between items-start md:items-center">
                 <div>
-                    <h1 className="text-4xl font-bold">Productivity Tracker</h1>
-                    <p className="text-accent text-sm italic mt-2 md:mt-0">with trend analysis</p>
+                    <h1 className="text-4xl font-bold">Systemic</h1>
+                    <p className="text-accent text-sm italic mt-2 md:mt-0">your personal productivity tracker</p>
                 </div>
                 {!isAuthPage && token && (
                     <button
