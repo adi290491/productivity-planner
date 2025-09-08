@@ -14,7 +14,6 @@ const Signup = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        console.log("Signup form:", form)
         try {
             const response = await api.post("/users/signup", form)
             alert(`Signup successful! Welcome ${response.data.user.name}`)

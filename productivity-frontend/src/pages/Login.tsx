@@ -18,8 +18,8 @@ const Login = () => {
         try {
             const response = await api.post("/users/login", form)
             localStorage.setItem("token", response.data.token)
-            console.log('Response:', response)
             // alert(`Signin successful! Welcome ${response.data.user.name}`)
+
             navigate("/")
         } catch (error: any) {
              alert("Signin failed: " + (error.response?.data?.error || error.message))
