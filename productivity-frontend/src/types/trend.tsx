@@ -19,5 +19,5 @@ export interface WeeklyTrend {
 }
 
 export interface WeeklyTrendResponse {
-    weekly_trends: WeeklyTrend[];
+    weeklyTrends: WeeklyTrend[];
 }

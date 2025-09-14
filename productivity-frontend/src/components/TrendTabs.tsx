@@ -4,8 +4,8 @@ import { DailyTrendChart, WeeklyTrendChart } from './TrendChart';
 import { fetchDailyTrends, fetchWeeklyTrends } from '../api/trend-analysis';
 
 // Dummy data for testing
-/*
-const dummyDailyTrends: DailyTrend[] = [
+
+/*const dummyDailyTrends: DailyTrend[] = [
     {
       date: "2025-08-27",
       total_time: "6h 30m",
@@ -51,9 +51,9 @@ const dummyDailyTrends: DailyTrend[] = [
           break: "30m"
         }
     }
-];
+];*/
 
-const dummyWeeklyTrends: WeeklyTrend[] = [
+/*const dummyWeeklyTrends: WeeklyTrend[] = [
     {
       week_start: "2025-08-25",
       total_time: "32h 15m",
@@ -62,9 +62,6 @@ const dummyWeeklyTrends: WeeklyTrend[] = [
         meeting: "6h 45m",
         break: "1h 0m"
       },
-      avg_session_length: "45m",
-      longest_streak: 4,
-      daily_data: []
     },
     {
       week_start: "2025-08-18",
@@ -74,9 +71,6 @@ const dummyWeeklyTrends: WeeklyTrend[] = [
         meeting: "7h 30m",
         break: "1h 0m"
       },
-      avg_session_length: "40m",
-      longest_streak: 3,
-      daily_.data: []
     },
     {
         week_start: "2025-08-11",
@@ -86,17 +80,15 @@ const dummyWeeklyTrends: WeeklyTrend[] = [
           meeting: "5h 0m",
           break: "2h 0m"
         },
-        avg_session_length: "55m",
-        longest_streak: 5,
-        daily_data: []
     },
-];
+]; 
 */
+
 
 const TrendTabs = () => {
   const [activeTab, setActiveTab] = useState<'daily' | 'weekly'>('daily');
-  const [dailyTrends ] = useState<DailyTrend[]>([]);
-  const [weeklyTrends ] = useState<WeeklyTrend[]>([]);
+  const [dailyTrends, setDailyTrends ] = useState<DailyTrend[]>([]);
+  const [weeklyTrends, setWeeklyTrends ] = useState<WeeklyTrend[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -111,11 +103,13 @@ const TrendTabs = () => {
 
         const dailyData: DailyTrendResponse = await fetchDailyTrends(token, 7);
         console.log("Daily Trends Data:", dailyData);
-        // setDailyTrends(dailyData.daily_trends || []);
+        setDailyTrends(dailyData.dailyTrends || []);
+        // setDailyTrends(dummyDailyTrends)
 
         const weeklyData: WeeklyTrendResponse = await fetchWeeklyTrends(token, 4);
         console.log("Weekly Trends Data:", weeklyData);
-        // setWeeklyTrends(weeklyData.weekly_trends || []);
+        setWeeklyTrends(weeklyData.weeklyTrends || []);
+        // setWeeklyTrends(dummyWeeklyTrends);
 
         setError(null);
       } catch (err) {
