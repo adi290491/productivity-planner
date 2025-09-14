@@ -9,20 +9,15 @@ export interface DailyTrend {
 }
 
 export interface DailyTrendResponse {
-    user_id: string;
-    daily_trends: DailyTrend[];
+    dailyTrends: DailyTrend[];
 }
 
 export interface WeeklyTrend {
     week_start: string;
     total_time: string;
     breakdown: Breakdown;
-    daily_data: DailyTrend[];
-    avg_session_length: string;
-    longest_streak: number;
 }
 
 export interface WeeklyTrendResponse {
-    user_id: string;
     weekly_trends: WeeklyTrend[];
 }
