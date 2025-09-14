@@ -17,9 +17,9 @@ export interface WeeklyTrend {
     week_start: string;
     total_time: string;
     breakdown: Breakdown;
-    daily_data: DailyTrend[];
-    avg_session_length: string;
-    longest_streak: number;
+    daily_data?: DailyTrend[];
+    avg_session_length?: string;
+    longest_streak?: number;
 }
 
 export interface WeeklyTrendResponse {

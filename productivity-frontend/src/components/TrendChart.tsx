@@ -106,19 +106,19 @@ export const DailyTrendItem = ({ trend }: DailyTrendItemProps) => {
 export const WeeklyTrendItem = ({ trend }: WeeklyTrendItemProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
-  // Prepare data for focus line chart
-  const focusLineData = trend.daily_data.map(day => ({
+  // Prepare data for focus line chart (only if daily_data exists)
+  const focusLineData = trend.daily_data ? trend.daily_data.map(day => ({
     day: new Date(day.date).toLocaleDateString('en-US', { weekday: 'short' }),
     focus: parseTimeToMinutes(day.breakdown.focus || '0h 0m')
-  }));
+  })) : [];
 
-  // Prepare data for stacked bar chart
-  const stackedBarData = trend.daily_data.map(day => ({
+  // Prepare data for stacked bar chart (only if daily_data exists)
+  const stackedBarData = trend.daily_data ? trend.daily_data.map(day => ({
     day: new Date(day.date).toLocaleDateString('en-US', { weekday: 'short' }),
     focus: parseTimeToMinutes(day.breakdown.focus || '0h 0m'),
     meeting: parseTimeToMinutes(day.breakdown.meeting || '0h 0m'),
     break: parseTimeToMinutes(day.breakdown.break || '0h 0m')
-  }));
+  })) : [];
 
   return (
     <div className="bg-white border border-border rounded p-4 shadow-sm mb-2">
@@ -139,71 +139,81 @@ export const WeeklyTrendItem = ({ trend }: WeeklyTrendItemProps) => {
       
       {isExpanded && (
         <div className="mt-4 pt-4 border-t border-border">
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-6">
-            
-            {/* Focus Hours Line Chart */}
-            <div className="bg-card border border-border rounded p-4">
-              <h5 className="text-sm font-semibold text-accent mb-4">Focus Hours per Day</h5>
-              <div className="h-48">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={focusLineData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="day" />
-                    <YAxis tickFormatter={(value) => `${Math.floor(value / 60)}h`} />
-                    <Tooltip 
-                      formatter={(value: number) => [formatMinutesToLabel(value), 'Focus Time']}
-                      labelFormatter={(label) => `${label}`}
-                    />
-                    <Line 
-                      type="monotone" 
-                      dataKey="focus" 
-                      stroke={COLORS.focus} 
-                      strokeWidth={3}
-                      dot={{ fill: COLORS.focus, strokeWidth: 2, r: 4 }}
-                      activeDot={{ r: 6 }}
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
+          {/* Only show daily charts if daily_data exists */}
+          {trend.daily_data && trend.daily_data.length > 0 && (
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-6">
+              
+              {/* Focus Hours Line Chart */}
+              <div className="bg-card border border-border rounded p-4">
+                <h5 className="text-sm font-semibold text-accent mb-4">Focus Hours per Day</h5>
+                <div className="h-48">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={focusLineData}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="day" />
+                      <YAxis tickFormatter={(value) => `${Math.floor(value / 60)}h`} />
+                      <Tooltip 
+                        formatter={(value: number) => [formatMinutesToLabel(value), 'Focus Time']}
+                        labelFormatter={(label) => `${label}`}
+                      />
+                      <Line 
+                        type="monotone" 
+                        dataKey="focus" 
+                        stroke={COLORS.focus} 
+                        strokeWidth={3}
+                        dot={{ fill: COLORS.focus, strokeWidth: 2, r: 4 }}
+                        activeDot={{ r: 6 }}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
               </div>
-            </div>
 
-            {/* Stacked Bar Chart */}
-            <div className="bg-card border border-border rounded p-4">
-              <h5 className="text-sm font-semibold text-accent mb-4">Daily Session Balance</h5>
-              <div className="h-48">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={stackedBarData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="day" />
-                    <YAxis tickFormatter={(value) => `${Math.floor(value / 60)}h`} />
-                    <Tooltip 
-                      formatter={(value: number) => formatMinutesToLabel(value)}
-                      labelFormatter={(label) => `${label}`}
-                    />
-                    <Legend />
-                    <Bar dataKey="focus" stackId="a" fill={COLORS.focus} name="Focus" />
-                    <Bar dataKey="meeting" stackId="a" fill={COLORS.meeting} name="Meeting" />
-                    <Bar dataKey="break" stackId="a" fill={COLORS.break} name="Break" />
-                  </BarChart>
-                </ResponsiveContainer>
+              {/* Stacked Bar Chart */}
+              <div className="bg-card border border-border rounded p-4">
+                <h5 className="text-sm font-semibold text-accent mb-4">Daily Session Balance</h5>
+                <div className="h-48">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={stackedBarData}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="day" />
+                      <YAxis tickFormatter={(value) => `${Math.floor(value / 60)}h`} />
+                      <Tooltip 
+                        formatter={(value: number) => formatMinutesToLabel(value)}
+                        labelFormatter={(label) => `${label}`}
+                      />
+                      <Legend />
+                      <Bar dataKey="focus" stackId="a" fill={COLORS.focus} name="Focus" />
+                      <Bar dataKey="meeting" stackId="a" fill={COLORS.meeting} name="Meeting" />
+                      <Bar dataKey="break" stackId="a" fill={COLORS.break} name="Break" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
               </div>
             </div>
-          </div>
+          )}
+          
+          {/* Show message if no daily data available */}
+          {(!trend.daily_data || trend.daily_data.length === 0) && (
+            <div className="bg-card border border-border rounded p-4 mb-6">
+              <p className="text-accent text-center">Daily breakdown data not available for this week</p>
+            </div>
+          )}
 
           {/* Weekly Summary Card */}
           <div className="bg-card border border-border rounded p-4">
             <h5 className="text-sm font-semibold text-accent mb-4">Weekly Summary</h5>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="text-center p-3 bg-gray-50 rounded">
-                <div className="text-2xl font-bold text-text">{trend.breakdown.focus}</div>
+                <div className="text-2xl font-bold text-text">{trend.breakdown.focus || '0h 0m'}</div>
                 <div className="text-sm text-accent">Total Focus Time</div>
               </div>
               <div className="text-center p-3 bg-gray-50 rounded">
-                <div className="text-2xl font-bold text-text">{trend.avg_session_length}</div>
+                <div className="text-2xl font-bold text-text">{trend.avg_session_length || 'N/A'}</div>
                 <div className="text-sm text-accent">Avg Focus Session Length</div>
               </div>
               <div className="text-center p-3 bg-gray-50 rounded">
-                <div className="text-2xl font-bold text-text">{trend.longest_streak} days</div>
+                <div className="text-2xl font-bold text-text">{trend.longest_streak || 0} days</div>
                 <div className="text-sm text-accent">Longest Streak</div>
               </div>
             </div>
