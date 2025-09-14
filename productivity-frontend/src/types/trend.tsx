@@ -10,7 +10,7 @@ export interface DailyTrend {
 
 export interface DailyTrendResponse {
     user_id: string;
-    dailyTrends: DailyTrend[];
+    daily_trends: DailyTrend[];
 }
 
 export interface WeeklyTrend {
