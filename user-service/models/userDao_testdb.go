@@ -34,3 +34,7 @@ func (r *TestDBRepo) GetUser(user *User) (*User, error) {
 		PasswordHash: correctHash,
 	}, nil
 }
+
+func (r *TestDBRepo) GetUsersById(users *UserBatch) (*[]UserInfo, error) {
+	return nil, nil
+}

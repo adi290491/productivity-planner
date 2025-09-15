@@ -18,3 +18,13 @@ func (u User) String() string {
 		"User{ID: %s, Email: %s, Name: %s}",
 		u.ID, u.Email, u.Name)
 }
+
+type UserBatch struct {
+	UserIDs []uuid.UUID
+}
+
+type UserInfo struct {
+	ID    uuid.UUID `gorm:"primaryKey"`
+	Email string
+	Name  string
+}

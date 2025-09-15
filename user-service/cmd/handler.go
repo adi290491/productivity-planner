@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 
@@ -65,4 +66,26 @@ func (h *Handler) Login(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"token": token})
+}
+
+func (h *Handler) GetUsersBatch(c *gin.Context) {
+	var req user.GetUsersBatchRequest
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		HandleError(c, fmt.Errorf("invalid input"), http.StatusBadRequest)
+		return
+	}
+
+	if len(req.UserIDs) == 0 {
+		c.JSON(http.StatusOK, []user.UserInfoResponse{})
+	}
+
+	response, err := h.Svc.GetUsersBatch(req)
+
+	if err != nil {
+		HandleError(c, fmt.Errorf("failed to get users batch: %w", err), http.StatusInternalServerError)
+		return
+	}
+
+	c.JSON(http.StatusOK, response)
 }

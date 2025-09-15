@@ -57,3 +57,27 @@ func (u *UserService) Login(loginDto LoginRequest) (*models.User, error) {
 
 	return userEntity, nil
 }
+
+func (u *UserService) GetUsersBatch(batchDto GetUsersBatchRequest) (*[]UserInfoResponse, error) {
+	log.Println("----------Inside GetUsersBatch----------")
+	batchUserDao := &models.UserBatch{
+		UserIDs: batchDto.UserIDs,
+	}
+	userInfoResult, err := u.Repo.GetUsersById(batchUserDao)
+
+	if err != nil {
+		return nil, fmt.Errorf("repository failed to get users by id: %w", err)
+	}
+
+	var response []UserInfoResponse
+	for _, res := range *userInfoResult {
+		response = append(response, UserInfoResponse{
+			ID:    res.ID,
+			Email: res.Email,
+			Name:  res.Name,
+		})
+	}
+
+	log.Println("---------Exiting GetUsersBatch---------")
+	return &response, nil
+}

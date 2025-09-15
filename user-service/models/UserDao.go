@@ -30,7 +30,7 @@ func (p *PostgresRepository) CreateUser(user *User) (*User, error) {
 		log.Println("--------User creation error--------")
 		return nil, fmt.Errorf("user creation failed. %w", result.Error)
 	}
-
+	log.Println("---------Create User Successful---------")
 	return user, nil
 }
 
@@ -51,6 +51,23 @@ func (p *PostgresRepository) GetUser(userDao *User) (*User, error) {
 		log.Println("--------User fetch error--------")
 		return nil, fmt.Errorf("error when fetching user: %w", result.Error)
 	}
-
+	log.Println("---------GetUser Successful---------")
 	return &user, nil
+}
+
+func (p *PostgresRepository) GetUsersById(userBatch *UserBatch) (*[]UserInfo, error) {
+	log.Println("---------Calling GetUsersById---------")
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	var userInfo []UserInfo
+
+	if err := p.DB.WithContext(ctx).Model(&User{}).Where("id IN ?", userBatch.UserIDs).
+		Find(&userInfo).Error; err != nil {
+		log.Println("----------Error occurred while fetching users----------")
+		return nil, fmt.Errorf("failed to fetch users: %+v", err)
+	}
+
+	log.Println("---------User Batch Fetch Successful---------")
+	return &userInfo, nil
 }

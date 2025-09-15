@@ -32,3 +32,7 @@ func (m *MockUserService) Login(req LoginRequest) (*models.User, error) {
 	}
 	return nil, fmt.Errorf("invalid credentials")
 }
+
+func (m *MockUserService) GetUsersBatch(batchDto GetUsersBatchRequest) (*[]UserInfoResponse, error) {
+	return nil, nil
+}

@@ -1,5 +1,7 @@
 package user
 
+import "github.com/google/uuid"
+
 type SignupDTO struct {
 	Email    string `json:"email" binding:"required,email"`
 	Password string `json:"password" binding:"required"`
@@ -17,4 +19,14 @@ func (s *SignupDTO) SafeString() string {
 		return "<nil SignupDTO>"
 	}
 	return "{SignupDTO: <redacted>}"
+}
+
+type GetUsersBatchRequest struct {
+	UserIDs []uuid.UUID `json:"user_ids"`
+}
+
+type UserInfoResponse struct {
+	ID    uuid.UUID `json:"id"`
+	Email string    `json:"email"`
+	Name  string    `json:"name"`
 }
