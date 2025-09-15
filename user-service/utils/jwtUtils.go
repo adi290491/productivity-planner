@@ -17,7 +17,7 @@ func (j *JWTUtil) GenerateToken(user *models.User) (string, error) {
 	t := jwt.NewWithClaims(jwt.SigningMethodHS256,
 		jwt.MapClaims{
 			"userId": user.ID,
-			"exp":    time.Now().Add(24 * time.Hour).Unix(),
+			"exp":    time.Now().Add(7 * 24 * time.Hour).Unix(),
 		})
 
 	token, err := t.SignedString(j.Secret)
