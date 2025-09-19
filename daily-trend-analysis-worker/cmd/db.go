@@ -1,11 +1,13 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/url"
 	"os"
 
+	"cloud.google.com/go/pubsub/v2"
 	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -35,8 +37,12 @@ func dbStatus(db *gorm.DB) string {
 }
 
 type Application struct {
-	DB  *gorm.DB
-	DSN string
+	DB             *gorm.DB
+	DSN            string
+	USER_BATCH_URL string
+	PROJECT_ID     string
+	PUB_SUB_TOPIC  string
+	PubSubClient   *pubsub.Client
 }
 
 func (c *Application) String() string {
@@ -87,9 +93,24 @@ func LoadConfig() (*Application, error) {
 	if dbConfig.SSLMode == "" {
 		dbConfig.SSLMode = "disable"
 	}
+
+	projectId := os.Getenv("PROJECT_ID")
+
+	ctx := context.Background()
+	client, err := pubsub.NewClient(ctx, projectId)
+
+	if err != nil {
+		log.Fatalf("Failed to create pubsub client: %v", err)
+	}
+
+	defer client.Close()
 	appConfig := &Application{
-		DSN: dbConfig.DSN(),
-		DB:  nil, // DB connection can be set up elsewhere
+		DSN:            dbConfig.DSN(),
+		USER_BATCH_URL: os.Getenv("USER_BATCH_URL"),
+		PROJECT_ID:     projectId,
+		PUB_SUB_TOPIC:  os.Getenv("PUB_SUB_TOPIC"),
+		PubSubClient:   client,
+		DB:             nil, // DB connection can be set up elsewhere
 	}
 
 	log.Println("-------------Exiting application config-------------")

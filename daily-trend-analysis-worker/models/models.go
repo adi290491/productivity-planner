@@ -32,3 +32,41 @@ type Session struct {
 	StartTime   time.Time
 	EndTime     *time.Time
 }
+
+type UserBatch struct {
+	UserIDs []uuid.UUID `json:"user_ids"`
+}
+
+type UserInfo struct {
+	Id    uuid.UUID `json:"id"`
+	Email string    `json:"email"`
+	Name  string    `json:"name"`
+}
+
+type UserSuccessInfo struct {
+	UserID uuid.UUID `json:"user_id"`
+	Email  string    `json:"email"`
+}
+
+type UserFailureInfo struct {
+	UserID uuid.UUID
+	Errors error
+}
+
+type ProcessingSummary struct {
+	SuccessfulUsers []UserSuccessInfo
+	FailedUsers     []UserFailureInfo
+	// FailureUserIDs  []uuid.UUID
+	// Errors          []error
+}
+
+type TrendAnalysisEvent struct {
+	Event           string            `json:"event"`
+	JobType         string            `json:"job_type"`
+	Status          string            `json:"status"`
+	Date            string            `json:"date"`
+	SuccessfulUsers []UserSuccessInfo `json:"successful_users,omitempty"` // Sent on success
+	FailedUserIDs   []uuid.UUID       `json:"failed_user_ids,omitempty"`  // Sent on failure
+	ErrorSummary    string            `json:"error_summary,omitempty"`    // Sent on failure
+	NotifyAdmin     bool              `json:"notify_admin"`
+}

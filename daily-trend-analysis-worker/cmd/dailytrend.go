@@ -1,21 +1,28 @@
 package main
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
+	"fmt"
+	"io"
 	"log"
 
 	"time"
 
 	"github.com/adi290491/productivity-planner/daily-trend-analysis-worker/models"
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
+
+	"net/http"
 )
 
 type PostgresRepository struct {
 	DB *gorm.DB
 }
 
-func (p *PostgresRepository) FetchDailyTrends() {
+func (p *PostgresRepository) FetchDailyTrends(app *Application) (*models.ProcessingSummary, error) {
 
 	db := p.DB
 
@@ -37,8 +44,21 @@ func (p *PostgresRepository) FetchDailyTrends() {
 		Group("user_id, day").Find(&dailyAggregate).Error
 
 	if err != nil {
-		log.Fatalf("aggregation error: %v", err)
+		return nil, fmt.Errorf("aggregation error: %v", err)
 	}
+
+	var userIDs []uuid.UUID
+	for _, row := range dailyAggregate {
+		userIDs = append(userIDs, row.UserId)
+	}
+
+	userInfo, err := p.fetchUserEmailsInBatch(app, userIDs)
+
+	if err != nil {
+		return nil, fmt.Errorf("error while fetching user emails: %+v", err)
+	}
+
+	summary := &models.ProcessingSummary{}
 
 	log.Printf("Daily Aggregate: %+v", dailyAggregate)
 	for _, row := range dailyAggregate {
@@ -66,8 +86,70 @@ func (p *PostgresRepository) FetchDailyTrends() {
 
 		if result.Error != nil {
 			log.Printf("failed to upsert for user: %v: %v", row.UserId, result.Error)
+			summary.FailedUsers = append(summary.FailedUsers, models.UserFailureInfo{
+				UserID: row.UserId,
+				Errors: result.Error,
+			})
+		} else {
+			// Include both user ID and email for successful users
+			userEmail := "unknown@example.com" // fallback
+			if userObj, exists := userInfo[row.UserId]; exists {
+				userEmail = userObj.Email
+			}
+
+			summary.SuccessfulUsers = append(summary.SuccessfulUsers, models.UserSuccessInfo{
+				UserID: row.UserId,
+				Email:  userEmail,
+			})
 		}
 
 		log.Println("Rows inserted:", result.RowsAffected)
 	}
+
+	log.Printf("Processing complete. Success: %d, Failed: %d", len(summary.SuccessfulUsers), len(summary.FailedUsers))
+	return summary, nil
+}
+
+func (p *PostgresRepository) fetchUserEmailsInBatch(app *Application, userIDs []uuid.UUID) (map[uuid.UUID]models.UserInfo, error) {
+
+	userBatch := models.UserBatch{
+		UserIDs: userIDs,
+	}
+
+	buf, err := json.Marshal(userBatch)
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshall userIds. %+v", err)
+	}
+
+	resp, err := http.Post(app.USER_BATCH_URL,
+		"application/json",
+		bytes.NewBuffer(buf),
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	users, err := io.ReadAll(resp.Body)
+
+	if err != nil {
+		return nil, err
+	}
+
+	resp.Body.Close()
+
+	var userInfo []models.UserInfo
+	err = json.Unmarshal(users, &userInfo)
+
+	if err != nil {
+		return nil, err
+	}
+
+	userMap := make(map[uuid.UUID]models.UserInfo)
+	for _, user := range userInfo {
+		userMap[user.Id] = user
+	}
+
+	return userMap, nil
 }

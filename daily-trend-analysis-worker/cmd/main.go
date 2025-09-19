@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log"
 	"os"
 )
@@ -26,7 +27,20 @@ func main() {
 		DB: app.DB,
 	}
 
-	repo.FetchDailyTrends()
+	processingSummary, err := repo.FetchDailyTrends(app)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	log.Println("-------Daily Trend Processing Successful-------")
+
+	publisher := &Publisher{
+		ProcessingSummary: processingSummary,
+	}
+
+	publisher.Publish(context.Background(), app)
 
 	log.Println("-------Job Execution Finished--------")
+
 }
