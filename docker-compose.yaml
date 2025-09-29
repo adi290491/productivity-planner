@@ -1,4 +1,3 @@
-
 services:
   postgres:
     image: postgres:15
@@ -81,6 +80,25 @@ services:
     networks:
       - backend
 
+  notification-service:
+    build: ./notification-service
+    ports:
+      - "8087:8087"
+    depends_on:
+      - pubsub-emulator
+    env_file:
+      - ./notification-service/.env
+    environment:
+      profile=local
+      PORT=8087
+      PROJECT_ID=systemic-productivity-planner
+      PUB_SUB_DAILY_TOPIC=daily_trend_topic
+      PUB_SUB_WEEKLY_TOPIC=weekly_trend_topic
+      PUB_SUB_DAILY_SUBSCRIPTION=daily_trend_sub
+      PUB_SUB_WEEKLY_SUBSCRIPTION=weekly_trend_sub
+    networks:
+      - backend
+
   gateway:
     build: ./gateway
     ports:
@@ -101,21 +119,30 @@ services:
       - ./daily-trend-analysis-worker/.env
     depends_on:
       - postgres
+      - pubsub-emulator
+    environment:
+      - PUBSUB_EMULATOR_HOST=pubsub-emulator:8085
     networks:
       - backend
 
   weekly-trend-job:
     build:
-      context: ./trend-analysis-worker
-      dockerfile: ./Dockerfile.weekly
-    container_name: weekly-trend-job
+      context: ./weekly-trend-analysis-worker
     env_file:
-      - .env
+      - ./weekly-trend-analysis-worker/.env
     depends_on:
       - postgres
+      - pubsub-emulator
     networks:
-      - backend 
-    
+      - backend
+
+  pubsub-emulator:
+    image: gcr.io/google.com/cloudsdktool/cloud-sdk:latest
+    command: gcloud beta emulators pubsub start --project=systemic-productivity-planner --host-port=0.0.0.0:8085
+    ports:
+      - "8086:8085"
+    networks:
+      - backend
       
 volumes:
   pgdata:

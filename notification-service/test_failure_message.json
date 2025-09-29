@@ -1,0 +1,12 @@
+{                        
+  "event": "daily_trend_analysis_completed",
+  "jobType": "daily",
+  "status": "failure",
+  "date": "2025-09-28",
+  "failedUserIds": [
+    "550e8400-e29b-41d4-a716-446655440003",
+    "550e8400-e29b-41d4-a716-446655440004"
+  ],
+  "errorSummary": "Database connection timeout while processing daily trends",
+  "notifyAdmin": true
+}
