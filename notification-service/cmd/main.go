@@ -19,6 +19,8 @@ func main() {
 		log.Fatalf("Failed to load configuration: %v", err)
 	}
 
+	InitDB(config)
+
 	log.Printf("Starting notification service with profile: %s", config.Profile)
 
 	notificationService, err := notification.NewNotificationService(config)
@@ -62,7 +64,8 @@ func main() {
 
 	log.Printf("Health check: http://localhost:%s/health", config.Port)
 	log.Printf("Manual trigger: POST http://localhost:%s/process/daily", config.Port)
-	log.Printf("Stats: http://localhost:%s/stats", config.Port)
+	log.Printf("Stats: http://localhost:%s/stat", config.Port)
+	log.Printf("Get user notifications: GET http://localhost:%s/notifications?user_id=<uuid>", config.Port)
 
 	if err := server.Run(); err != nil {
 		log.Fatalf("Server failed to start: %v", err)

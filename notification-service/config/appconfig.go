@@ -4,9 +4,34 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	"github.com/joho/godotenv"
+	"gorm.io/gorm"
 )
+
+type DBConfig struct {
+	Host     string
+	Port     string
+	DBName   string
+	User     string
+	Password string
+	SSLMode  string
+}
+
+func (d *DBConfig) DSN() string {
+	return fmt.Sprintf(
+		"postgres://%s:%s@%s:%s/%s?sslmode=%s",
+		d.User, d.Password, d.Host, d.Port, d.DBName, d.SSLMode,
+	)
+}
+
+func dbStatus(db *gorm.DB) string {
+	if db == nil {
+		return "nil"
+	}
+	return "initialized"
+}
 
 type AppConfig struct {
 	Profile   string
@@ -20,12 +45,42 @@ type AppConfig struct {
 	// Pub/Sub Subscriptions
 	DailySubscription  string
 	WeeklySubscription string
+
+	DSN          string
+	DB           *gorm.DB
+	ReadTimeout  time.Duration
+	WriteTimeout time.Duration
 }
 
 func LoadConfig() (*AppConfig, error) {
 
 	if err := godotenv.Load(); err != nil {
 		log.Println("No .env file found, using system environment variables")
+	}
+
+	profile := getEnvString("PROFILE", "local")
+
+	log.Printf("Loading configurations for %+s\n", profile)
+
+	dbConfig := &DBConfig{
+		Host:     getEnvString("DB_HOSTNAME", ""),
+		Port:     getEnvString("DB_PORT", ""),
+		DBName:   getEnvString("DB_NAME", ""),
+		User:     getEnvString("DB_USERNAME", ""),
+		Password: getEnvString("DB_PASSWORD", ""),
+		SSLMode:  getEnvString("DB_SSLMODE", ""),
+	}
+
+	// Validate required fields
+	if dbConfig.Host == "" || dbConfig.Port == "" || dbConfig.DBName == "" ||
+		dbConfig.User == "" || dbConfig.Password == "" {
+		// log.Fatal("Missing required database configuration. Please ensure DB_HOST, DB_PORT, DB_NAME, DB_USERNAME, and DB_PASSWORD are set")
+		return nil, fmt.Errorf("missing required database configuration. Please ensure DB_HOST, DB_PORT, DB_NAME, DB_USERNAME, and DB_PASSWORD are set")
+	}
+
+	// Set default for optional fields
+	if dbConfig.SSLMode == "" {
+		dbConfig.SSLMode = "disable"
 	}
 
 	appConfig := &AppConfig{
@@ -38,6 +93,9 @@ func LoadConfig() (*AppConfig, error) {
 
 		DailySubscription:  getEnvString("PUB_SUB_DAILY_SUBSCRIPTION", ""),
 		WeeklySubscription: getEnvString("PUB_SUB_WEEKLY_SUBSCRIPTION", ""),
+
+		DSN: dbConfig.DSN(),
+		DB:  nil,
 	}
 
 	if appConfig.ProjectID == "" {

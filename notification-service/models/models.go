@@ -1,6 +1,10 @@
 package models
 
-import "github.com/google/uuid"
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
 
 type TrendAnalysisEvent struct {
 	Event           string           `json:"event"`
@@ -21,4 +25,28 @@ type SuccessfulUser struct {
 type UserFailureInfo struct {
 	UserID uuid.UUID
 	Errors error
+}
+
+type UserNotification struct {
+	ID                  uuid.UUID `gorm:"primaryKey"`
+	UserID              uuid.UUID
+	HasNewDailyTrend    bool
+	LastDailyTrendDate  *time.Time
+	LastDailyTrendID    *uuid.UUID
+	HasNewWeeklyTrend   bool
+	LastWeeklyTrendDate *time.Time
+	LastWeeklyTrendID   *uuid.UUID
+	CreatedAt           time.Time
+	UpdatedAt           time.Time
+}
+
+func (UserNotification) TableName() string {
+	return "user_notifications"
+}
+
+type UserNotificationResponse struct {
+	HasNewDailyTrend    bool       `json:"hasNewDailyTrend"`
+	HasNewWeeklyTrend   bool       `json:"hasNewWeeklyTrend"`
+	LastDailyTrendDate  *time.Time `json:"lastDailyTrendDate"`
+	LastWeeklyTrendDate *time.Time `json:"lastWeeklyTrendDate"`
 }

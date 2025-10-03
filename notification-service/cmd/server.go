@@ -13,6 +13,7 @@ import (
 type Server struct {
 	config              *config.AppConfig
 	notificationService *notification.NotificationService
+	handler             *Handler
 	router              *gin.Engine
 }
 
@@ -21,9 +22,12 @@ func NewServer(config *config.AppConfig, notificationService *notification.Notif
 		gin.SetMode(gin.ReleaseMode)
 	}
 
+	handler := NewHandler(config, notificationService)
+
 	server := &Server{
 		config:              config,
 		notificationService: notificationService,
+		handler:             handler,
 		router:              gin.Default(),
 	}
 
@@ -38,11 +42,14 @@ func (s *Server) setupRoutes() {
 	// Statistics
 	s.router.GET("/stat", s.getStats)
 
-	// Manual trigger for testing during development
-	s.router.POST("/process/daily", s.processDailyTrends)
-
 	// Configuration endpoint
 	s.router.GET("/config", s.getConfig)
+
+	// Handler routes
+	s.router.POST("/process/daily", s.handler.processDailyTrends)
+	s.router.POST("/process/weekly", s.handler.processWeeklyTrends)
+	s.router.GET("/notifications", s.handler.getUserNotifications)
+	s.router.POST("/notifications/:userID/read", s.handler.markNotificationAsRead)
 }
 
 func (s *Server) healthCheck(c *gin.Context) {
@@ -56,26 +63,6 @@ func (s *Server) healthCheck(c *gin.Context) {
 }
 
 func (s *Server) getStats(c *gin.Context) {
-	stats := s.notificationService.GetStats()
-	c.JSON(http.StatusOK, gin.H{
-		"success": true,
-		"message": "Daily trend notifications processed successfully",
-		"stats":   stats,
-	})
-}
-
-func (s *Server) processDailyTrends(c *gin.Context) {
-	ctx := c.Request.Context()
-
-	err := s.notificationService.ProcessDailyTrendNotifications(ctx)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"success": false,
-			"error":   err.Error(),
-		})
-		return
-	}
-
 	stats := s.notificationService.GetStats()
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
