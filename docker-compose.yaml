@@ -84,18 +84,12 @@ services:
     build: ./notification-service
     ports:
       - "8087:8087"
-    depends_on:
-      - pubsub-emulator
     env_file:
       - ./notification-service/.env
     environment:
-      profile=local
-      PORT=8087
-      PROJECT_ID=systemic-productivity-planner
-      PUB_SUB_DAILY_TOPIC=daily_trend_topic
-      PUB_SUB_WEEKLY_TOPIC=weekly_trend_topic
-      PUB_SUB_DAILY_SUBSCRIPTION=daily_trend_sub
-      PUB_SUB_WEEKLY_SUBSCRIPTION=weekly_trend_sub
+      - GOOGLE_APPLICATION_CREDENTIALS=../secrets/key.json
+    volumes:
+      - ./notification-service/secrets/key.json:/secrets/key.json:ro
     networks:
       - backend
 

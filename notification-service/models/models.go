@@ -14,8 +14,8 @@ type TrendAnalysisEvent struct {
 }
 
 type SuccessfulUser struct {
-	UserID string `json:"userId"`
-	Email  string `json:"email"`
+	UserID uuid.UUID `json:"userId"`
+	Email  string    `json:"email"`
 }
 
 type UserFailureInfo struct {

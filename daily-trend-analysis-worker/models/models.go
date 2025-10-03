@@ -44,7 +44,7 @@ type UserInfo struct {
 }
 
 type UserSuccessInfo struct {
-	UserID uuid.UUID `json:"user_id"`
+	UserID uuid.UUID `json:"userId"`
 	Email  string    `json:"email"`
 }
 

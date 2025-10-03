@@ -11,17 +11,20 @@ RUN go mod download
 COPY . .
 
 # Build the Go binary
-RUN go build -o notification-service ./cmd
+RUN go build -o app ./cmd
 
 # --- Stage 2: Minimal Runtime ---
 FROM alpine:latest
 
+# Install ca-certificates for HTTPS calls (needed for ADC)
+RUN apk --no-cache add ca-certificates
+
 WORKDIR /root/
 
 # Copy binary from build stage
-COPY --from=builder /app/notification-service .
+COPY --from=builder /app/app .
 
-# Expose port (optional, mostly for documentation)  
+# Expose port (optional, mostly for documentation)
 EXPOSE 8087
 
-CMD ["./notification-service"]
+CMD ["./app"]

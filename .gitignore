@@ -3,3 +3,5 @@
 .vscode/
 **/config/config.local.yaml
 **.png
+**/secrets/**
+**/pubsub_emulator.sh
