@@ -587,3 +587,106 @@ func TestProcessMessage_MissingFields(t *testing.T) {
 		t.Fatalf("unexpected error message: %v", err)
 	}
 }
+
+func TestNewNotificationService_Success(t *testing.T) {
+	config := &config.AppConfig{
+		Profile:   "test",
+		ProjectID: "test-project-id",
+		DB:        setupTestDB(t),
+	}
+	if config.DB == nil {
+		t.Skip("Skipping test, no database available")
+	}
+
+	ns, err := NewNotificationService(config)
+	if err != nil {
+		t.Fatalf("expected no error from NewNotificationService, got %v", err)
+	}
+	if ns == nil {
+		t.Fatal("expected a non-nil NotificationService")
+	}
+	if ns.pubsubClient == nil {
+		t.Error("expected pubsubClient to be initialized")
+	}
+}
+
+func TestHandleSuccessEvent_InvalidDate(t *testing.T) {
+	ns := setupTestNotificationService(t)
+	if ns == nil {
+		return
+	}
+
+	event := models.TrendAnalysisEvent{
+		Event:   "trend_analysis",
+		JobType: "daily",
+		Status:  "success",
+		Date:    "invalid-date-format",
+	}
+
+	err := ns.handleSuccessEvent(context.Background(), event, DAILY)
+	if err == nil {
+		t.Fatal("expected an error for invalid date format, but got nil")
+	}
+	if !strings.Contains(err.Error(), "invalid date format") {
+		t.Errorf("expected error message to contain 'invalid date format', got %s", err.Error())
+	}
+}
+
+func TestUpdateNotificationFlag_ExistingUser(t *testing.T) {
+	ns := setupTestNotificationService(t)
+	if ns == nil {
+		return
+	}
+	userID := uuid.New()
+	initialDate := time.Now().Add(-24 * time.Hour)
+
+	// Create an initial notification
+	initialNotification := &models.UserNotification{
+		UserID:             userID,
+		HasNewDailyTrend:   false,
+		LastDailyTrendDate: &initialDate,
+	}
+	if err := ns.db.Create(initialNotification).Error; err != nil {
+		t.Fatalf("failed to create initial notification: %v", err)
+	}
+
+	// Now, update it
+	newTrendDate, _ := time.Parse("2006-01-02", "2023-10-02")
+	err := ns.updateNotificationFlag(userID, DAILY, newTrendDate, nil)
+	if err != nil {
+		t.Fatalf("updateNotificationFlag failed: %v", err)
+	}
+
+	var updatedNotification models.UserNotification
+	if err := ns.db.Where("user_id = ?", userID).First(&updatedNotification).Error; err != nil {
+		t.Fatalf("failed to find updated notification: %v", err)
+	}
+
+	if !updatedNotification.HasNewDailyTrend {
+		t.Error("expected HasNewDailyTrend to be true after update")
+	}
+	if updatedNotification.LastDailyTrendDate == nil || updatedNotification.LastDailyTrendDate.Format("2006-01-02") != "2023-10-02" {
+		t.Errorf("expected LastDailyTrendDate to be updated, but it was not")
+	}
+}
+
+func TestClose(t *testing.T) {
+	config := &config.AppConfig{
+		Profile:   "test",
+		ProjectID: "test-project-id",
+		DB:        setupTestDB(t),
+	}
+	if config.DB == nil {
+		t.Skip("Skipping test, no database available")
+	}
+
+	ns, err := NewNotificationService(config)
+	if err != nil {
+		t.Fatalf("NewNotificationService failed: %v", err)
+	}
+
+	err = ns.Close()
+	if err != nil {
+		t.Errorf("Close returned an error: %v", err)
+	}
+}

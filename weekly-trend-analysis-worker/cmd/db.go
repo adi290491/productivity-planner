@@ -35,8 +35,9 @@ func dbStatus(db *gorm.DB) string {
 }
 
 type Application struct {
-	DB  *gorm.DB
-	DSN string
+	DB             *gorm.DB
+	DSN            string
+	USER_BATCH_URL string
 }
 
 func (c *Application) String() string {
@@ -88,8 +89,9 @@ func LoadConfig() (*Application, error) {
 		dbConfig.SSLMode = "disable"
 	}
 	appConfig := &Application{
-		DSN: dbConfig.DSN(),
-		DB:  nil, // DB connection can be set up elsewhere
+		DSN:            dbConfig.DSN(),
+		USER_BATCH_URL: os.Getenv("USER_BATCH_URL"),
+		DB:             nil, // DB connection can be set up elsewhere
 	}
 
 	log.Println("-------------Exiting application config-------------")

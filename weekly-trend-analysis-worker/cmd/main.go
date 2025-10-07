@@ -24,7 +24,12 @@ func main() {
 		DB: app.DB,
 	}
 
-	repo.FetchWeeklyTrend()
+	processingSummary, err := repo.FetchWeeklyTrend(app)
 
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	log.Printf("Daily Trend processed successfully:\n %v", processingSummary.GetStats())
 	log.Println("-------Job Execution Completed-------")
 }

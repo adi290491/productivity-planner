@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
@@ -23,6 +24,7 @@ type UserDailyTrend struct {
 	BreakMinutes   float64
 	CreatedAt      time.Time
 	UpdatedAt      time.Time
+	ViewedAt       *time.Time
 }
 
 type Session struct {
@@ -58,6 +60,10 @@ type ProcessingSummary struct {
 	FailedUsers     []UserFailureInfo
 	// FailureUserIDs  []uuid.UUID
 	// Errors          []error
+}
+
+func (ps *ProcessingSummary) GetStats() string {
+	return fmt.Sprintf("Processing Summary:\nSuccessful Users: %d\nFailed Users: %d", len(ps.SuccessfulUsers), len(ps.FailedUsers))
 }
 
 type TrendAnalysisEvent struct {

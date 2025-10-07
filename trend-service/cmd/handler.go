@@ -48,13 +48,13 @@ func (h *Handler) GetWeeklyTrend(c *gin.Context) {
 
 	weeks := c.DefaultQuery("weeks", utils.DEFAULT_WEEKS)
 
-	weelyTrendResponse, err := h.svc.FetchWeeklyTrend(userId, weeks)
+	weeklyTrendResponse, err := h.svc.FetchWeeklyTrend(userId, weeks)
 
 	if err != nil {
 		HandleError(c, err, http.StatusInternalServerError)
 		return
 	}
 
-	c.JSON(http.StatusOK, weelyTrendResponse)
+	c.JSON(http.StatusOK, weeklyTrendResponse)
 
 }

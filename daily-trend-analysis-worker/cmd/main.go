@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"log"
 	"os"
 )
@@ -33,13 +32,14 @@ func main() {
 		log.Fatal(err)
 	}
 
-	log.Println("-------Daily Trend Processing Successful-------")
+	log.Printf("Daily Trend processed successfully:\n %v", processingSummary.GetStats())
+	// log.Println("-------Daily Trend Processing Successful-------")
 
-	publisher := &Publisher{
-		ProcessingSummary: processingSummary,
-	}
+	// publisher := &Publisher{
+	// 	ProcessingSummary: processingSummary,
+	// }
 
-	publisher.Publish(context.Background(), app)
+	// publisher.Publish(context.Background(), app)
 
 	log.Println("-------Job Execution Finished--------")
 

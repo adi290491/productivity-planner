@@ -80,21 +80,21 @@ services:
     networks:
       - backend
 
-  notification-service:
-    build: ./notification-service
-    ports:
-      - "8087:8087"
-    depends_on:
-      postgres:
-        condition: service_healthy
-    env_file:
-      - ./notification-service/.env
-    environment:
-      - GOOGLE_APPLICATION_CREDENTIALS=../secrets/key.json
-    volumes:
-      - ./notification-service/secrets/key.json:/secrets/key.json:ro
-    networks:
-      - backend
+  # notification-service:
+  #   build: ./notification-service
+  #   ports:
+  #     - "8087:8087"
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #   env_file:
+  #     - ./notification-service/.env
+  #   environment:
+  #     - GOOGLE_APPLICATION_CREDENTIALS=../secrets/key.json
+  #   volumes:
+  #     - ./notification-service/secrets/key.json:/secrets/key.json:ro
+  #   networks:
+  #     - backend
 
   gateway:
     build: ./gateway

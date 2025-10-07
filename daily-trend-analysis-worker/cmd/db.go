@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"net/url"
@@ -96,21 +95,21 @@ func LoadConfig() (*Application, error) {
 
 	projectId := os.Getenv("PROJECT_ID")
 
-	ctx := context.Background()
-	client, err := pubsub.NewClient(ctx, projectId)
+	// ctx := context.Background()
+	// client, err := pubsub.NewClient(ctx, projectId)
 
-	if err != nil {
-		log.Fatalf("Failed to create pubsub client: %v", err)
-	}
+	// if err != nil {
+	// 	log.Fatalf("Failed to create pubsub client: %v", err)
+	// }
 
-	defer client.Close()
+	// defer client.Close()
 	appConfig := &Application{
 		DSN:            dbConfig.DSN(),
 		USER_BATCH_URL: os.Getenv("USER_BATCH_URL"),
 		PROJECT_ID:     projectId,
 		PUB_SUB_TOPIC:  os.Getenv("PUB_SUB_TOPIC"),
-		PubSubClient:   client,
-		DB:             nil, // DB connection can be set up elsewhere
+		// PubSubClient:   client,
+		DB: nil, // DB connection can be set up elsewhere
 	}
 
 	log.Println("-------------Exiting application config-------------")

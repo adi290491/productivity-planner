@@ -37,4 +37,6 @@ func RegisterRoutes(r *gin.Engine, cfg *config.AppConfig) {
 		trendRouter.GET("/daily", proxy.ProxyToTrendService)
 		trendRouter.GET("/weekly", proxy.ProxyToTrendService)
 	}
+
+	
 }

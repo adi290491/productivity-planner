@@ -70,6 +70,7 @@ func (p *PostgresRepository) FetchDailyTrends(app *Application) (*models.Process
 			BreakMinutes:   row.BreakMinutes,
 			CreatedAt:      time.Now(),
 			UpdatedAt:      time.Now(),
+			ViewedAt:       nil,
 		}
 
 		// log.Printf("Daily Trend: %+v\n", dailyTrend)
@@ -92,7 +93,7 @@ func (p *PostgresRepository) FetchDailyTrends(app *Application) (*models.Process
 			})
 		} else {
 			// Include both user ID and email for successful users
-			userEmail := "unknown@example.com" // fallback
+			userEmail := "" // fallback
 			if userObj, exists := userInfo[row.UserId]; exists {
 				userEmail = userObj.Email
 			}
@@ -106,7 +107,7 @@ func (p *PostgresRepository) FetchDailyTrends(app *Application) (*models.Process
 		log.Println("Rows inserted:", result.RowsAffected)
 	}
 
-	log.Printf("Processing complete. Success: %d, Failed: %d", len(summary.SuccessfulUsers), len(summary.FailedUsers))
+	// log.Printf("Processing complete. Success: %d, Failed: %d", len(summary.SuccessfulUsers), len(summary.FailedUsers))
 	return summary, nil
 }
 

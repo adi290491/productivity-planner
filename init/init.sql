@@ -94,3 +94,27 @@ CREATE INDEX idx_user_notifications_daily
 CREATE INDEX idx_user_notifications_weekly 
     ON user_notifications(user_id) 
     WHERE has_new_weekly_trend = TRUE;
+    
+DO $$ 
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 
+        FROM information_schema.columns 
+        WHERE table_name = 'user_daily_trends' 
+        AND column_name = 'viewed_at'
+    ) THEN
+        ALTER TABLE user_daily_trends ADD COLUMN viewed_at TIMESTAMPTZ;
+    END IF;
+END $$;
+
+DO $$ 
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 
+        FROM information_schema.columns 
+        WHERE table_name = 'user_weekly_trends' 
+        AND column_name = 'viewed_at'
+    ) THEN
+        ALTER TABLE user_weekly_trends ADD COLUMN viewed_at TIMESTAMPTZ;
+    END IF;
+END $$;
