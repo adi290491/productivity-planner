@@ -50,3 +50,8 @@ func (w WeeklyTrendResponse) String() string {
 func (w WeeklyTrend) String() string {
 	return fmt.Sprintf("Week{WeekStart: %s, TotalTime: %s, Breakdown: %v}", w.WeekStart, w.TotalTime, w.Breakdown)
 }
+
+type UnviewedTrendsCount struct {
+	DailyCount  int `json:"daily_count"`
+	WeeklyCount int `json:"weekly_count"`
+}

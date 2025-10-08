@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -52,4 +53,50 @@ func (p *PostgresRepository) FetchWeeklyTrend(weeklyTrendDao *WeeklyTrendDao) ([
 		return nil, err
 	}
 	return userWeeklyTrend, nil
+}
+
+func (p *PostgresRepository) CountUnviewedDailyTrends(userID uuid.UUID) (int, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	var count int64
+
+	err := p.DB.WithContext(ctx).
+		Model(&UserDailyTrend{}).Where("user_id = ? AND viewed_at IS NULL", userID).
+		Count(&count).Error
+
+	return int(count), err
+}
+
+func (p *PostgresRepository) CountUnviewedWeeklyTrends(userID uuid.UUID) (int, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	var count int64
+
+	err := p.DB.WithContext(ctx).
+		Model(&UserWeeklyTrend{}).Where("user_id = ? AND viewed_at IS NULL", userID).
+		Count(&count).Error
+
+	return int(count), err
+}
+
+func (p *PostgresRepository) MarkDailyTrendsAsViewed(userId string) error {
+    ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+    defer cancel()
+
+    return p.DB.WithContext(ctx).
+        Model(&UserDailyTrend{}).
+        Where("user_id = ? AND viewed_at IS NULL", userId).
+        Update("viewed_at", time.Now()).Error
+}
+
+func (p *PostgresRepository) MarkWeeklyTrendsAsViewed(userId string) error {
+    ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+    defer cancel()
+
+    return p.DB.WithContext(ctx).
+        Model(&UserWeeklyTrend{}).
+        Where("user_id = ? AND viewed_at IS NULL", userId).
+        Update("viewed_at", time.Now()).Error
 }

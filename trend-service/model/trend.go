@@ -16,6 +16,7 @@ type UserDailyTrend struct {
 	BreakMinutes   float64
 	CreatedAt      time.Time
 	UpdatedAt      time.Time
+	ViewedAt       *time.Time
 }
 
 type DailyTrendDao struct {
@@ -32,6 +33,7 @@ type UserWeeklyTrend struct {
 	BreakMinutes   float64
 	CreatedAt      time.Time
 	UpdatedAt      time.Time
+	ViewedAt       *time.Time
 }
 
 type WeeklyTrendDao struct {

@@ -7,6 +7,7 @@ import (
 
 	models "github.com/adi290491/productivity-planner/trend-service/model"
 	"github.com/adi290491/productivity-planner/trend-service/utils"
+	"github.com/google/uuid"
 )
 
 type TrendService struct {
@@ -72,4 +73,35 @@ func (t *TrendService) FetchWeeklyTrend(userId string, weeks string) (*WeeklyTre
 	weeklyTrendResponse := MapWeeklyModelToResponse(userWeeklyTrend, userId)
 
 	return weeklyTrendResponse, nil
+}
+
+func (t *TrendService) GetUnviewedTrendsCount(userId string) (*UnviewedTrendsCount, error) {
+
+	userID, err := uuid.Parse(userId)
+
+	if err != nil {
+		return nil, err
+	}
+
+	dailyCount, err := t.Repo.CountUnviewedDailyTrends(userID)
+	if err != nil {
+		return nil, err
+	}
+
+	weeklyCount, err := t.Repo.CountUnviewedWeeklyTrends(userID)
+	if err != nil {
+		return nil, err
+	}
+
+	return &UnviewedTrendsCount{
+		DailyCount:  dailyCount,
+		WeeklyCount: weeklyCount,
+	}, nil
+}
+
+func (t *TrendService) MarkTrendsAsViewed(userId string, trendType string) error {
+	if trendType == "daily" {
+		return t.Repo.MarkDailyTrendsAsViewed(userId)
+	}
+	return t.Repo.MarkWeeklyTrendsAsViewed(userId)
 }

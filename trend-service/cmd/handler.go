@@ -58,3 +58,50 @@ func (h *Handler) GetWeeklyTrend(c *gin.Context) {
 	c.JSON(http.StatusOK, weeklyTrendResponse)
 
 }
+
+func (h *Handler) GetUnviewedTrendsCount(c *gin.Context) {
+	log.Println("Inside GetUnviewedTrendsCount...")
+
+	userId := strings.TrimSpace(c.GetHeader("X-USER-ID"))
+
+	if userId == "" {
+		HandleError(c, fmt.Errorf("user id is missing"), http.StatusUnauthorized)
+		return
+	}
+
+	counts, err := h.svc.GetUnviewedTrendsCount(userId)
+
+	if err != nil {
+		HandleError(c, err, http.StatusInternalServerError)
+		return
+	}
+
+	c.JSON(http.StatusOK, counts)
+
+}
+
+func (h *Handler) MarkTrendsAsViewed(c *gin.Context) {
+	log.Println("Inside MarkTrendsAsViewed...")
+
+	userId := strings.TrimSpace(c.GetHeader("X-USER-ID"))
+
+	if userId == "" {
+		HandleError(c, fmt.Errorf("user id is missing"), http.StatusUnauthorized)
+		return
+	}
+
+	trendType := c.Query("type")
+	if trendType != "daily" && trendType != "weekly" {
+		HandleError(c, fmt.Errorf("invalid trend type"), http.StatusBadRequest)
+		return
+	}
+
+	err := h.svc.MarkTrendsAsViewed(userId, trendType)
+
+	if err != nil {
+		HandleError(c, err, http.StatusInternalServerError)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"success": true})
+}

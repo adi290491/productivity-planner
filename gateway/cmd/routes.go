@@ -36,7 +36,8 @@ func RegisterRoutes(r *gin.Engine, cfg *config.AppConfig) {
 		trendRouter.Use(middleware.JWTMiddleware(cfg))
 		trendRouter.GET("/daily", proxy.ProxyToTrendService)
 		trendRouter.GET("/weekly", proxy.ProxyToTrendService)
+		trendRouter.GET("/unviewed", proxy.ProxyToTrendService)
+		trendRouter.POST("/mark-viewed", proxy.ProxyToTrendService)
 	}
 
-	
 }

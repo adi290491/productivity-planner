@@ -14,6 +14,8 @@ func TestRegisterEndpoints_Routes(t *testing.T) {
 	}{
 		{"/trend/daily", "GET"},
 		{"/trend/weekly", "GET"},
+		{"/trend/unViewed", "GET"},
+		{"/trend/mark-viewed", "POST"},
 	}
 
 	router := gin.New()
