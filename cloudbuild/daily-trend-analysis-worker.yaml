@@ -1,0 +1,48 @@
+steps:
+  # Step 1: Run tests
+  - name: 'golang:1.23-alpine'
+    id: 'run-tests'
+    dir: 'daily-trend-analysis-worker'
+    entrypoint: 'sh'
+    args:
+      - '-c'
+      - |
+        apk add --no-cache git gcc musl-dev
+        go mod download
+        go test -v ./...
+
+  # Step 2: Build Docker image
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'build-image'
+    dir: 'daily-trend-analysis-worker'
+    args:
+      - 'build'
+      - '-t'
+      - 'us-central1-docker.pkg.dev/$PROJECT_ID/$REPO_NAME/daily-trend-analysis-worker:manual-v1'
+      - '-t'
+      - 'us-central1-docker.pkg.dev/$PROJECT_ID/$REPO_NAME/daily-trend-analysis-worker:$SHORT_SHA'
+      - '-t'
+      - 'us-central1-docker.pkg.dev/$PROJECT_ID/$REPO_NAME/daily-trend-analysis-worker:latest'
+      - '.'
+
+  # Step 3: Push to Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'push-image'
+    args:
+      - 'push'
+      - '--all-tags'
+      - 'us-central1-docker.pkg.dev/$PROJECT_ID/$REPO_NAME/daily-trend-analysis-worker'
+
+# Images to store in Artifact Registry
+images:
+  - 'us-central1-docker.pkg.dev/$PROJECT_ID/$REPO_NAME/daily-trend-analysis-worker:manual-v1'
+  - 'us-central1-docker.pkg.dev/$PROJECT_ID/$REPO_NAME/daily-trend-analysis-worker:$SHORT_SHA'
+  - 'us-central1-docker.pkg.dev/$PROJECT_ID/$REPO_NAME/daily-trend-analysis-worker:latest'
+
+# Build options
+options:
+  machineType: 'N1_HIGHCPU_8'
+  logging: CLOUD_LOGGING_ONLY
+
+# Timeout
+timeout: '1200s'

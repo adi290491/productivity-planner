@@ -1,0 +1,45 @@
+steps:
+  # Step 1: Run tests (excluding integration tests)
+  - name: 'golang:1.23-alpine'
+    id: 'run-tests'
+    dir: 'trend-service'
+    entrypoint: 'sh'
+    args:
+      - '-c'
+      - |
+        apk add --no-cache git gcc musl-dev
+        go mod download
+        go test -v ./... -short
+
+  # Step 2: Build Docker image
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'build-image'
+    dir: 'trend-service'
+    args:
+      - 'build'
+      - '-t'
+      - 'us-central1-docker.pkg.dev/$PROJECT_ID/$REPO_NAME/trend-service:manual-v1'
+      - '-t'
+      - 'us-central1-docker.pkg.dev/$PROJECT_ID/$REPO_NAME/trend-service:$SHORT_SHA'
+      - '-t'
+      - 'us-central1-docker.pkg.dev/$PROJECT_ID/$REPO_NAME/trend-service:latest'
+      - '.'
+
+  # Step 3: Push to Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'push-image'
+    args:
+      - 'push'
+      - '--all-tags'
+      - 'us-central1-docker.pkg.dev/$PROJECT_ID/$REPO_NAME/trend-service'
+
+images:
+  - 'us-central1-docker.pkg.dev/$PROJECT_ID/$REPO_NAME/trend-service:manual-v1'
+  - 'us-central1-docker.pkg.dev/$PROJECT_ID/$REPO_NAME/trend-service:$SHORT_SHA'
+  - 'us-central1-docker.pkg.dev/$PROJECT_ID/$REPO_NAME/trend-service:latest'
+
+options:
+  machineType: 'N1_HIGHCPU_8'
+  logging: CLOUD_LOGGING_ONLY
+
+timeout: '1200s'
