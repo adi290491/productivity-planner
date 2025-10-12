@@ -110,6 +110,7 @@ for SERVICE in "${SERVICES[@]}"; do
         --included-files="${SERVICE}/**,cloudbuild/${SERVICE}.yaml" \
         --include-logs-with-status \
         --substitutions="_SERVICE_NAME=$SERVICE" \
+        --service-account="projects/systemic-productivity-planner/serviceAccounts/github-actions-sa@systemic-productivity-planner.iam.gserviceaccount.com" \
         --description="Automated build for ${SERVICE} on push to branch"
     # gcloud builds triggers create github \
     #     --name="$TRIGGER_NAME" \
