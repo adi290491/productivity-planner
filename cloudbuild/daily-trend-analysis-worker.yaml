@@ -39,8 +39,8 @@ steps:
 # Images to store in Artifact Registry
 images:
   - 'us-central1-docker.pkg.dev/$PROJECT_ID/$_REPO_NAME/daily-trend-analysis-worker:manual-v1'
-  - 'us-central1-docker.pkg.dev/$PROJECT_ID/$_REPO_NAME/daily-trend-analysis-worker:$SHORT_SHA'
-  - 'us-central1-docker.pkg.dev/$PROJECT_ID/$_REPO_NAME/daily-trend-analysis-worker:latest'
+  # - 'us-central1-docker.pkg.dev/$PROJECT_ID/$_REPO_NAME/daily-trend-analysis-worker:$SHORT_SHA'
+  # - 'us-central1-docker.pkg.dev/$PROJECT_ID/$_REPO_NAME/daily-trend-analysis-worker:latest'
 
 # Build options
 options:
