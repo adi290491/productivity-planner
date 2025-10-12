@@ -4,15 +4,12 @@ set -x
 set -e
 
 # Configuration
-PROJECT_ID="${GCP_PROJECT_ID:-your-project-id}"
+PROJECT_ID="${GCP_PROJECT_ID:-systemic-productivity-planner}"
 REGION="us-central1"
 REPO_NAME="productivity-planner"
-GITHUB_OWNER="${GITHUB_OWNER:-adi290491}"
-GITHUB_REPO="${GITHUB_REPO:-productivity-planner}"
-BRANCH_PATTERN="${BRANCH_PATTERN:-^master$}"  # or ^main$ if your branch is 'main'
-
-# GitHub connection name (find with: gcloud builds connections list --region=us-central1)
-GITHUB_CONNECTION="${GITHUB_CONNECTION:-github-connection}"  # ← UPDATE THIS
+GITHUB_CONNECTION="MyGithub"
+GITHUB_REPO_RESOURCE="adi290491-productivity-planner"
+BRANCH_PATTERN="${BRANCH_PATTERN:-^master$}"
 
 # Colors for output
 RED='\033[0;31m'
@@ -104,25 +101,26 @@ for SERVICE in "${SERVICES[@]}"; do
     gcloud builds triggers delete "$TRIGGER_NAME" --region="$REGION" --quiet 2>/dev/null || true
     
     # Create new trigger using the 2nd generation (repository resource)
+    gcloud builds triggers create github \
+        --name="$TRIGGER_NAME" \
+        --region="$REGION" \
+        --repository="projects/systemic-productivity-planner/locations/us-central1/connections/MyGithub/repositories/adi290491-productivity-planner" \
+        --branch-pattern="$BRANCH_PATTERN" \
+        --build-config="cloudbuild/${SERVICE}.yaml" \
+        --included-files="${SERVICE}/**,cloudbuild/${SERVICE}.yaml" \
+        --include-logs-with-status \
+        --substitutions="_SERVICE_NAME=$SERVICE" \
+        --description="Automated build for ${SERVICE} on push to branch"
     # gcloud builds triggers create github \
     #     --name="$TRIGGER_NAME" \
     #     --region="$REGION" \
-    #     --repository="projects/$PROJECT_ID/locations/$REGION/connections/$GITHUB_CONNECTION/repositories/$GITHUB_REPO" \
+    #     --repo-name="$GITHUB_REPO" \
+    #     --repo-owner="$GITHUB_OWNER" \
     #     --branch-pattern="$BRANCH_PATTERN" \
     #     --build-config="cloudbuild/${SERVICE}.yaml" \
     #     --include-logs-with-status \
     #     --substitutions="_SERVICE_NAME=$SERVICE" \
     #     --description="Automated build for ${SERVICE} on push to branch"
-    gcloud builds triggers create github \
-        --name="$TRIGGER_NAME" \
-        --region="$REGION" \
-        --repo-name="$GITHUB_REPO" \
-        --repo-owner="$GITHUB_OWNER" \
-        --branch-pattern="$BRANCH_PATTERN" \
-        --build-config="cloudbuild/${SERVICE}.yaml" \
-        --include-logs-with-status \
-        --substitutions="_SERVICE_NAME=$SERVICE" \
-        --description="Automated build for ${SERVICE} on push to branch"
     
     echo -e "${GREEN}✓ Created trigger: ${TRIGGER_NAME}${NC}"
     echo ""
