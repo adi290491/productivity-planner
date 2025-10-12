@@ -30,11 +30,10 @@ steps:
   # Step 3: Push to Artifact Registry
   - name: 'gcr.io/cloud-builders/docker'
     id: 'push-image'
-    args: ['push',
-          'us-central1-docker.pkg.dev/$_PROJECT_ID/$_REPO_NAME/daily-trend-analysis-worker']
-      # - 'push'
+    args: 
+      - 'push'
       # # - '--all-tags'
-      # - 'us-central1-docker.pkg.dev/$PROJECT_ID/$_REPO_NAME/daily-trend-analysis-worker'
+      - 'us-central1-docker.pkg.dev/$PROJECT_ID/$_REPO_NAME/daily-trend-analysis-worker:manual-v1'
 
 # Images to store in Artifact Registry
 images:
