@@ -13,10 +13,10 @@ import (
 
 func main() {
 
-	appConfig := config.Load()
+	appConfig, err := config.Load()
 
-	if appConfig.Port == "" {
-		log.Fatal("PORT environment variable not set")
+	if err != nil {
+		log.Fatalf("Application stopped due to error: %v", err)
 	}
 
 	InitDB(appConfig)

@@ -19,7 +19,7 @@ func TestMain(m *testing.M) {
 	gin.SetMode(gin.TestMode)
 	router = gin.New()
 	// Set required env vars for config.Load()
-	os.Setenv("DB_HOST", "localhost")
+	os.Setenv("DB_HOSTNAME", "localhost")
 	os.Setenv("DB_PORT", "5432")
 	os.Setenv("DB_NAME", "testdb")
 	os.Setenv("DB_USERNAME", "testuser")
@@ -27,7 +27,7 @@ func TestMain(m *testing.M) {
 	os.Setenv("JWT_SECRET", "NxrWXLL7kc")
 	os.Setenv("PORT", "1234")
 	defer func() {
-		os.Unsetenv("DB_HOST")
+		os.Unsetenv("DB_HOSTNAME")
 		os.Unsetenv("DB_PORT")
 		os.Unsetenv("DB_NAME")
 		os.Unsetenv("DB_USERNAME")
@@ -36,7 +36,12 @@ func TestMain(m *testing.M) {
 		os.Unsetenv("PORT")
 	}()
 
-	appConfig = config.Load()
+	// replace shadowing declaration with assignment to package‐level appConfig
+	var err error
+	appConfig, err = config.Load()
+	if err != nil {
+		panic("Failed to load config for tests: " + err.Error())
+	}
 
 	handler := &Handler{
 		Svc:     &user.MockUserService{},

@@ -46,7 +46,7 @@ func dbStatus(db *gorm.DB) string {
 	return "initialized"
 }
 
-func Load() *AppConfig {
+func Load() (*AppConfig, error) {
 
 	_ = godotenv.Load()
 
@@ -66,7 +66,7 @@ func Load() *AppConfig {
 	// Validate required fields
 	if dbConfig.Host == "" || dbConfig.Port == "" || dbConfig.DbName == "" ||
 		dbConfig.User == "" || dbConfig.Password == "" {
-		log.Fatal("Missing required database configuration. Please ensure DB_HOST, DB_PORT, DB_NAME, DB_USERNAME, and DB_PASSWORD are set")
+		return nil, fmt.Errorf("missing required database configuration. Please ensure DB_HOSTNAME, DB_PORT, DB_NAME, DB_USERNAME, and DB_PASSWORD are set")
 	}
 
 	// Set default for optional fields
@@ -93,7 +93,7 @@ func Load() *AppConfig {
 	}
 
 	log.Println("-------------Exiting application config-------------")
-	return appConfig
+	return appConfig, nil
 
 }
 

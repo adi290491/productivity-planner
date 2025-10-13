@@ -36,5 +36,16 @@ func (r *TestDBRepo) GetUser(user *User) (*User, error) {
 }
 
 func (r *TestDBRepo) GetUsersById(users *UserBatch) (*[]UserInfo, error) {
-	return nil, nil
+	// Return mock user info for the provided user IDs
+	result := make([]UserInfo, 0, len(users.UserIDs))
+
+	for i, userID := range users.UserIDs {
+		result = append(result, UserInfo{
+			ID:    userID,
+			Email: fmt.Sprintf("user%d@example.com", i+1),
+			Name:  fmt.Sprintf("User %d", i+1),
+		})
+	}
+
+	return &result, nil
 }
