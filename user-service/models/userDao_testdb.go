@@ -37,14 +37,14 @@ func (r *TestDBRepo) GetUser(user *User) (*User, error) {
 
 func (r *TestDBRepo) GetUsersById(users *UserBatch) (*[]UserInfo, error) {
 	// Return mock user info for the provided user IDs
-	result := make([]UserInfo, 0, len(users.UserIDs))
+	result := make([]UserInfo, len(users.UserIDs))
 
 	for i, userID := range users.UserIDs {
-		result = append(result, UserInfo{
+		result[i] = UserInfo{
 			ID:    userID,
-			Email: fmt.Sprintf("user%d@example.com", i+1),
-			Name:  fmt.Sprintf("User %d", i+1),
-		})
+			Email: fmt.Sprintf("%s@example.com", userID.String()[:8]),
+			Name:  fmt.Sprintf("User %s", userID.String()[:8]),
+		}
 	}
 
 	return &result, nil
