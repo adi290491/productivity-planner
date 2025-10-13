@@ -11,7 +11,7 @@ import (
 
 	"time"
 
-	"github.com/adi290491/productivity-planner/trend-analysis-worker/weekly-aggregates/models"
+	"github.com/adi290491/productivity-planner/weekly-trend-analysis-worker/models"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
