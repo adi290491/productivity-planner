@@ -33,3 +33,4 @@ func main() {
 	log.Printf("Daily Trend processed successfully:\n %v", processingSummary.GetStats())
 	log.Println("-------Job Execution Completed-------")
 }
+

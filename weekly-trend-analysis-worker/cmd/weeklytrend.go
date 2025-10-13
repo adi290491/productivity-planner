@@ -30,7 +30,7 @@ func (p *PostgresRepository) FetchWeeklyTrend(app *Application) (*models.Process
 	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 	defer cancel()
 
-	var weeklyAggregate []models.WeeklyTrendResult
+	var weeklyAggregate []models.WeeklyAggregate
 
 	err := db.WithContext(ctx).
 		Model(&models.Session{}).
