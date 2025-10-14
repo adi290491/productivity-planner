@@ -18,7 +18,7 @@ steps:
     args:
       - 'build'
       - '-t'
-      - 'us-central1-docker.pkg.dev/$PROJECT_ID/$REPO_NAME/user-service:manual-v1'
+      - 'us-central1-docker.pkg.dev/$PROJECT_ID/$_REPO_NAME/user-service:manual-v1'
       # - '-t'
       # - 'us-central1-docker.pkg.dev/$PROJECT_ID/$REPO_NAME/user-service:$SHORT_SHA'
       # - '-t'
@@ -31,10 +31,10 @@ steps:
     args:
       - 'push'
       # - '--all-tags'
-      - 'us-central1-docker.pkg.dev/$PROJECT_ID/$REPO_NAME/user-service:manual-v1'
+      - 'us-central1-docker.pkg.dev/$PROJECT_ID/$_REPO_NAME/user-service:manual-v1'
 
 images:
-  - 'us-central1-docker.pkg.dev/$PROJECT_ID/$REPO_NAME/user-service:manual-v1'
+  - 'us-central1-docker.pkg.dev/$PROJECT_ID/$_REPO_NAME/user-service:manual-v1'
   # - 'us-central1-docker.pkg.dev/$PROJECT_ID/$REPO_NAME/user-service:$SHORT_SHA'
   # - 'us-central1-docker.pkg.dev/$PROJECT_ID/$REPO_NAME/user-service:latest'
 
@@ -42,4 +42,5 @@ options:
   machineType: 'E2_HIGHCPU_8'
   logging: CLOUD_LOGGING_ONLY
 
-timeout: '1200s'
+timeout: '1200s'substitutions:
+  _REPO_NAME: "prod-planner-repo"
