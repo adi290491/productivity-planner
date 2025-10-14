@@ -48,7 +48,11 @@ func dbStatus(db *gorm.DB) string {
 
 func Load() (*AppConfig, error) {
 
-	_ = godotenv.Load()
+	// Load .env file if it exists, but don't fail if it doesn't
+	err := godotenv.Load()
+	if err != nil {
+		log.Printf("No .env file found or error loading .env file: %v (this is okay, using system environment variables)", err)
+	}
 
 	profile := os.Getenv("PROFILE")
 
@@ -84,7 +88,7 @@ func Load() (*AppConfig, error) {
 
 	// Validate required application settings
 	if appConfig.JWT_SECRET == "" {
-		log.Fatal("Missing required JWT_SECRET environment variable")
+		return nil, fmt.Errorf("missing required JWT_SECRET environment variable")
 	}
 
 	if appConfig.Port == "" {

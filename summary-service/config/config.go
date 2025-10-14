@@ -68,10 +68,10 @@ func redactDSN(dsn string) string {
 
 func Load() (*AppConfig, error) {
 
+	// Load .env file if it exists, but don't fail if it doesn't
 	err := godotenv.Load()
-
 	if err != nil {
-		return nil, err
+		log.Printf("No .env file found or error loading .env file: %v (this is okay, using system environment variables)", err)
 	}
 
 	profile := os.Getenv("PROFILE")
