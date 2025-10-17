@@ -1,9 +1,9 @@
 steps:
   # Step 1: Run tests
-  - name: 'golang:1.24-alpine'
-    id: 'run-tests'
-    dir: 'user-service'
-    entrypoint: 'sh'
+  - name: golang:1.24-alpine
+    id: run-tests
+    dir: user-service
+    entrypoint: sh
     args:
       - '-c'
       - |
@@ -12,37 +12,37 @@ steps:
         go test -v ./...
 
   # Step 2: Build Docker image
-  - name: 'gcr.io/cloud-builders/docker'
-    id: 'build-image'
-    dir: 'user-service'
+  - name: gcr.io/cloud-builders/docker
+    id: build-image
+    dir: user-service
     args:
-      - 'build'
+      - build
       - '-t'
-      - 'us-central1-docker.pkg.dev/$PROJECT_ID/$_REPO_NAME/user-service:manual-v1'
+      - us-central1-docker.pkg.dev/$PROJECT_ID/$_REPO_NAME/user-service:manual-v1
       # - '-t'
       # - 'us-central1-docker.pkg.dev/$PROJECT_ID/$REPO_NAME/user-service:$SHORT_SHA'
       # - '-t'
       # - 'us-central1-docker.pkg.dev/$PROJECT_ID/$REPO_NAME/user-service:latest'
-      - '.'
+      - .
 
   # Step 3: Push to Artifact Registry
-  - name: 'gcr.io/cloud-builders/docker'
-    id: 'push-image'
+  - name: gcr.io/cloud-builders/docker
+    id: push-image
     args:
-      - 'push'
+      - push
       # - '--all-tags'
-      - 'us-central1-docker.pkg.dev/$PROJECT_ID/$_REPO_NAME/user-service:manual-v1'
+      - us-central1-docker.pkg.dev/$PROJECT_ID/$_REPO_NAME/user-service:manual-v1
 
 images:
-  - 'us-central1-docker.pkg.dev/$PROJECT_ID/$_REPO_NAME/user-service:manual-v1'
+  - us-central1-docker.pkg.dev/$PROJECT_ID/$_REPO_NAME/user-service:manual-v1
   # - 'us-central1-docker.pkg.dev/$PROJECT_ID/$REPO_NAME/user-service:$SHORT_SHA'
   # - 'us-central1-docker.pkg.dev/$PROJECT_ID/$REPO_NAME/user-service:latest'
 
 options:
-  machineType: 'E2_HIGHCPU_8'
+  machineType: E2_HIGHCPU_8
   logging: CLOUD_LOGGING_ONLY
 
-timeout: '1200s'
+timeout: 1200s
 
 substitutions:
-  _REPO_NAME: "prod-planner-repo"
+  _REPO_NAME: prod-planner-repo
