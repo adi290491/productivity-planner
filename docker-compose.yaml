@@ -2,13 +2,13 @@ services:
   postgres:
     image: postgres:15
     environment:
-      - POSTGRES_DB=productivity_planner
-      - POSTGRES_USER=adityasawant
-      - POSTGRES_PASSWORD=S10dulkar
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     ports:
       - "5433:5432"
     healthcheck:
-      test: ["CMD", "pg_isready", "-U", "adityasawant"]
+      test: ["CMD", "pg_isready", "-U", "${POSTGRES_USER}"]
       interval: 1m30s
       timeout: 30s
       retries: 5
@@ -35,7 +35,7 @@ services:
     image: migrate/migrate
     volumes:
       - ./migrations:/migrations
-    command: ["-path", "/migrations", "-database", "postgres://adityasawant:S10dulkar@postgres:5432/productivity_planner?sslmode=disable", "up"]
+    command: ["-path", "/migrations", "-database", "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?sslmode=disable", "up"]
     depends_on:
       postgres:
         condition: service_healthy
