@@ -1,32 +1,51 @@
 import type { DailySummary as DailySummaryType } from "../types/summary";
 
 const DailySummary = ({ data }: { data: DailySummaryType | null }) => {
-  const noSessions = !data || !data.breakdown || Object.keys(data.breakdown).length === 0;
+  if (!data) {
+    return (
+      <div className="summary-card-wrapper">
+        <p>No summary data available.</p>
+      </div>
+    );
+  }
+
+  const noSessions = !data.breakdown || Object.keys(data.breakdown).length === 0;
 
   return (
-  <div className="bg-card border border-border rounded p-4 shadow">
-    <h3 className="text-lg font-semibold text-text mb-2">Daily Summary</h3>
-    <div className="text-sm text-accent space-y-2">
-      {noSessions ? (
-        <p>Looks like you're having a relaxed day! No sessions recorded yet.</p>
-      ) : (
-        <>
-      <p><strong>Date:</strong> {new Date(data.date).toLocaleDateString()}</p>
-      <p><strong>Total Time:</strong> {data.total_time}</p>
-      <div>
-        <p className="font-semibold">Breakdown:</p>
-        <ul className="ml-4 list-disc">
-          {Object.entries(data.breakdown).map(([type, time]) => (
- <li key={type}>
-              {type.charAt(0).toUpperCase() + type.slice(1)}: {time}
-            </li>
-          ))}
-        </ul>
+    <div className="summary-card-wrapper">
+      <div className="summary-header">
+        <h3>Daily Summary</h3>
+        <div className="summary-details">
+          <p>Date: {data.date}</p>
+          <p>Total Duration: {data.total_time}</p>
+        </div>
       </div>
-        </>
-      )}
+
+      <div className="summary-table-card">
+        {noSessions ? (
+          <p>Looks like you're having a relaxed day! No sessions recorded yet.</p>
+        ) : (
+          <table className="summary-table">
+            <thead>
+              <tr>
+                <th>Session Type</th>
+                <th>Duration</th>
+              </tr>
+            </thead>
+            <tbody>
+              {Object.entries(data.breakdown).map(([type, time]) => (
+                <tr key={type}>
+                  <td>{type.charAt(0).toUpperCase() + type.slice(1)}</td>
+                  <td>{time}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
     </div>
-  </div>
-);};
+  );
+};
+
 
 export default DailySummary;

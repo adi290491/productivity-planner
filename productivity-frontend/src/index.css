@@ -1,12 +1,14 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary: #f0f4f8;
-  --color-accent: #4a5568;
-  --color-background: #f0f4f8;
-  --color-card: #ffffff;
-  --color-text: #2d3748;
-  --color-border: #E5E7EB;
+  --color-primary: #F6AD55;    /* Focus session color */
+  --color-accent: #2B6CB0;     /* Meeting session & Share button */
+  --color-background: #F0F4F8; /* Main background */
+  --color-card: #FFFFFF;       /* Card background */
+  --color-text: #2D3748;       /* Main text color */
+  --color-border: #E2E8F0;     /* Border color */
+  --color-highlight: #F56565;  /* Not used in this design */
+  --color-break: #48BB78;      /* Break session color - NEW */
 }
 
 :root {
@@ -94,6 +96,84 @@ button:focus-visible {
  @apply bg-accent hover:brightness-110;
 }
 
+.daily-summary-card {
+  background-color: var(--color-card);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 1.5rem;
+  color: var(--color-text);
+}
+
+.summary-card-wrapper {
+  background: #FDF2E2;
+  border: 1px solid #F6AD55;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.summary-table-card {
+  background: #FFFFFF;
+  border: 1px solid #F6AD55;
+  border-radius: 12px;
+  padding: 0;
+  margin-top: 16px;
+  overflow: hidden;
+}
+
+.summary-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.summary-table th, .summary-table td {
+  padding: 12px 16px;
+  text-align: left;
+}
+
+.summary-table th {
+  background-color: #FEF6E7;
+  color: #6C757D;
+  font-weight: 500;
+  border-bottom: 1px solid #E2E8F0;
+}
+
+.summary-table td {
+  color: #2D3748;
+  font-weight: 500;
+}
+
+.summary-table th:first-child,
+.summary-table td:first-child {
+  border-right: 1px solid #E2E8F0;
+}
+
+.summary-table tbody tr:not(:last-child) td {
+  border-bottom: 1px solid #E2E8F0;
+}
+
+.summary-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.summary-header h3 {
+  font-size: 24px;
+  font-weight: 600;
+  color: #2D3748;
+}
+
+.summary-details {
+  text-align: right;
+}
+
+.summary-details p {
+  margin: 0;
+  color: #4A5568;
+  font-size: 14px;
+}
+
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;
@@ -105,4 +185,63 @@ button:focus-visible {
   button {
     background-color: #f9f9f9;
   }
+}
+
+.w-3 {
+  width: 0.75rem;
+}
+.h-3 {
+  height: 0.75rem;
+}
+.rounded-full {
+  border-radius: 50%;
+}
+
+/* Weekly Summary Styles */
+.weekly-summary-wrapper {
+  background: #FCF8F1; /* Lighter beige background */
+  border: 1px solid #F6AD55;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  color: var(--color-text);
+}
+
+.weekly-summary-header h3 {
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.weekly-summary-header p {
+  font-size: 14px;
+  color: #6C757D;
+  margin: 4px 0 0 0;
+}
+
+.chart-container {
+  margin-top: 24px;
+  height: 300px; /* Or adjust as needed */
+}
+
+.chart-legend {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 24px;
+  margin-top: 20px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--color-text);
+}
+
+.legend-color-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
 }
