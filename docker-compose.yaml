@@ -31,6 +31,17 @@ services:
     networks:
       - backend
 
+  migrate:
+    image: migrate/migrate
+    volumes:
+      - ./migrations:/migrations
+    command: ["-path", "/migrations", "-database", "postgres://adityasawant:S10dulkar@postgres:5432/productivity_planner?sslmode=disable", "up"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - backend
+
   user-service:
     build: ./user-service
     ports:
@@ -39,6 +50,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
     env_file:
       - ./user-service/.env
     networks:
@@ -51,6 +64,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
     env_file:
       - ./session-service/.env
     networks:
@@ -63,6 +78,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
     env_file:
       - ./summary-service/.env
     networks:
@@ -75,6 +92,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
     env_file:
       - ./trend-service/.env
     networks:
