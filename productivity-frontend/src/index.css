@@ -245,3 +245,71 @@ button:focus-visible {
   height: 12px;
   border-radius: 50%;
 }
+
+/* Notification Banner Styles */
+.notification-banner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #F6AD55; /* Using --color-primary */
+  color: white;
+  padding: 16px 24px;
+  border-radius: 12px;
+  width: 100%;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.notification-content {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.notification-bell-icon {
+  flex-shrink: 0; /* Prevents the icon from shrinking */
+}
+
+.notification-text h4 {
+  font-weight: 600;
+  font-size: 16px;
+  margin: 0;
+}
+
+.notification-text p {
+  margin: 4px 0 0 0;
+  font-size: 14px;
+  opacity: 0.95;
+}
+
+.notification-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.btn-view-trends, .btn-dismiss {
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: background-color 0.2s, border-color 0.2s;
+}
+
+.btn-view-trends {
+  background-color: var(--color-accent); /* Blue button */
+  color: white;
+}
+
+.btn-view-trends:hover {
+  background-color: #255a8d; /* Slightly darker blue on hover */
+}
+
+.btn-dismiss {
+  background-color: transparent;
+  color: white;
+  border-color: rgba(255, 255, 255, 0.8);
+}
+
+.btn-dismiss:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}

@@ -6,6 +6,7 @@ import { fetchDailySummary, fetchWeeklySummary } from "../api/summary";
 import WeeklySummary from "../components/WeeklySummary";
 import SessionControl from "../components/SessionControl";
 import TrendTabs from "../components/TrendTabs";
+import NotificationBanner from "../components/NotificationBanner";
 
 
 const Dashboard = () => {
@@ -37,6 +38,7 @@ const Dashboard = () => {
     return (
        
         <div className="bg-background min-h-screen">
+            <NotificationBanner/>
             <CarouselHeader />
 
             <SessionControl
