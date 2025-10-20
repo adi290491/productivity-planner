@@ -15,6 +15,8 @@ const Dashboard = () => {
     const [dailySummary, setDailySummary] = useState<DailySummaryType | null>(null);
     const [weeklySummary, setWeeklySummary] = useState<WeeklySummaryResponse | null>(null);
 
+    const [isBannerVisible, setIsBannerVisible] = useState(false);
+
     const token = localStorage.getItem("token");
     
     useEffect(() => {
@@ -38,7 +40,21 @@ const Dashboard = () => {
     return (
        
         <div className="bg-background min-h-screen">
-            <NotificationBanner/>
+
+            <div className={`notification-container ${isBannerVisible ? 'visible' : ''}`}>
+                <NotificationBanner onDismiss={() => setIsBannerVisible(false)} />
+            </div>
+
+            <div className="p-4">
+                <button 
+                    className="btn btn-accent" 
+                    onClick={() => setIsBannerVisible(true)}
+                    disabled={isBannerVisible}
+                >
+                    Show Notification
+                </button>
+            </div>
+            
             <CarouselHeader />
 
             <SessionControl

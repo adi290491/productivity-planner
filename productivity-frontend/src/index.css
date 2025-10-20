@@ -313,3 +313,24 @@ button:focus-visible {
 .btn-dismiss:hover {
   background-color: rgba(255, 255, 255, 0.1);
 }
+
+/* Container for the animated notification banner */
+.notification-container {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  overflow: hidden;
+  /* Animation properties */
+  transition: max-height 0.5s ease-in-out, padding 0.5s ease-in-out;
+  max-height: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.notification-container.visible {
+  /* A height larger than the banner will work */
+  max-height: 200px; 
+  /* Add padding to space it out when visible */
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}

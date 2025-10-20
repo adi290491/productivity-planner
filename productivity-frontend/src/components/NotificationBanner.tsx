@@ -18,17 +18,13 @@ const BellIcon = () => (
   </svg>
 );
 
-const NotificationBanner = () => {
+const NotificationBanner = ({ onDismiss }: { onDismiss: () => void}) => {
     const handleViewTrends = () => {
         console.log('View Trends button clicked');
     }
 
-    const handleDismiss = () => {
-        console.log('Dismiss button clicked');
-    }
-
     return (
-        <div className="notification-banner">
+        <div className="notification-banner mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="notification-content">
                 <BellIcon />
                 <div className="notification-text">
@@ -40,7 +36,7 @@ const NotificationBanner = () => {
                 <button className="btn-view-trends" onClick={handleViewTrends}>
                     View Trends
                 </button>
-                <button className="btn-dismiss" onClick={handleDismiss}>
+                <button className="btn-dismiss" onClick={onDismiss}>
                     Dismiss
                 </button>
             </div>
