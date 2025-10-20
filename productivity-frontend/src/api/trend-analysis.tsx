@@ -16,3 +16,11 @@ export const fetchWeeklyTrends = async (token: string, weeks: number): Promise<W
   });
   return res.data;
 };
+
+export const fetchLatestTrendsCount = async (token: string, weeks: number): Promise<WeeklyTrendResponse> => {
+  const res = await api.get(`/trend/unviewed`, {
+    headers: { Authorization: `Bearer ${token}` },
+    params: { weeks },
+  });
+  return res.data;
+};
