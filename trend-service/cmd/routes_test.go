@@ -14,7 +14,7 @@ func TestRegisterEndpoints_Routes(t *testing.T) {
 	}{
 		{"/trend/daily", "GET"},
 		{"/trend/weekly", "GET"},
-		{"/trend/unViewed", "GET"},
+		{"/trend/unviewed", "GET"},
 		{"/trend/mark-viewed", "POST"},
 	}
 

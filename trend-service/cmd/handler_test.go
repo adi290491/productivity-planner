@@ -24,13 +24,13 @@ func TestHandlers(t *testing.T) {
 		{"GetWeeklyTrend", "/trend/weekly?weeks=3", "GET", http.StatusOK, "11111111-1111-1111-1111-111111111111"},
 		{"GetDailyTrendNoQueryParam", "/trend/daily", "GET", http.StatusOK, "11111111-1111-1111-1111-111111111111"},
 		{"GetWeeklyTrendNoQueryParam", "/trend/weekly", "GET", http.StatusOK, "11111111-1111-1111-1111-111111111111"},
-		{"GetUnviewedTrendsCount", "/trend/unViewed", "GET", http.StatusOK, "11111111-1111-1111-1111-111111111111"},
+		{"GetUnviewedTrendsCount", "/trend/unviewed", "GET", http.StatusOK, "11111111-1111-1111-1111-111111111111"},
 		{"MarkTrendsAsViewedDaily", "/trend/mark-viewed?type=daily", "POST", http.StatusOK, "1111-1111"},
 		{"MarkTrendsAsViewedWeekly", "/trend/mark-viewed?type=weekly", "POST", http.StatusOK, "1111-1111"},
 		{"GetDailyTrendUnauthorized", "/trend/daily", "GET", http.StatusUnauthorized, ""},
 		{"GetWeeklyTrendUnauthorized", "/trend/weekly", "GET", http.StatusUnauthorized, ""},
-		{"GetUnviewedTrendsCountUnauthorized", "/trend/unViewed", "GET", http.StatusUnauthorized, ""},
-		{"GetUnviewedTrendsCountInvalidUUID", "/trend/unViewed", "GET", http.StatusInternalServerError, "invalid-uuid"},
+		{"GetUnviewedTrendsCountUnauthorized", "/trend/unviewed", "GET", http.StatusUnauthorized, ""},
+		{"GetUnviewedTrendsCountInvalidUUID", "/trend/unviewed", "GET", http.StatusInternalServerError, "invalid-uuid"},
 		{"MarkTrendsAsViewedUnauthorized", "/trend/mark-viewed?type=daily", "POST", http.StatusUnauthorized, ""},
 		{"MarkTrendsAsViewedInvalidType", "/trend/mark-viewed?type=invalid", "POST", http.StatusBadRequest, "11111111-1111-1111-1111-111111111111"},
 	}
@@ -185,10 +185,10 @@ func TestGetUnviewedTrendsCount(t *testing.T) {
 
 	mockService := &trend.TrendService{Repo: &models.TestDBRepo{}}
 	handler := Handler{svc: mockService}
-	router.GET("/trend/unViewed", handler.GetUnviewedTrendsCount)
+	router.GET("/trend/unviewed", handler.GetUnviewedTrendsCount)
 
 	t.Run("returns 200 with valid user id", func(t *testing.T) {
-		req, _ := http.NewRequest("GET", "/trend/unViewed", nil)
+		req, _ := http.NewRequest("GET", "/trend/unviewed", nil)
 		req.Header.Set("X-USER-ID", "11111111-1111-1111-1111-111111111111")
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
@@ -199,7 +199,7 @@ func TestGetUnviewedTrendsCount(t *testing.T) {
 	})
 
 	t.Run("returns 401 if user id is missing", func(t *testing.T) {
-		req, _ := http.NewRequest("GET", "/trend/unViewed", nil)
+		req, _ := http.NewRequest("GET", "/trend/unviewed", nil)
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
 
@@ -209,7 +209,7 @@ func TestGetUnviewedTrendsCount(t *testing.T) {
 	})
 
 	t.Run("returns 401 if user id is empty string", func(t *testing.T) {
-		req, _ := http.NewRequest("GET", "/trend/unViewed", nil)
+		req, _ := http.NewRequest("GET", "/trend/unviewed", nil)
 		req.Header.Set("X-USER-ID", "")
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
@@ -220,7 +220,7 @@ func TestGetUnviewedTrendsCount(t *testing.T) {
 	})
 
 	t.Run("returns 401 if user id is whitespace", func(t *testing.T) {
-		req, _ := http.NewRequest("GET", "/trend/unViewed", nil)
+		req, _ := http.NewRequest("GET", "/trend/unviewed", nil)
 		req.Header.Set("X-USER-ID", "   ")
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
@@ -231,7 +231,7 @@ func TestGetUnviewedTrendsCount(t *testing.T) {
 	})
 
 	t.Run("returns 500 if user id is invalid UUID format", func(t *testing.T) {
-		req, _ := http.NewRequest("GET", "/trend/unViewed", nil)
+		req, _ := http.NewRequest("GET", "/trend/unviewed", nil)
 		req.Header.Set("X-USER-ID", "invalid-uuid-format")
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
