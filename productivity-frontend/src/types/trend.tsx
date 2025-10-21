@@ -21,3 +21,8 @@ export interface WeeklyTrend {
 export interface WeeklyTrendResponse {
     weeklyTrends: WeeklyTrend[];
 }
+
+export interface UnviewedTrendsCount {
+    daily_count: number;
+    weekly_count: number;
+}

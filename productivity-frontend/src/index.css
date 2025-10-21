@@ -104,7 +104,14 @@ button:focus-visible {
   color: var(--color-text);
 }
 
-.summary-card-wrapper {
+/* CORRECTED STYLES START HERE */
+
+.summary-card-wrapper,
+.weekly-summary-wrapper {
+  height: 500px; /* Enforce fixed height */
+  display: flex;
+  flex-direction: column;
+  /* Use the existing wrapper styles */
   background: #FDF2E2;
   border: 1px solid #F6AD55;
   border-radius: 16px;
@@ -116,9 +123,18 @@ button:focus-visible {
   background: #FFFFFF;
   border: 1px solid #F6AD55;
   border-radius: 12px;
-  padding: 0;
   margin-top: 16px;
   overflow: hidden;
+  /* Allow the inner card to grow and fill the remaining space */
+  flex-grow: 1;
+  display: flex; /* Use flex to manage inner content */
+  flex-direction: column;
+}
+
+/* This is the container that will scroll */
+.table-scroll-container {
+  overflow-y: auto; /* Enable vertical scrolling */
+  flex-grow: 1;
 }
 
 .summary-table {
@@ -126,19 +142,24 @@ button:focus-visible {
   border-collapse: collapse;
 }
 
-.summary-table th, .summary-table td {
+.summary-table th {
+  /* This makes the header stick to the top of the scroll container */
+  position: sticky;
+  top: 0;
+  background-color: #FEF6E7; /* Header color from before */
+  z-index: 1; /* Ensures header stays above scrolling content */
+  
+  /* Re-apply original styles */
   padding: 12px 16px;
   text-align: left;
-}
-
-.summary-table th {
-  background-color: #FEF6E7;
   color: #6C757D;
   font-weight: 500;
   border-bottom: 1px solid #E2E8F0;
 }
 
 .summary-table td {
+  padding: 12px 16px;
+  text-align: left;
   color: #2D3748;
   font-weight: 500;
 }
@@ -150,6 +171,13 @@ button:focus-visible {
 
 .summary-table tbody tr:not(:last-child) td {
   border-bottom: 1px solid #E2E8F0;
+}
+
+/* Fix for Weekly Summary chart to correctly fill the space */
+.chart-container {
+  margin-top: 24px;
+  flex-grow: 1; /* Remove fixed height and let it fill space */
+  min-height: 250px;
 }
 
 .summary-header {
@@ -222,6 +250,8 @@ button:focus-visible {
 .chart-container {
   margin-top: 24px;
   height: 300px; /* Or adjust as needed */
+  flex-grow: 1;
+  min-height: 250px; /* Prevents the chart from collapsing */
 }
 
 .chart-legend {

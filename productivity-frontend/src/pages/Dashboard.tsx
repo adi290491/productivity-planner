@@ -3,6 +3,7 @@ import CarouselHeader from "../components/CarouselHeader";
 import type { DailySummary as DailySummaryType, WeeklySummaryResponse, SessionResponse } from "../types/summary";
 import DailySummary from "../components/DailySummary";
 import { fetchDailySummary, fetchWeeklySummary } from "../api/summary";
+import { fetchLatestTrendsCount } from "../api/trend-analysis";
 import WeeklySummary from "../components/WeeklySummary";
 import SessionControl from "../components/SessionControl";
 import TrendTabs from "../components/TrendTabs";
@@ -14,20 +15,27 @@ const Dashboard = () => {
     const [lastSession, setLastSession] = useState<SessionResponse | null>(null);
     const [dailySummary, setDailySummary] = useState<DailySummaryType | null>(null);
     const [weeklySummary, setWeeklySummary] = useState<WeeklySummaryResponse | null>(null);
-
     const [isBannerVisible, setIsBannerVisible] = useState(false);
 
     const token = localStorage.getItem("token");
     
     useEffect(() => {
         const fetchData = async () => {
+
+          if (!token) return
+
             try {
-              const [daily, weekly] = await Promise.all([
-                fetchDailySummary(token!),
-                fetchWeeklySummary(token!)
+              const [daily, weekly, trendsCount] = await Promise.all([
+                fetchDailySummary(token),
+                fetchWeeklySummary(token),
+                fetchLatestTrendsCount(token),
               ]);
               setDailySummary(daily);
               setWeeklySummary(weekly);
+
+              if (trendsCount && (trendsCount.weekly_count > 0 || trendsCount.weekly_count > 0 )) {
+                setIsBannerVisible(true);
+              }
             } catch (error) {
               console.error("Failed to fetch summaries:", error);
               setDailySummary(null);
@@ -35,26 +43,12 @@ const Dashboard = () => {
             }
           };
           fetchData();
-    }, []);
+    }, [token]);
 
     return (
        
         <div className="bg-background min-h-screen">
 
-            <div className={`notification-container ${isBannerVisible ? 'visible' : ''}`}>
-                <NotificationBanner onDismiss={() => setIsBannerVisible(false)} />
-            </div>
-
-            <div className="p-4">
-                <button 
-                    className="btn btn-accent" 
-                    onClick={() => setIsBannerVisible(true)}
-                    disabled={isBannerVisible}
-                >
-                    Show Notification
-                </button>
-            </div>
-            
             <CarouselHeader />
 
             <SessionControl

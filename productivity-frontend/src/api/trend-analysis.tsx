@@ -1,4 +1,4 @@
-import type { DailyTrendResponse, WeeklyTrendResponse } from "../types/trend";
+import type { DailyTrendResponse, WeeklyTrendResponse, UnviewedTrendsCount } from "../types/trend";
 import api from "./api";
 
 export const fetchDailyTrends = async (token: string, days: number): Promise<DailyTrendResponse> => {
@@ -17,10 +17,9 @@ export const fetchWeeklyTrends = async (token: string, weeks: number): Promise<W
   return res.data;
 };
 
-export const fetchLatestTrendsCount = async (token: string, weeks: number): Promise<WeeklyTrendResponse> => {
+export const fetchLatestTrendsCount = async (token: string): Promise<UnviewedTrendsCount> => {
   const res = await api.get(`/trend/unviewed`, {
     headers: { Authorization: `Bearer ${token}` },
-    params: { weeks },
   });
   return res.data;
 };
