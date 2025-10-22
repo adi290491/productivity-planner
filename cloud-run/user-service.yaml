@@ -1,0 +1,68 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: gateway
+  namespace: 918662609235
+  labels:
+    cloud.googleapis.com/location: us-central1
+  annotations:
+    run.googleapis.com/launch-stage: BETA
+    run.googleapis.com/minScale: '1'
+    run.googleapis.com/maxScale: '2'
+spec:
+  template:
+    metadata:
+      annotations:
+        run.googleapis.com/cloudsql-instances: 'systemic-productivity-planner:us-central1:planner-prod'
+        run.googleapis.com/network: 'default'
+        run.googleapis.com/subnetwork: 'default'
+        run.googleapis.com/network-tags: 'user-service'
+    spec:
+      serviceAccountName: 918662609235-compute@developer.gserviceaccount.com
+      containers:
+        - image: 'us-central1-docker.pkg.dev/systemic-productivity-planner/prod-planner-repo/user-service:manual-v1'
+          ports:
+            - name: http1
+              containerPort: 8080
+          resources:
+            limits:
+              cpu: '1000m'
+              memory: '512Mi'
+          env:
+            - name: DB_HOSTNAME
+              valueFrom:
+                secretKeyRef:
+                  name: DB_HOSTNAME
+                  key: 'latest'
+            - name: DB_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: DB_NAME
+                  key: 'latest'
+            - name: DB_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: DB_PORT
+                  key: 'latest'
+            - name: DB_SSLMODE
+              valueFrom:
+                secretKeyRef:
+                  name: DB_SSLMODE
+                  key: 'latest'
+            - name: DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: DB_USERNAME
+                  key: 'latest'
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: DB_PASSWORD
+                  key: 'latest'
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: JWT_SECRET
+                  key: 'latest'
+            - name: PROFILE
+              value: prod

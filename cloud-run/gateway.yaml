@@ -1,0 +1,49 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: gateway
+  namespace: 918662609235
+  labels:
+    cloud.googleapis.com/location: us-central1
+  annotations:
+    run.googleapis.com/launch-stage: BETA
+spec:
+  template:
+    metadata:
+      annotations:
+        # Annotations for direct VPC egress
+        run.googleapis.com/network: 'default'
+        run.googleapis.com/subnetwork: 'default'
+        run.googleapis.com/network-tags: 'gateway' # e.g., 'gateway'
+        # Annotation for minimum instances
+        run.googleapis.com/min-instances: 0
+    spec:
+      containers:
+        - image: us-central1-docker.pkg.dev/systemic-productivity-planner/prod-planner-repo/gateway:manual-v1 # Replace with your image path
+          ports:
+            - name: http1
+              containerPort: 8080 
+          resources:
+            limits:
+              cpu: '1000m'
+              memory: '512Mi'
+          env:
+            - name: PROFILE
+              value: prod
+            - name: USER_SERVICE_URL
+              value: https://user-service-918662609235.us-central1.run.app 
+            - name: SESSION_SERVICE_URL
+              value: https://session-service-918662609235.us-central1.run.app 
+            - name: SUMMARY_SERVICE_URL
+              value: https://summary-service-918662609235.us-central1.run.app 
+            - name: TREND_SERVICE_URL
+              value: https://trend-service-918662609235.us-central1.run.app 
+            - name: FRONTEND_ORIGIN
+              value: https://systemic-productivity-planner.web.app
+            - name: FRONTEND_ORIGIN_2
+              value: https://systemic-productivity-planner.firebaseapp.com
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: JWT_SECRET
+                  key: 'latest'
