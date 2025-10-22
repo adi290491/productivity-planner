@@ -30,8 +30,20 @@ steps:
     id: 'push-image'
     args:
       - 'push'
-      - '--all-tags'
-      - 'us-central1-docker.pkg.dev/$PROJECT_ID/$_REPO_NAME/weekly-trend-analysis-worker'
+      - 'us-central1-docker.pkg.dev/$PROJECT_ID/$_REPO_NAME/weekly-trend-analysis-worker:manual-v1'
+
+  # Step 4: Deploy to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    args:
+      - 'gcloud'
+      - 'run'
+      - 'jobs'
+      - 'replace'
+      - 'cloudrun/weekly-trend-analysis-worker.yaml' # Path to the config file
+      - '--region'
+      - 'us-central1' # Replaced placeholder
+      - '--project'
+      - '$PROJECT_ID'
 
 images:
   - 'us-central1-docker.pkg.dev/$PROJECT_ID/$_REPO_NAME/weekly-trend-analysis-worker:manual-v1'
