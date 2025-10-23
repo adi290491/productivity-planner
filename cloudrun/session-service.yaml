@@ -17,6 +17,7 @@ spec:
         run.googleapis.com/network: 'default'
         run.googleapis.com/subnetwork: 'default'
         run.googleapis.com/network-tags: 'session-service'
+        run.googleapis.com/min-instances: '0'
     spec:
       serviceAccountName: github-actions-sa@systemic-productivity-planner.iam.gserviceaccount.com
       containers:
