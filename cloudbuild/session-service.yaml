@@ -19,10 +19,6 @@ steps:
       - 'build'
       - '-t'
       - 'us-central1-docker.pkg.dev/$PROJECT_ID/$_REPO_NAME/session-service:manual-v1'
-      # - '-t'
-      # - 'us-central1-docker.pkg.dev/$PROJECT_ID/$REPO_NAME/session-service:$SHORT_SHA'
-      # - '-t'
-      # - 'us-central1-docker.pkg.dev/$PROJECT_ID/$REPO_NAME/session-service:latest'
       - '.'
 
   # Step 3: Push to Artifact Registry
@@ -30,31 +26,30 @@ steps:
     id: 'push-image'
     args:
       - 'push'
-      # - '--all-tags'
       - 'us-central1-docker.pkg.dev/$PROJECT_ID/$_REPO_NAME/session-service:manual-v1'
 
+  # (Optional but recommended) Debugging step to list all files
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-    id: 'check-pwd'
-    entrypoint: 'pwd'
-    args: []
+    id: 'list-files'
+    entrypoint: 'ls'
+    args: ['-R']
 
-  # Step 4: Deploy to Cloud Run
+  # Step 4: Deploy to Cloud Run with the corrected path
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    id: 'deploy-service'
     args:
       - 'gcloud'
       - 'run'
       - 'services'
       - 'replace'
-      - 'cloud-run/session-service.yaml' # Path to the config file
+      - 'cloudrun/session-service.yaml' # CORRECTED PATH
       - '--region'
-      - 'us-central1' # e.g., us-central1
+      - 'us-central1'
       - '--project'
       - '$PROJECT_ID'
 
 images:
   - 'us-central1-docker.pkg.dev/$PROJECT_ID/$_REPO_NAME/session-service:manual-v1'
-  # - 'us-central1-docker.pkg.dev/$PROJECT_ID/$REPO_NAME/session-service:$SHORT_SHA'
-  # - 'us-central1-docker.pkg.dev/$PROJECT_ID/$REPO_NAME/session-service:latest'
 
 options:
   machineType: 'E2_HIGHCPU_8'
