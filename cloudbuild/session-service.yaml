@@ -32,6 +32,9 @@ steps:
       - 'push'
       - '--all-tags'
       - 'us-central1-docker.pkg.dev/$PROJECT_ID/$_REPO_NAME/session-service:manual-v1'
+      - 'us-central1-docker.pkg.dev/$PROJECT_ID/$_REPO_NAME/session-service:$SHORT_SHA'
+      - 'us-central1-docker.pkg.dev/$PROJECT_ID/$_REPO_NAME/session-service:latest'
+
 
   # Step 4: Deploy to Cloud Run
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
