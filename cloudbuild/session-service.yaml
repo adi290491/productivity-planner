@@ -19,10 +19,10 @@ steps:
       - 'build'
       - '-t'
       - 'us-central1-docker.pkg.dev/$PROJECT_ID/$_REPO_NAME/session-service:manual-v1'
-      # - '-t'
-      # - 'us-central1-docker.pkg.dev/$PROJECT_ID/$REPO_NAME/session-service:$SHORT_SHA'
-      # - '-t'
-      # - 'us-central1-docker.pkg.dev/$PROJECT_ID/$REPO_NAME/session-service:latest'
+      - '-t'
+      - 'us-central1-docker.pkg.dev/$PROJECT_ID/$REPO_NAME/session-service:$SHORT_SHA'
+      - '-t'
+      - 'us-central1-docker.pkg.dev/$PROJECT_ID/$REPO_NAME/session-service:latest'
       - '.'
 
   # Step 3: Push to Artifact Registry
@@ -30,7 +30,7 @@ steps:
     id: 'push-image'
     args:
       - 'push'
-      # - '--all-tags'
+      - '--all-tags'
       - 'us-central1-docker.pkg.dev/$PROJECT_ID/$_REPO_NAME/session-service:manual-v1'
 
   # Step 4: Deploy to Cloud Run
@@ -40,16 +40,16 @@ steps:
       - 'run'
       - 'services'
       - 'replace'
-      - 'cloudrun/session-service.yaml' # Path to the config file
+      - 'cloudrun/session-service.yaml'
       - '--region'
-      - 'us-central1' # e.g., us-central1
+      - 'us-central1'
       - '--project'
       - '$PROJECT_ID'
 
 images:
   - 'us-central1-docker.pkg.dev/$PROJECT_ID/$_REPO_NAME/session-service:manual-v1'
-  # - 'us-central1-docker.pkg.dev/$PROJECT_ID/$REPO_NAME/session-service:$SHORT_SHA'
-  # - 'us-central1-docker.pkg.dev/$PROJECT_ID/$REPO_NAME/session-service:latest'
+  - 'us-central1-docker.pkg.dev/$PROJECT_ID/$_REPO_NAME/session-service:$SHORT_SHA'
+  - 'us-central1-docker.pkg.dev/$PROJECT_ID/$_REPO_NAME/session-service:latest'
 
 options:
   machineType: 'E2_HIGHCPU_8'
