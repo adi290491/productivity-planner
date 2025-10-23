@@ -30,7 +30,7 @@ steps:
     id: 'push-image'
     args:
       - 'push'
-      - '--all-tags'
+      # - '--all-tags'
       - 'us-central1-docker.pkg.dev/$PROJECT_ID/$_REPO_NAME/session-service:manual-v1'
       - 'us-central1-docker.pkg.dev/$PROJECT_ID/$_REPO_NAME/session-service:$SHORT_SHA'
       - 'us-central1-docker.pkg.dev/$PROJECT_ID/$_REPO_NAME/session-service:latest'
