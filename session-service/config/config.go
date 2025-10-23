@@ -70,7 +70,7 @@ func Load() *AppConfig {
 	}
 
 	if appConfig.Port == "" {
-		appConfig.Port = "8080" // Set default port
+		appConfig.Port = "8085" // Default for local development
 		log.Printf("PORT not specified, using default: %s", appConfig.Port)
 	}
 
