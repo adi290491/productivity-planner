@@ -40,7 +40,7 @@ steps:
       - 'run'
       - 'services'
       - 'replace'
-      - 'cloudrun/gateway.yaml' # Path to the config file
+      - 'cloudrun/gateway.yaml'
       - '--region'
       - 'us-central1'
       - '--project'
