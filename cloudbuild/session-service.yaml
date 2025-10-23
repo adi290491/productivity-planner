@@ -40,14 +40,15 @@ steps:
     entrypoint: gcloud
     args:
       - 'run'
-      - 'deploy'
-      # - 'services'
+      - 'services'
       - 'replace'
       - 'cloudrun/session-service.yaml' # CORRECTED PATH
       - '--region'
       - 'us-central1'
       - '--project'
       - '$PROJECT_ID'
+      - '--platform'
+      - 'managed'
 
 images:
   - 'us-central1-docker.pkg.dev/$PROJECT_ID/$_REPO_NAME/session-service:manual-v1'
