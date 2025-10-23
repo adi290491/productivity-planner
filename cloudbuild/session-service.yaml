@@ -42,7 +42,7 @@ steps:
       - 'run'
       - 'services'
       - 'replace'
-      - 'cloudrun/session-service.yaml' # CORRECTED PATH
+      - 'cloudrun/session-service.yaml'
       - '--region'
       - 'us-central1'
       - '--project'
