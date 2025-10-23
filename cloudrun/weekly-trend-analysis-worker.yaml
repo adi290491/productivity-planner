@@ -20,7 +20,7 @@ spec:
       taskCount: 1
       template:
         spec:
-          serviceAccountName: 918662609235-compute@developer.gserviceaccount.com
+          serviceAccountName: github-actions-sa@systemic-productivity-planner.iam.gserviceaccount.com
           containers:
             - image: 'us-central1-docker.pkg.dev/systemic-productivity-planner/prod-planner-repo/weekly-trend-analysis-worker:manual-v1'
               resources:

@@ -17,7 +17,7 @@ spec:
         run.googleapis.com/network-tags: 'trend-service'
         run.googleapis.com/min-instances: '0'
     spec:
-      serviceAccountName: 918662609235-compute@developer.gserviceaccount.com
+      serviceAccountName: github-actions-sa@systemic-productivity-planner.iam.gserviceaccount.com
       containers:
         - image: 'us-central1-docker.pkg.dev/systemic-productivity-planner/prod-planner-repo/trend-service:manual-v1'
           ports:

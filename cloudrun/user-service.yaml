@@ -18,7 +18,7 @@ spec:
         run.googleapis.com/subnetwork: 'default'
         run.googleapis.com/network-tags: 'user-service'
     spec:
-      serviceAccountName: 918662609235-compute@developer.gserviceaccount.com
+      serviceAccountName: github-actions-sa@systemic-productivity-planner.iam.gserviceaccount.com
       containers:
         - image: 'us-central1-docker.pkg.dev/systemic-productivity-planner/prod-planner-repo/user-service:manual-v1'
           ports:
