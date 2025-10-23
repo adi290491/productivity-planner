@@ -35,18 +35,19 @@ steps:
     args: ['-R']
 
   # Step 4: Deploy to Cloud Run with the corrected path
-  # - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-  #   id: 'deploy-service'
-  #   args:
-  #     - 'gcloud'
-  #     - 'run'
-  #     - 'services'
-  #     - 'replace'
-  #     - 'cloudrun/session-service.yaml' # CORRECTED PATH
-  #     - '--region'
-  #     - 'us-central1'
-  #     - '--project'
-  #     - '$PROJECT_ID'
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    id: 'deploy-service'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      # - 'services'
+      - 'replace'
+      - 'cloudrun/session-service.yaml' # CORRECTED PATH
+      - '--region'
+      - 'us-central1'
+      - '--project'
+      - '$PROJECT_ID'
 
 images:
   - 'us-central1-docker.pkg.dev/$PROJECT_ID/$_REPO_NAME/session-service:manual-v1'
