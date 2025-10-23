@@ -33,10 +33,10 @@ steps:
       # - '--all-tags'
       - 'us-central1-docker.pkg.dev/$PROJECT_ID/$_REPO_NAME/session-service:manual-v1'
 
-  - name: 'echo current location'
-    id: 'current working directory'
-    args:
-      - 'pwd'
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    id: 'check-pwd'
+    entrypoint: 'pwd'
+    args: []
 
   # Step 4: Deploy to Cloud Run
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
@@ -45,7 +45,7 @@ steps:
       - 'run'
       - 'services'
       - 'replace'
-      - '/cloudrun/session-service.yaml' # Path to the config file
+      - 'cloud-run/session-service.yaml' # Path to the config file
       - '--region'
       - 'us-central1' # e.g., us-central1
       - '--project'
