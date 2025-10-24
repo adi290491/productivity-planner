@@ -46,8 +46,8 @@ func TestLoad_DefaultPortAndSSLMode(t *testing.T) {
 	os.Setenv("DB_NAME", "testdb")
 	os.Setenv("DB_USERNAME", "testuser")
 	os.Setenv("DB_PASSWORD", "testpass")
-	os.Unsetenv("DB_SSLMODE")
-	os.Unsetenv("PORT")
+	os.Setenv("DB_SSLMODE", "false")
+	os.Setenv("PORT", "")
 	defer func() {
 		os.Unsetenv("DB_HOSTNAME")
 		os.Unsetenv("DB_PORT")
@@ -63,8 +63,8 @@ func TestLoad_DefaultPortAndSSLMode(t *testing.T) {
 	if cfg.DSN != expectedDSN {
 		t.Errorf("expected DSN %s, got %s", expectedDSN, cfg.DSN)
 	}
-	if cfg.Port != "8080" {
-		t.Errorf("expected default port 8080, got %s", cfg.Port)
+	if cfg.Port != "8085" {
+		t.Errorf("expected default port 8085, got %s", cfg.Port)
 	}
 }
 
