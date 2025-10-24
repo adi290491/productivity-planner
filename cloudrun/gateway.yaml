@@ -47,3 +47,7 @@ spec:
                 secretKeyRef:
                   name: JWT_SECRET
                   key: 'latest'
+  traffic:
+    - percent: 100
+      latestRevision: true
+    - tag: 'gateway'

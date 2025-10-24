@@ -65,3 +65,8 @@ spec:
                   key: 'latest'
             - name: PROFILE
               value: prod
+  traffic:
+    - percent: 100
+      latestRevision: true
+    - tag: 'session-service'
+
