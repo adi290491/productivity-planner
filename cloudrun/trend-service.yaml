@@ -16,7 +16,7 @@ spec:
         run.googleapis.com/cloudsql-instances: 'systemic-productivity-planner:us-central1:planner-prod'
         run.googleapis.com/network-interfaces: '[{"network":"default","subnetwork":"default","tags":["trend-service"]}]'
         run.googleapis.com/vpc-access-egress: 'private-ranges-only'
-        run.googleapis.com/cpu-throttling: true
+        run.googleapis.com/cpu-throttling: 'true'
     spec:
       serviceAccountName: github-actions-sa@systemic-productivity-planner.iam.gserviceaccount.com
       containers:

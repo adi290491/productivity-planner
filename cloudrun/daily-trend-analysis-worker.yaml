@@ -17,7 +17,7 @@ spec:
         run.googleapis.com/network: 'default'
         run.googleapis.com/subnetwork: 'default'
         run.googleapis.com/network-tags: 'daily-trend-analysis-worker'
-        run.googleapis.com/cpu-throttling: false
+        run.googleapis.com/cpu-throttling: 'false'
 
     spec:
       parallelism: 1

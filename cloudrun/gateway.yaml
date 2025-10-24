@@ -17,7 +17,7 @@ spec:
         run.googleapis.com/network: 'default'
         run.googleapis.com/subnetwork: 'default'
         run.googleapis.com/network-tags: 'gateway' # e.g., 'gateway'
-        run.googleapis.com/cpu-throttling: true
+        run.googleapis.com/cpu-throttling: 'true'
     spec:
       containers:
         - image: us-central1-docker.pkg.dev/systemic-productivity-planner/prod-planner-repo/gateway:manual-v1 # Replace with your image path
