@@ -14,6 +14,8 @@ func TestRegisterEndpoints_Routes(t *testing.T) {
 		{"/users/signup", "POST"},
 		{"/users/login", "POST"},
 		{"/users/batch", "POST"},
+		{"/health", "GET"},
+		{"/ready", "GET"},
 	}
 
 	gin.SetMode(gin.TestMode)
@@ -35,7 +37,7 @@ func TestRegisterEndpoints_RouteCount(t *testing.T) {
 	RegisterEndpoints(router, handler)
 
 	routes := router.Routes()
-	expectedRouteCount := 3
+	expectedRouteCount := 5
 
 	if len(routes) != expectedRouteCount {
 		t.Errorf("Expected %d routes, got %d", expectedRouteCount, len(routes))

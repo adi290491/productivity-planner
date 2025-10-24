@@ -17,7 +17,7 @@ type PostgresRepository struct {
 func (p *PostgresRepository) CreateUser(user *User) (*User, error) {
 
 	log.Println("---------Calling CreateUser---------")
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 9*time.Second)
 	defer cancel()
 
 	if p.DB == nil {
@@ -36,7 +36,7 @@ func (p *PostgresRepository) CreateUser(user *User) (*User, error) {
 
 func (p *PostgresRepository) GetUser(userDao *User) (*User, error) {
 	log.Println("---------Calling GetUser---------")
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 9*time.Second)
 	defer cancel()
 
 	var user User
@@ -57,7 +57,7 @@ func (p *PostgresRepository) GetUser(userDao *User) (*User, error) {
 
 func (p *PostgresRepository) GetUsersById(userBatch *UserBatch) (*[]UserInfo, error) {
 	log.Println("---------Calling GetUsersById---------")
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 9*time.Second)
 	defer cancel()
 
 	var userInfo []UserInfo

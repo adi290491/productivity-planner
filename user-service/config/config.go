@@ -49,10 +49,7 @@ func dbStatus(db *gorm.DB) string {
 func Load() (*AppConfig, error) {
 
 	// Load .env file if it exists, but don't fail if it doesn't
-	err := godotenv.Load()
-	if err != nil {
-		log.Printf("No .env file found or error loading .env file: %v (this is okay, using system environment variables)", err)
-	}
+	_ = godotenv.Load()
 
 	profile := os.Getenv("PROFILE")
 

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/adi290491/productivity-planner/user-service/user"
 	"github.com/adi290491/productivity-planner/user-service/utils"
@@ -88,4 +89,17 @@ func (h *Handler) GetUsersBatch(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, response)
+}
+
+func (h *Handler) HealthCheck(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{
+		"status":    "healthy",
+		"service":   "user-service",
+		"timestamp": time.Now(),
+		"profile":   "production",
+	})
+}
+
+func (h *Handler) Ready(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{"status": "ready"})
 }
