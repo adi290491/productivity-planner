@@ -35,16 +35,19 @@ steps:
 
   # Step 4: Deploy to Cloud Run
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    id: 'deploy-service'
+    entrypoint: gcloud
     args:
-      - 'gcloud'
       - 'run'
       - 'services'
       - 'replace'
-      - 'cloudrun/summary-service.yaml' # Path to the config file
+      - 'cloudrun/summary-service.yaml'
       - '--region'
-      - 'us-central1' # e.g., us-central1
+      - 'us-central1'
       - '--project'
       - '$PROJECT_ID'
+      - '--platform'
+      - 'managed'
 
 images:
   - 'us-central1-docker.pkg.dev/$PROJECT_ID/$_REPO_NAME/summary-service:manual-v1'

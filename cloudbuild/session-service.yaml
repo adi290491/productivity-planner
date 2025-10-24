@@ -28,12 +28,6 @@ steps:
       - 'push'
       - 'us-central1-docker.pkg.dev/$PROJECT_ID/$_REPO_NAME/session-service:manual-v1'
 
-  # (Optional but recommended) Debugging step to list all files
-  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-    id: 'list-files'
-    entrypoint: 'ls'
-    args: ['-R']
-
   # Step 4: Deploy to Cloud Run with the corrected path
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     id: 'deploy-service'
