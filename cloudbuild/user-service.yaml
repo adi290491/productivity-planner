@@ -33,18 +33,21 @@ steps:
       # - '--all-tags'
       - us-central1-docker.pkg.dev/$PROJECT_ID/$_REPO_NAME/user-service:manual-v1
 
-  # Step 4: Deploy to Cloud Run
+  # Step 4: Deploy to Cloud Run with the corrected path
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    id: 'deploy-service'
+    entrypoint: gcloud
     args:
-      - 'gcloud'
       - 'run'
       - 'services'
       - 'replace'
-      - 'cloudrun/user-service.yaml' # Path to the config file
+      - 'cloudrun/suser-service.yaml'
       - '--region'
-      - 'us-central1' # e.g., us-central1
+      - 'us-central1'
       - '--project'
       - '$PROJECT_ID'
+      - '--platform'
+      - 'managed'
 
 images:
   - us-central1-docker.pkg.dev/$PROJECT_ID/$_REPO_NAME/user-service:manual-v1
