@@ -41,7 +41,7 @@ steps:
       - 'run'
       - 'services'
       - 'replace'
-      - 'cloudrun/gateway-service.yaml'
+      - 'cloudrun/gateway.yaml'
       - '--region'
       - 'us-central1'
       - '--project'
