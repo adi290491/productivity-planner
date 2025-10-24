@@ -49,6 +49,10 @@ const Dashboard = () => {
        
         <div className="bg-background min-h-screen">
 
+            <div className={`notification-container ${isBannerVisible ? 'visible' : ''}`}>
+                <NotificationBanner onDismiss={() => setIsBannerVisible(false)} />
+            </div>
+
             <CarouselHeader />
 
             <SessionControl

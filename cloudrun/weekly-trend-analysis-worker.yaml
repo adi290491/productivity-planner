@@ -7,6 +7,8 @@ metadata:
     cloud.googleapis.com/location: us-central1
   annotations:
     run.googleapis.com/launch-stage: BETA
+    run.googleapis.com/minScale: '0'
+    run.googleapis.com/maxScale: '2'
 spec:
   template:
     metadata:
@@ -15,6 +17,8 @@ spec:
         run.googleapis.com/network: 'default'
         run.googleapis.com/subnetwork: 'default'
         run.googleapis.com/network-tags: 'weekly-trend-analysis-worker'
+        run.googleapis.com/cpu-throttling: false
+
     spec:
       parallelism: 1
       taskCount: 1

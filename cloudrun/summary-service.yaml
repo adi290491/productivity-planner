@@ -7,7 +7,7 @@ metadata:
     cloud.googleapis.com/location: us-central1
   annotations:
     run.googleapis.com/launch-stage: BETA
-    run.googleapis.com/minScale: '1'
+    run.googleapis.com/minScale: '0'
     run.googleapis.com/maxScale: '2'
 spec:
   template:
@@ -16,6 +16,7 @@ spec:
         run.googleapis.com/cloudsql-instances: 'systemic-productivity-planner:us-central1:planner-prod'
         run.googleapis.com/network-interfaces: '[{"network":"default","subnetwork":"default","tags":["summary-service"]}]'
         run.googleapis.com/vpc-access-egress: 'private-ranges-only'
+        run.googleapis.com/cpu-throttling: true
 
     spec:
       serviceAccountName: github-actions-sa@systemic-productivity-planner.iam.gserviceaccount.com
