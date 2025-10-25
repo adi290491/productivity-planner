@@ -10,8 +10,10 @@ RUN go mod download
 # Copy all source
 COPY . .
 
-# Build the Go binary
-RUN go build -o app ./cmd
+RUN CGO_ENABLED=0 GOOS=linux go build -a -ldflags="-w -s" -o session-service ./cmd
+
+# # Build the Go binary
+# RUN go build -o app ./cmd
 
 # --- Stage 2: Minimal Runtime ---
 FROM alpine:latest
@@ -19,9 +21,9 @@ FROM alpine:latest
 WORKDIR /root/
 
 # Copy binary from build stage
-COPY --from=builder /app/app .
+COPY --from=builder /app/session-service .
 
 # Expose port (optional, mostly for documentation)
 EXPOSE 8080
 
-CMD ["./app"]
+CMD ["./session-service"]
