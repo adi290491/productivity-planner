@@ -24,6 +24,22 @@ spec:
           ports:
             - name: http1
               containerPort: 8080
+          startupProbe:
+            httpGet:
+              path: /ready
+              port: 8080
+            initialDelaySeconds: 5  
+            timeoutSeconds: 3       
+            periodSeconds: 10       
+            failureThreshold: 10    
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 5
+            timeoutSeconds: 3
+            periodSeconds: 10
+            failureThreshold: 10
           resources:
             limits:
               cpu: '1000m'

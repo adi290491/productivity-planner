@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	"strings"
 
@@ -104,4 +105,17 @@ func (h *Handler) MarkTrendsAsViewed(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"success": true})
+}
+
+func (h *Handler) HealthCheck(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{
+		"status":    "healthy",
+		"service":   "trend-service",
+		"timestamp": time.Now(),
+		"profile":   "production",
+	})
+}
+
+func (h *Handler) Ready(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{"status": "ready"})
 }
