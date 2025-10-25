@@ -46,6 +46,7 @@ steps:
       - 'us-central1'
       - '--project'
       - '$PROJECT_ID'
+      - '--allow-unauthenticated'
       - '--platform'
       - 'managed'
 

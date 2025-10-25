@@ -9,7 +9,7 @@ import (
 
 func RegisterRoutes(r *gin.Engine, cfg *config.AppConfig) {
 
-	// Use only one CORS middleware to avoid conflicts
+	
 	r.Use(middleware.CorsMiddleware())
 	{
 		usersRouter := r.Group("/")

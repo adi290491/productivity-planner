@@ -40,6 +40,7 @@ steps:
       - '--region'
       - 'us-central1'
       - '--project'
+      - '--allow-unauthenticated'
       - '$PROJECT_ID'
       - '--platform'
       - 'managed'
