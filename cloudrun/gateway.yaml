@@ -40,9 +40,9 @@ spec:
             - name: TREND_SERVICE_URL
               value: https://trend-service-918662609235.us-central1.run.app 
             - name: FRONTEND_ORIGIN
-              value: https://systemic-productivity-planner.web.app
-            - name: FRONTEND_ORIGIN_2
               value: https://systemic-productivity-planner.firebaseapp.com
+            - name: FRONTEND_ORIGIN_2
+              value: https://systemic-productivity-planner.web.app
             - name: JWT_SECRET
               valueFrom:
                 secretKeyRef:
