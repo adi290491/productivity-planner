@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	"strings"
 
@@ -79,4 +80,17 @@ func (h *Handler) StopSession(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, sessionResponse)
+}
+
+func (h *Handler) HealthCheck(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{
+		"status":    "healthy",
+		"service":   "session-service",
+		"timestamp": time.Now(),
+		"profile":   "production",
+	})
+}
+
+func (h *Handler) Ready(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{"status": "ready"})
 }
