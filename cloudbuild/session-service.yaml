@@ -40,10 +40,10 @@ steps:
       - '--region'
       - 'us-central1'
       - '--project'
-      - '--allow-unauthenticated'
       - '$PROJECT_ID'
       - '--platform'
       - 'managed'
+      - '--allow-unauthenticated'
 
 images:
   - 'us-central1-docker.pkg.dev/$PROJECT_ID/$_REPO_NAME/session-service:manual-v1'
