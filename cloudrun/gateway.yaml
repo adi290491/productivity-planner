@@ -7,6 +7,7 @@ metadata:
     cloud.googleapis.com/location: us-central1
   annotations:
     run.googleapis.com/launch-stage: BETA
+    run.googleapis.com/ingress: 'all'
     run.googleapis.com/minScale: '1'
     run.googleapis.com/minScale: '2'
 spec:
@@ -14,9 +15,8 @@ spec:
     metadata:
       annotations:
         # Annotations for direct VPC egress
-        run.googleapis.com/network: 'default'
-        run.googleapis.com/subnetwork: 'default'
-        run.googleapis.com/network-tags: 'gateway'
+        run.googleapis.com/network-interfaces: '[{"network":"default","subnetwork":"default","tags":["gateway"]}]'
+        run.googleapis.com/vpc-access-egress: 'private-ranges-only'
         run.googleapis.com/cpu-throttling: 'true'
     spec:
       containers:
