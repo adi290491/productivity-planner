@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	"strings"
 
@@ -75,4 +76,17 @@ func (h *Handler) GetWeeklySummary(c *gin.Context) {
 
 	c.JSON(http.StatusOK, summaryResponse)
 
+}
+
+func (h *Handler) HealthCheck(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{
+		"status":    "healthy",
+		"service":   "summary-service",
+		"timestamp": time.Now(),
+		"profile":   "production",
+	})
+}
+
+func (h *Handler) Ready(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{"status": "ready"})
 }
