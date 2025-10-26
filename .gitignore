@@ -35,3 +35,4 @@ temp/
 # Environment variables
 .env
 .env*.local
+**/.firebase/**
