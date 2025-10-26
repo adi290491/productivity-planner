@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/adi290491/productivity-planner/user-service/config"
 	"gorm.io/driver/postgres"
@@ -25,9 +26,23 @@ func InitDB(appConfig *config.AppConfig) error {
 		return fmt.Errorf("open db: %w", err)
 	}
 
+	// Get underlying sql.DB to configure connection pool
+	sqlDB, err := db.DB()
+	if err != nil {
+		return fmt.Errorf("get sql.DB: %w", err)
+	}
+
+	// Optimize connection pool for Cloud Run cold starts
+	sqlDB.SetMaxIdleConns(2)                   // Reduce idle connections
+	sqlDB.SetMaxOpenConns(10)                  // Limit max connections
+	sqlDB.SetConnMaxLifetime(time.Hour)        // Reuse connections for 1 hour
+	sqlDB.SetConnMaxIdleTime(10 * time.Minute) // Close idle after 10min
+
+	if err := sqlDB.Ping(); err != nil {
+		return fmt.Errorf("ping db: %w", err)
+	}
+
 	log.Printf("Database connection successful")
-
 	appConfig.DB = db
-
 	return nil
 }

@@ -30,10 +30,10 @@ spec:
             httpGet:
               path: /ready
               port: 8080
-            initialDelaySeconds: 5  # Wait 5 seconds before starting the first probe
-            timeoutSeconds: 3       # Each probe has 3 seconds to respond
-            periodSeconds: 10       # Send a probe every 10 seconds
-            failureThreshold: 10    # Fail after 10 consecutive failed probes (100 seconds total)
+            initialDelaySeconds: 10  # Wait 5 seconds before starting the first probe
+            timeoutSeconds: 5       # Each probe has 3 seconds to respond
+            periodSeconds: 15       # Send a probe every 10 seconds
+            failureThreshold: 20    # Fail after 10 consecutive failed probes (100 seconds total)
           livenessProbe:
             httpGet:
               path: /health

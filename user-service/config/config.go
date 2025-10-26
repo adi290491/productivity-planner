@@ -20,6 +20,7 @@ type DBConfig struct {
 }
 
 type AppConfig struct {
+	Profile      string
 	DSN          string
 	JWT_SECRET   string
 	Port         string
@@ -52,6 +53,9 @@ func Load() (*AppConfig, error) {
 	_ = godotenv.Load()
 
 	profile := os.Getenv("PROFILE")
+	if profile == "" {
+		profile = "local"
+	}
 
 	log.Printf("Loading configurations for %+s\n", profile)
 
@@ -75,6 +79,7 @@ func Load() (*AppConfig, error) {
 		dbConfig.SSLMode = "disable"
 	}
 	appConfig := &AppConfig{
+		Profile:      profile,
 		DSN:          dbConfig.DSN(),
 		JWT_SECRET:   os.Getenv("JWT_SECRET"),
 		Port:         os.Getenv("PORT"),

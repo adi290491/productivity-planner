@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/adi290491/productivity-planner/user-service/user"
@@ -16,6 +18,11 @@ type Handler struct {
 	Svc     user.UserServiceInterface
 	JwtUtil utils.JWTUtil
 }
+
+var (
+	dbInitialized atomic.Bool
+	dbInitMutex   sync.Mutex
+)
 
 func (h *Handler) Signup(c *gin.Context) {
 	log.Println("--------Called Signup function---------")
@@ -92,14 +99,28 @@ func (h *Handler) GetUsersBatch(c *gin.Context) {
 }
 
 func (h *Handler) HealthCheck(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{
-		"status":    "healthy",
-		"service":   "user-service",
-		"timestamp": time.Now(),
-		"profile":   "production",
-	})
+
+	if dbInitialized.Load() {
+		c.JSON(http.StatusOK, gin.H{
+			"status":    "healthy",
+			"service":   "user-service",
+			"timestamp": time.Now(),
+			"profile":   "production",
+		})
+	} else {
+		c.JSON(http.StatusServiceUnavailable, gin.H{
+			"status":    "db_not_ready",
+			"service":   "user-service",
+			"timestamp": time.Now(),
+			"profile":   "production",
+		})
+	}
 }
 
 func (h *Handler) Ready(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{"status": "ready"})
+	if dbInitialized.Load() {
+		c.JSON(http.StatusOK, gin.H{"status": "ready", "db": "connected"})
+	} else {
+		c.JSON(http.StatusOK, gin.H{"status": "starting", "db": "initializing"})
+	}
 }

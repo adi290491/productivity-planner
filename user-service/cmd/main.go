@@ -1,8 +1,12 @@
 package main
 
 import (
+	"context"
 	"log"
 	"net/http"
+	"os"
+	"os/signal"
+	"time"
 
 	"github.com/adi290491/productivity-planner/user-service/config"
 	"github.com/adi290491/productivity-planner/user-service/models"
@@ -19,22 +23,33 @@ func main() {
 		log.Fatalf("Application stopped due to error: %v", err)
 	}
 
-	InitDB(appConfig)
-
+	if appConfig.Profile == "prod" {
+		gin.SetMode(gin.ReleaseMode)
+	}
 	server := gin.Default()
 
-	svc := &user.UserService{
-		Repo: &models.PostgresRepository{
-			DB: appConfig.DB,
-		},
-	}
-	handler := &Handler{Svc: svc,
-		JwtUtil: utils.JWTUtil{
-			Secret: []byte(appConfig.JWT_SECRET),
-		},
-	}
+	go func() {
+		log.Println("Starting database initialization...")
+		if err := InitDB(appConfig); err != nil {
+			log.Fatalf("Database initialization failed: %v", err)
+		}
 
-	RegisterEndpoints(server, handler)
+		svc := &user.UserService{
+			Repo: &models.PostgresRepository{
+				DB: appConfig.DB,
+			},
+		}
+		handler := &Handler{Svc: svc,
+			JwtUtil: utils.JWTUtil{
+				Secret: []byte(appConfig.JWT_SECRET),
+			},
+		}
+
+		RegisterEndpoints(server, handler)
+		dbInitialized.Store(true)
+		log.Println("Database initialization complete, service ready")
+
+	}()
 
 	s := &http.Server{
 		Addr:         "0.0.0.0:" + appConfig.Port,
@@ -43,11 +58,10 @@ func main() {
 		Handler:      server,
 	}
 
-	if err := s.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-		log.Fatalf("Server failed: %v", err)
-	}
+	// if err := s.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+	// 	log.Fatalf("Server failed: %v", err)
+	// }
 
-	/**
 	go func() {
 		log.Println("Server running on port", appConfig.Port)
 		if err := s.ListenAndServe(); err != nil && err != http.ErrServerClosed {
@@ -69,5 +83,5 @@ func main() {
 		log.Fatal("Server forced to shutdown:", err)
 	}
 	log.Println("Server Exiting")
-	*/
+
 }
