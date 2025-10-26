@@ -16,7 +16,7 @@ spec:
       annotations:
    
         run.googleapis.com/network-interfaces: '[{"network":"default","subnetwork":"default","tags":["gateway"]}]'
-        run.googleapis.com/vpc-access-egress: 'all-traffic'
+        run.googleapis.com/vpc-access-egress: 'private-ranges-only'
         run.googleapis.com/cpu-throttling: 'true'
     spec:
       containers:
