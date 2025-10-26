@@ -2,19 +2,19 @@ apiVersion: serving.knative.dev/v1
 kind: Service
 metadata:
   name: gateway
-  namespace: 918662609235
+  namespace: '918662609235'
   labels:
     cloud.googleapis.com/location: us-central1
   annotations:
-    run.googleapis.com/launch-stage: BETA
-    run.googleapis.com/ingress: 'all'
+    run.googleapis.com/ingress: all
+    run.googleapis.com/ingress-status: all
     run.googleapis.com/minScale: '1'
     run.googleapis.com/minScale: '2'
 spec:
   template:
     metadata:
       annotations:
-        # Annotations for direct VPC egress
+   
         run.googleapis.com/network-interfaces: '[{"network":"default","subnetwork":"default","tags":["gateway"]}]'
         run.googleapis.com/vpc-access-egress: 'all-traffic'
         run.googleapis.com/cpu-throttling: 'true'
