@@ -50,6 +50,7 @@ steps:
       - 'us-central1'
       - '--project'
       - '$PROJECT_ID'
+      - '--allow-unauthenticated' # <-- This flag makes the service public
 
 # The images list should also use the unique tag
 images:
