@@ -3,7 +3,7 @@ DROP INDEX IF EXISTS idx_user_notifications_daily;
 DROP INDEX IF EXISTS idx_user_weekly_trend_range;
 DROP INDEX IF EXISTS idx_user_daily_trend_range;
 DROP INDEX IF EXISTS idx_active_session;
-DROP TABLE IF EXISTS user_notifications;
+-- DROP TABLE IF EXISTS user_notifications;
 DROP TABLE IF EXISTS user_weekly_trends;
 DROP TABLE IF EXISTS user_daily_trends;
 DROP TABLE IF EXISTS sessions;

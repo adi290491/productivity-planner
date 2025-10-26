@@ -23,9 +23,14 @@ func init() {
 }
 
 func main() {
+
+	appConfig := config.Load()
+
+	if appConfig.Profile == "prod" {
+		gin.SetMode(gin.ReleaseMode)
+	}
 	gin.ForceConsoleColor()
 	srv := gin.Default()
-	appConfig := config.Load()
 
 	RegisterRoutes(srv, appConfig)
 	log.Println("Port:", appConfig.Port)

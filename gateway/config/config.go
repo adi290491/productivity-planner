@@ -10,6 +10,7 @@ import (
 )
 
 type AppConfig struct {
+	Profile      string
 	Port         string
 	ReadTimeout  time.Duration
 	WriteTimeout time.Duration
@@ -28,6 +29,7 @@ func Load() *AppConfig {
 	log.Printf("Loading configurations for %+s\n", profile)
 
 	appConfig := &AppConfig{
+		Profile:      profile,
 		JWT_SECRET:   os.Getenv("JWT_SECRET"),
 		Port:         os.Getenv("PORT"),
 		ReadTimeout:  10 * time.Second,
