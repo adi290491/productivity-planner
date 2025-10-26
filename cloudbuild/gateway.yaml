@@ -11,33 +11,37 @@ steps:
         go mod download
         go test -v ./...
 
-  # Step 2: Build Docker image
+  # Step 2: Build Docker image using the unique commit SHA as the tag
   - name: 'gcr.io/cloud-builders/docker'
     id: 'build-image'
     dir: 'gateway'
     args:
       - 'build'
       - '-t'
-      - 'us-central1-docker.pkg.dev/$PROJECT_ID/$_REPO_NAME/gateway:manual-v1'
-      # - '-t'
-      # - 'us-central1-docker.pkg.dev/$PROJECT_ID/$REPO_NAME/gateway:$SHORT_SHA'
-      # - '-t'
-      # - 'us-central1-docker.pkg.dev/$PROJECT_ID/$REPO_NAME/gateway:latest'
+      - 'us-central1-docker.pkg.dev/$PROJECT_ID/$_REPO_NAME/gateway:$SHORT_SHA'
       - '.'
 
-  # Step 3: Push to Artifact Registry
+  # Step 3: Push the newly tagged image to Artifact Registry
   - name: 'gcr.io/cloud-builders/docker'
     id: 'push-image'
     args:
       - 'push'
-      # - '--all-tags'
-      - 'us-central1-docker.pkg.dev/$PROJECT_ID/$_REPO_NAME/gateway:manual-v1'
+      - 'us-central1-docker.pkg.dev/$PROJECT_ID/$_REPO_NAME/gateway:$SHORT_SHA'
 
-  # Step 4: Deploy to Cloud Run with the corrected path
+  # Step 4: Dynamically update the image in the Cloud Run YAML before deploying
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    id: 'update-yaml'
+    entrypoint: 'sed'
+    args:
+      - '-i'
+      - 's|image:.*|image: us-central1-docker.pkg.dev/$PROJECT_ID/$_REPO_NAME/gateway:$SHORT_SHA|g'
+      - 'cloudrun/gateway.yaml'
+
+  # Step 5: Deploy to Cloud Run using the updated YAML
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     id: 'deploy-service'
-    entrypoint: gcloud
     args:
+      - 'gcloud'
       - 'run'
       - 'services'
       - 'replace'
@@ -46,13 +50,10 @@ steps:
       - 'us-central1'
       - '--project'
       - '$PROJECT_ID'
-      - '--platform'
-      - 'managed'
 
+# The images list should also use the unique tag
 images:
-  - 'us-central1-docker.pkg.dev/$PROJECT_ID/$_REPO_NAME/gateway:manual-v1'
-  # - 'us-central1-docker.pkg.dev/$PROJECT_ID/$REPO_NAME/gateway:$SHORT_SHA'
-  # - 'us-central1-docker.pkg.dev/$PROJECT_ID/$REPO_NAME/gateway:latest'
+  - 'us-central1-docker.pkg.dev/$PROJECT_ID/$_REPO_NAME/gateway:$SHORT_SHA'
 
 options:
   machineType: 'E2_HIGHCPU_8'
