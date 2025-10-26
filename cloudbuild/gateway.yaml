@@ -50,7 +50,24 @@ steps:
       - 'us-central1'
       - '--project'
       - '$PROJECT_ID'
-      - '--allow-unauthenticated' # <-- This flag makes the service public
+
+  # Step 6: Set IAM policy to allow public (unauthenticated) access
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    id: 'set-iam-policy'
+    args:
+      - 'gcloud'
+      - 'run'
+      - 'services'
+      - 'add-iam-policy-binding'
+      - 'gateway'
+      - '--region'
+      - 'us-central1'
+      - '--member'
+      - 'allUsers'
+      - '--role'
+      - 'roles/run.invoker'
+      - '--project'
+      - '$PROJECT_ID'
 
 # The images list should also use the unique tag
 images:
