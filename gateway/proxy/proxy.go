@@ -2,13 +2,16 @@ package proxy
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/gin-gonic/gin"
+	"google.golang.org/api/idtoken"
 )
 
 func ProxyToUserService(c *gin.Context) {
@@ -83,7 +86,20 @@ func forward(c *gin.Context, targetUrl string) {
 	// Remove Content-Length to avoid conflicts since we're using a new reader
 	req.Header.Del("Content-Length")
 
-	client := &http.Client{}
+	// --- START: MODIFICATION ---
+	// Create an authenticated client that adds a Google-signed identity token
+	// to outbound requests.
+	audience := extractBaseURL(targetUrl)
+	ctx := context.Background()
+
+	client, err := idtoken.NewClient(ctx, audience)
+	if err != nil {
+		log.Printf("Error creating authenticated client for audience %s: %v", audience, err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to create internal authenticated client"})
+		return
+	}
+	// --- END: MODIFICATION ---
+
 	resp, err := client.Do(req)
 	if err != nil {
 		log.Printf("Error forwarding request to %s: %v", targetUrl, err)
@@ -110,4 +126,16 @@ func forward(c *gin.Context, targetUrl string) {
 	if err != nil {
 		log.Printf("Error copying response body: %v", err)
 	}
+}
+
+// extractBaseURL extracts the base URL (e.g., https://service.run.app) from a full URL
+// to use as the audience for the identity token.
+func extractBaseURL(fullURL string) string {
+	if strings.HasPrefix(fullURL, "http") {
+		parts := strings.SplitN(fullURL, "/", 4)
+		if len(parts) >= 3 {
+			return parts[0] + "//" + parts[2]
+		}
+	}
+	return fullURL
 }

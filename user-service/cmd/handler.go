@@ -52,6 +52,7 @@ func (h *Handler) Signup(c *gin.Context) {
 }
 
 func (h *Handler) Login(c *gin.Context) {
+	log.Println("--------Called Login function---------")
 	var req user.LoginRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
