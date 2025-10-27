@@ -2,7 +2,7 @@ apiVersion: serving.knative.dev/v1
 kind: Service
 metadata:
   name: user-service
-  namespace: 918662609235
+  namespace: '918662609235'
   labels:
     cloud.googleapis.com/location: us-central1
   annotations:
@@ -18,73 +18,64 @@ spec:
         run.googleapis.com/network-interfaces: '[{"network":"default","subnetwork":"default","tags":["user-service"]}]'
         run.googleapis.com/vpc-access-egress: 'private-ranges-only'
         run.googleapis.com/cpu-throttling: 'true'
-
+        run.googleapis.com/startup-cpu-boost: 'true'
     spec:
       serviceAccountName: github-actions-sa@systemic-productivity-planner.iam.gserviceaccount.com
       containers:
-        - image: 'us-central1-docker.pkg.dev/systemic-productivity-planner/prod-planner-repo/user-service:manual-v1'
+        - image: 'us-central1-docker.pkg.dev/$PROJECT_ID/$_REPO_NAME/user-service:$SHORT_SHA'
           ports:
             - name: http1
-              containerPort: 8080
-          startupProbe:
-            httpGet:
-              path: /ready
-              port: 8080
-            initialDelaySeconds: 10  # Wait 5 seconds before starting the first probe
-            timeoutSeconds: 5       # Each probe has 3 seconds to respond
-            periodSeconds: 15       # Send a probe every 10 seconds
-            failureThreshold: 20    # Fail after 10 consecutive failed probes (100 seconds total)
-          livenessProbe:
-            httpGet:
-              path: /health
-              port: 8080
-            initialDelaySeconds: 5
-            timeoutSeconds: 3
-            periodSeconds: 10
-            failureThreshold: 10
+              containerPort: 8081
           resources:
             limits:
               cpu: '1000m'
               memory: '512Mi'
           env:
-            - name: DB_HOSTNAME
+            - name: PROFILE
+              value: prod
+            - name: DB_HOST
               valueFrom:
                 secretKeyRef:
-                  name: DB_HOSTNAME
-                  key: 'latest'
-            - name: DB_NAME
-              valueFrom:
-                secretKeyRef:
-                  name: DB_NAME
+                  name: DB_HOST
                   key: 'latest'
             - name: DB_PORT
               valueFrom:
                 secretKeyRef:
                   name: DB_PORT
                   key: 'latest'
-            - name: DB_SSLMODE
+            - name: DB_USER
               valueFrom:
                 secretKeyRef:
-                  name: DB_SSLMODE
-                  key: 'latest'
-            - name: DB_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: DB_USERNAME
+                  name: DB_USER
                   key: 'latest'
             - name: DB_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: DB_PASSWORD
                   key: 'latest'
+            - name: DB_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: DB_NAME
+                  key: 'latest'
             - name: JWT_SECRET
               valueFrom:
                 secretKeyRef:
                   name: JWT_SECRET
                   key: 'latest'
-            - name: PROFILE
-              value: prod
+          startupProbe:
+            httpGet:
+              path: /ready
+              port: 8081
+            initialDelaySeconds: 0
+            periodSeconds: 1
+            failureThreshold: 30
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8081
+            initialDelaySeconds: 10
+            periodSeconds: 10
   traffic:
     - percent: 100
       latestRevision: true
-    - tag: 'user-service'

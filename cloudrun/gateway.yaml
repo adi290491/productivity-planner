@@ -7,14 +7,12 @@ metadata:
     cloud.googleapis.com/location: us-central1
   annotations:
     run.googleapis.com/ingress: all
-    # run.googleapis.com/ingress-status: all
     run.googleapis.com/minScale: '1'
     run.googleapis.com/maxScale: '2'
 spec:
   template:
     metadata:
       annotations:
-   
         run.googleapis.com/network-interfaces: '[{"network":"default","subnetwork":"default","tags":["gateway"]}]'
         run.googleapis.com/vpc-access-egress: 'private-ranges-only'
         run.googleapis.com/cpu-throttling: 'true'
@@ -52,4 +50,3 @@ spec:
   traffic:
     - percent: 100
       latestRevision: true
-    - tag: 'gateway'

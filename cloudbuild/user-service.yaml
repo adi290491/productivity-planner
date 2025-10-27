@@ -1,64 +1,132 @@
 steps:
   # Step 1: Run tests
   - name: golang:1.24-alpine
-    id: run-tests
-    dir: user-service
     entrypoint: sh
     args:
       - '-c'
       - |
-        apk add --no-cache git gcc musl-dev
+        cd user-service
         go mod download
         go test -v ./...
-
+    
   # Step 2: Build Docker image
   - name: gcr.io/cloud-builders/docker
-    id: build-image
-    dir: user-service
     args:
       - build
       - '-t'
-      - us-central1-docker.pkg.dev/$PROJECT_ID/$_REPO_NAME/user-service:manual-v1
-      # - '-t'
-      # - 'us-central1-docker.pkg.dev/$PROJECT_ID/$REPO_NAME/user-service:$SHORT_SHA'
-      # - '-t'
-      # - 'us-central1-docker.pkg.dev/$PROJECT_ID/$REPO_NAME/user-service:latest'
+      - 'us-central1-docker.pkg.dev/$PROJECT_ID/$_REPO_NAME/user-service:$SHORT_SHA'
+      - '-f'
+      - 'user-service/Dockerfile'
       - .
-
-  # Step 3: Push to Artifact Registry
+    
+  # Step 3: Push Docker image
   - name: gcr.io/cloud-builders/docker
-    id: push-image
     args:
       - push
-      # - '--all-tags'
-      - us-central1-docker.pkg.dev/$PROJECT_ID/$_REPO_NAME/user-service:manual-v1
+      - 'us-central1-docker.pkg.dev/$PROJECT_ID/$_REPO_NAME/user-service:$SHORT_SHA'
 
-  # Step 4: Deploy to Cloud Run with the corrected path
+  # Step 4: Update cloudrun YAML with new image tag
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-    id: 'deploy-service'
-    entrypoint: gcloud
+    entrypoint: 'bash'
     args:
-      - 'run'
-      - 'services'
-      - 'replace'
-      - 'cloudrun/user-service.yaml'
-      - '--region'
-      - 'us-central1'
-      - '--project'
-      - '$PROJECT_ID'
-      - '--platform'
-      - 'managed'
+      - '-c'
+      - |
+        sed -i 's|image:.*|image: us-central1-docker.pkg.dev/$PROJECT_ID/$_REPO_NAME/user-service:$SHORT_SHA|g' cloudrun/user-service.yaml
+
+  # Step 5: Deploy to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        gcloud run services replace cloudrun/user-service.yaml \
+          --region=us-central1 \
+          --project=$PROJECT_ID
 
 images:
-  - us-central1-docker.pkg.dev/$PROJECT_ID/$_REPO_NAME/user-service:manual-v1
-  # - 'us-central1-docker.pkg.dev/$PROJECT_ID/$REPO_NAME/user-service:$SHORT_SHA'
-  # - 'us-central1-docker.pkg.dev/$PROJECT_ID/$REPO_NAME/user-service:latest'
-
-options:
-  machineType: E2_HIGHCPU_8
-  logging: CLOUD_LOGGING_ONLY
-
-timeout: 1200s
+  - 'us-central1-docker.pkg.dev/$PROJECT_ID/$_REPO_NAME/user-service:$SHORT_SHA'
 
 substitutions:
-  _REPO_NAME: prod-planner-repo
+  _REPO_NAME: 'prod-planner-repo'
+
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: user-service
+  namespace: '918662609235'
+  labels:
+    cloud.googleapis.com/location: us-central1
+  annotations:
+    run.googleapis.com/launch-stage: BETA
+    run.googleapis.com/ingress: internal
+    run.googleapis.com/minScale: '0'
+    run.googleapis.com/maxScale: '2'
+spec:
+  template:
+    metadata:
+      annotations:
+        run.googleapis.com/cloudsql-instances: 'systemic-productivity-planner:us-central1:planner-prod'
+        run.googleapis.com/network-interfaces: '[{"network":"default","subnetwork":"default","tags":["user-service"]}]'
+        run.googleapis.com/vpc-access-egress: 'private-ranges-only'
+        run.googleapis.com/cpu-throttling: 'true'
+        run.googleapis.com/startup-cpu-boost: 'true'
+    spec:
+      serviceAccountName: github-actions-sa@systemic-productivity-planner.iam.gserviceaccount.com
+      containers:
+        - image: 'us-central1-docker.pkg.dev/$PROJECT_ID/$_REPO_NAME/user-service:$SHORT_SHA'
+          ports:
+            - name: http1
+              containerPort: 8081
+          resources:
+            limits:
+              cpu: '1000m'
+              memory: '512Mi'
+          env:
+            - name: PROFILE
+              value: prod
+            - name: DB_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: DB_HOST
+                  key: 'latest'
+            - name: DB_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: DB_PORT
+                  key: 'latest'
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: DB_USER
+                  key: 'latest'
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: DB_PASSWORD
+                  key: 'latest'
+            - name: DB_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: DB_NAME
+                  key: 'latest'
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: JWT_SECRET
+                  key: 'latest'
+          startupProbe:
+            httpGet:
+              path: /ready
+              port: 8081
+            initialDelaySeconds: 0
+            periodSeconds: 1
+            failureThreshold: 30
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8081
+            initialDelaySeconds: 10
+            periodSeconds: 10
+  traffic:
+    - percent: 100
+      latestRevision: true

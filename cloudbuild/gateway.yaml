@@ -1,83 +1,62 @@
 steps:
   # Step 1: Run tests
   - name: 'golang:1.24-alpine'
-    id: 'run-tests'
-    dir: 'gateway'
-    entrypoint: 'sh'
+    entrypoint: sh
     args:
       - '-c'
       - |
-        apk add --no-cache git gcc musl-dev
+        cd gateway
         go mod download
         go test -v ./...
-
-  # Step 2: Build Docker image using the unique commit SHA as the tag
+    
+  # Step 2: Build Docker image
   - name: 'gcr.io/cloud-builders/docker'
-    id: 'build-image'
-    dir: 'gateway'
     args:
-      - 'build'
+      - build
       - '-t'
       - 'us-central1-docker.pkg.dev/$PROJECT_ID/$_REPO_NAME/gateway:$SHORT_SHA'
+      - '-f'
+      - 'gateway/Dockerfile'
       - '.'
-
-  # Step 3: Push the newly tagged image to Artifact Registry
+    
+  # Step 3: Push Docker image
   - name: 'gcr.io/cloud-builders/docker'
-    id: 'push-image'
     args:
-      - 'push'
+      - push
       - 'us-central1-docker.pkg.dev/$PROJECT_ID/$_REPO_NAME/gateway:$SHORT_SHA'
 
-  # Step 4: Dynamically update the image in the Cloud Run YAML before deploying
+  # Step 4: Update cloudrun YAML with new image tag
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-    id: 'update-yaml'
-    entrypoint: 'sed'
+    entrypoint: 'bash'
     args:
-      - '-i'
-      - 's|image:.*|image: us-central1-docker.pkg.dev/$PROJECT_ID/$_REPO_NAME/gateway:$SHORT_SHA|g'
-      - 'cloudrun/gateway.yaml'
+      - '-c'
+      - |
+        sed -i 's|image:.*|image: us-central1-docker.pkg.dev/$PROJECT_ID/$_REPO_NAME/gateway:$SHORT_SHA|g' cloudrun/gateway.yaml
 
-  # Step 5: Deploy to Cloud Run using the updated YAML
+  # Step 5: Deploy to Cloud Run
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-    id: 'deploy-service'
+    entrypoint: 'bash'
     args:
-      - 'gcloud'
-      - 'run'
-      - 'services'
-      - 'replace'
-      - 'cloudrun/gateway.yaml'
-      - '--region'
-      - 'us-central1'
-      - '--project'
-      - '$PROJECT_ID'
+      - '-c'
+      - |
+        gcloud run services replace cloudrun/gateway.yaml \
+          --region=us-central1 \
+          --project=$PROJECT_ID
 
-  # Step 6: Set IAM policy to allow public (unauthenticated) access
+  # Step 6: Add IAM policy binding for public access
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-    id: 'set-iam-policy'
+    entrypoint: 'bash'
     args:
-      - 'gcloud'
-      - 'run'
-      - 'services'
-      - 'add-iam-policy-binding'
-      - 'gateway'
-      - '--region'
-      - 'us-central1'
-      - '--member'
-      - 'allUsers'
-      - '--role'
-      - 'roles/run.invoker'
-      - '--project'
-      - '$PROJECT_ID'
+      - '-c'
+      - |
+        gcloud run services add-iam-policy-binding gateway \
+          --region=us-central1 \
+          --member='allUsers' \
+          --role='roles/run.invoker' \
+          --project=$PROJECT_ID
 
-# The images list should also use the unique tag
 images:
   - 'us-central1-docker.pkg.dev/$PROJECT_ID/$_REPO_NAME/gateway:$SHORT_SHA'
 
-options:
-  machineType: 'E2_HIGHCPU_8'
-  logging: CLOUD_LOGGING_ONLY
-
-timeout: '1200s'
-
 substitutions:
-  _REPO_NAME: "prod-planner-repo"
+  _REPO_NAME: 'prod-planner-repo'
