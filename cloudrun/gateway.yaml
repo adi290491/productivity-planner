@@ -21,7 +21,7 @@ spec:
     spec:
       serviceAccountName: github-actions-sa@systemic-productivity-planner.iam.gserviceaccount.com
       containers:
-        - image: us-central1-docker.pkg.dev/systemic-productivity-planner/prod-planner-repo/gateway:manual-v1
+        - image: 'us-central1-docker.pkg.dev/$PROJECT_ID/$_REPO_NAME/gateway:$SHORT_SHA'
           ports:
             - name: http1
               containerPort: 8080 
