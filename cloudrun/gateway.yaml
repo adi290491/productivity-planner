@@ -6,10 +6,10 @@ metadata:
   labels:
     cloud.googleapis.com/location: us-central1
   annotations:
-    run.googleapis.com/ingress: internal
+    run.googleapis.com/ingress: all
     # run.googleapis.com/ingress-status: all
     run.googleapis.com/minScale: '1'
-    run.googleapis.com/minScale: '2'
+    run.googleapis.com/maxScale: '2'
 spec:
   template:
     metadata:
@@ -33,13 +33,13 @@ spec:
             - name: PROFILE
               value: prod
             - name: USER_SERVICE_URL
-              value: 'https://user-service-918662609235.us-central1.run.app' 
+              value: 'https://user-service-v4mstn6ikq-uc.a.run.app' 
             - name: SESSION_SERVICE_URL
-              value: 'https://session-service-918662609235.us-central1.run.app' 
+              value: 'https://session-service-v4mstn6ikq-uc.a.run.app' 
             - name: SUMMARY_SERVICE_URL
-              value: 'https://summary-service-918662609235.us-central1.run.app' 
+              value: 'https://summary-service-v4mstn6ikq-uc.a.run.app' 
             - name: TREND_SERVICE_URL
-              value: 'https://trend-service-918662609235.us-central1.run.app' 
+              value: 'https://trend-service-v4mstn6ikq-uc.a.run.app' 
             - name: FRONTEND_ORIGIN
               value: 'https://systemic-productivity-planner.web.app'
             - name: FRONTEND_ORIGIN_2
