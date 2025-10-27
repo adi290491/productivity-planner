@@ -51,6 +51,24 @@ steps:
       - '--project'
       - '$PROJECT_ID'
 
+  # Step 6: Set IAM policy to allow public (unauthenticated) access
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    id: 'set-iam-policy'
+    args:
+      - 'gcloud'
+      - 'run'
+      - 'services'
+      - 'add-iam-policy-binding'
+      - 'gateway'
+      - '--region'
+      - 'us-central1'
+      - '--member'
+      - 'allUsers'
+      - '--role'
+      - 'roles/run.invoker'
+      - '--project'
+      - '$PROJECT_ID'
+
 # The images list should also use the unique tag
 images:
   - 'us-central1-docker.pkg.dev/$PROJECT_ID/$_REPO_NAME/gateway:$SHORT_SHA'
