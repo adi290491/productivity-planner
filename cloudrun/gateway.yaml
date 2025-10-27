@@ -19,6 +19,7 @@ spec:
         run.googleapis.com/vpc-access-egress: 'private-ranges-only'
         run.googleapis.com/cpu-throttling: 'true'
     spec:
+      serviceAccountName: github-actions-sa@systemic-productivity-planner.iam.gserviceaccount.com
       containers:
         - image: us-central1-docker.pkg.dev/systemic-productivity-planner/prod-planner-repo/gateway:manual-v1
           ports:
