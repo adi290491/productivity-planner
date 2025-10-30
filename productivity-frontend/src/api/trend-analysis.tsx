@@ -23,3 +23,10 @@ export const fetchLatestTrendsCount = async (token: string): Promise<UnviewedTre
   });
   return res.data;
 };
+
+export const markTrendsAsViewed = async (token: string, type: 'daily' | 'weekly'): Promise<void> => {
+  await api.post(`/trend/mark-viewed`, null, {
+    headers: { Authorization: `Bearer ${token}` },
+    params: { type },
+  });
+};

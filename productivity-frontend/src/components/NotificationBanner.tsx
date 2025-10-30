@@ -1,3 +1,7 @@
+import { useState } from "react";
+import type { UnviewedTrendsCount } from "../types/trend";
+import { markTrendsAsViewed } from "../api/trend-analysis";
+
 const BellIcon = () => (
     <svg 
     xmlns="http://www.w3.org/2000/svg" 
@@ -16,10 +20,51 @@ const BellIcon = () => (
   </svg>
 );
 
-const NotificationBanner = ({ onDismiss }: { onDismiss: () => void}) => {
-    const handleViewTrends = () => {
+interface NotificationBannerProps {
+    onDismiss: () => void;
+    trendsCount: UnviewedTrendsCount | null;
+    onViewTrends: () => void;
+}
+
+const NotificationBanner = ({ onDismiss, trendsCount, onViewTrends }: NotificationBannerProps) => {
+    const [isLoading, setIsLoading] = useState(false);
+
+    const handleViewTrends = async () => {
         console.log('View Trends button clicked');
+
+        const token = localStorage.getItem('token');
+        if (!token || !trendsCount) {
+            console.error('No token or trends count available');
+            return;
+        }
+
+        setIsLoading(true);
+
+        try {
+            const promises: Promise<void>[] = [];
+
+            if (trendsCount.daily_count > 0) {
+                promises.push(markTrendsAsViewed(token, 'daily'));
+            }
+
+            if (trendsCount.weekly_count > 0) {
+                promises.push(markTrendsAsViewed(token, 'weekly'));
+            }
+
+            await Promise.all(promises);
+
+            onViewTrends();
+
+            onDismiss();
+        } catch (error) {
+            console.error('Failed to mark trends as viewed:', error);
+
+            alert('Failed to update trends. Please try again.');
+        } finally {
+            setIsLoading(false);
+        }
     }
+
 
     return (
         <div className="notification-banner mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -27,12 +72,22 @@ const NotificationBanner = ({ onDismiss }: { onDismiss: () => void}) => {
                 <BellIcon />
                 <div className="notification-text">
                     <h4>New trends available!</h4>
-                    <p>Your daily and weekly productivity trends are ready to view.</p>
+                    <p>
+                        {trendsCount?.daily_count && trendsCount?.weekly_count 
+                            ? 'Your daily and weekly productivity trends are ready to view.'
+                            : trendsCount?.daily_count 
+                            ? 'Your daily productivity trends are ready to view.'
+                            : 'Your weekly productivity trends are ready to view.'}
+                    </p>
                 </div>
             </div>
             <div className="notification-actions">
-                <button className="btn-view-trends" onClick={handleViewTrends}>
-                    View Trends
+                <button 
+                    className="btn-view-trends" 
+                    onClick={handleViewTrends}
+                    disabled={isLoading}
+                >
+                    {isLoading ? 'Loading...' : 'View Trends'}
                 </button>
                 <button className="btn-dismiss" onClick={onDismiss}>
                     Dismiss

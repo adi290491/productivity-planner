@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import CarouselHeader from "../components/CarouselHeader";
 import type { DailySummary as DailySummaryType, WeeklySummaryResponse, SessionResponse } from "../types/summary";
 import DailySummary from "../components/DailySummary";
@@ -8,6 +8,7 @@ import WeeklySummary from "../components/WeeklySummary";
 import SessionControl from "../components/SessionControl";
 import TrendTabs from "../components/TrendTabs";
 import NotificationBanner from "../components/NotificationBanner";
+import type { UnviewedTrendsCount } from "../types/trend";
 
 
 const Dashboard = () => {
@@ -16,6 +17,8 @@ const Dashboard = () => {
     const [dailySummary, setDailySummary] = useState<DailySummaryType | null>(null);
     const [weeklySummary, setWeeklySummary] = useState<WeeklySummaryResponse | null>(null);
     const [isBannerVisible, setIsBannerVisible] = useState(false);
+    const [trendsCount, setTrendsCount] = useState<UnviewedTrendsCount | null> (null);
+    const trendTabsRef = useRef<HTMLDivElement>(null);
 
     const token = localStorage.getItem("token");
     
@@ -35,6 +38,7 @@ const Dashboard = () => {
 
               if (trendsCount && (trendsCount.weekly_count > 0 || trendsCount.weekly_count > 0 )) {
                 setIsBannerVisible(true);
+                setTrendsCount(trendsCount);
               }
             } catch (error) {
               console.error("Failed to fetch summaries:", error);
@@ -45,12 +49,20 @@ const Dashboard = () => {
           fetchData();
     }, [token]);
 
+    const scrollToTrends = () => {
+        trendTabsRef.current?.scrollIntoView({behavior: 'smooth', block: 'start'});
+    };
+
     return (
        
         <div className="bg-background min-h-screen">
 
             <div className={`notification-container ${isBannerVisible ? 'visible' : ''}`}>
-                <NotificationBanner onDismiss={() => setIsBannerVisible(false)} />
+                <NotificationBanner 
+                  onDismiss={() => setIsBannerVisible(false)} 
+                  trendsCount={trendsCount}
+                  onViewTrends={scrollToTrends}
+                />
             </div>
 
             <CarouselHeader />
@@ -68,7 +80,9 @@ const Dashboard = () => {
                 <WeeklySummary data={weeklySummary} />
             </div>
             
-            <TrendTabs />
+            <div ref={trendTabsRef}>
+              <TrendTabs />
+            </div>
         </div>
     );
 };
