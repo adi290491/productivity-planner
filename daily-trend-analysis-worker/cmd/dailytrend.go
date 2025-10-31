@@ -133,7 +133,7 @@ func (p *PostgresRepository) fetchUserEmailsInBatch(app *Application, userIDs []
 	}
 
 	users, err := io.ReadAll(resp.Body)
-
+	log.Printf("Users: %+v", string(users))
 	if err != nil {
 		return nil, err
 	}
@@ -142,7 +142,7 @@ func (p *PostgresRepository) fetchUserEmailsInBatch(app *Application, userIDs []
 
 	var userInfo []models.UserInfo
 	err = json.Unmarshal(users, &userInfo)
-
+	log.Printf("User Info: %+v", userInfo)
 	if err != nil {
 		return nil, err
 	}

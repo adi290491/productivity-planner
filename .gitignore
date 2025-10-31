@@ -36,3 +36,8 @@ temp/
 .env
 .env*.local
 **/.firebase/**
+
+cloudrun/gateway_old.yaml
+cloudrun/user-service_old.yaml
+scripts/run-daily-trend-worker.sh
+scripts/run-weekly-trend-worker.sh

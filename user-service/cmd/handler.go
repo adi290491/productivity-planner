@@ -87,6 +87,7 @@ func (h *Handler) GetUsersBatch(c *gin.Context) {
 
 	if len(req.UserIDs) == 0 {
 		c.JSON(http.StatusBadRequest, []user.UserInfoResponse{})
+		return
 	}
 
 	response, err := h.Svc.GetUsersBatch(req)
