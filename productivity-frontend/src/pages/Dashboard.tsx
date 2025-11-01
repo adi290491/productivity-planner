@@ -9,6 +9,7 @@ import SessionControl from "../components/SessionControl";
 import TrendTabs from "../components/TrendTabs";
 import NotificationBanner from "../components/NotificationBanner";
 import type { UnviewedTrendsCount } from "../types/trend";
+import type { TrendTabsHandle } from "../components/TrendTabs";
 
 
 const Dashboard = () => {
@@ -19,37 +20,43 @@ const Dashboard = () => {
     const [isBannerVisible, setIsBannerVisible] = useState(false);
     const [trendsCount, setTrendsCount] = useState<UnviewedTrendsCount | null> (null);
     const trendTabsRef = useRef<HTMLDivElement>(null);
-
+    const trendTabsComponentRef = useRef<TrendTabsHandle>(null);
     const token = localStorage.getItem("token");
     
     useEffect(() => {
-        const fetchData = async () => {
+        const fetchSummaries = async () => {
+          try{
+            const [daily, weekly, trendsCount] = await Promise.all([
+              fetchDailySummary(token!),
+              fetchWeeklySummary(token!),
+              fetchLatestTrendsCount(token!)
+            ]);
+            console.log("daily summary:", daily);
+            console.log("weekly summary:", weekly);
+            console.log("trends count:", trendsCount);
 
-          if (!token) return
-
-            try {
-              const [daily, weekly, trendsCount] = await Promise.all([
-                fetchDailySummary(token),
-                fetchWeeklySummary(token),
-                fetchLatestTrendsCount(token),
-              ]);
-              setDailySummary(daily);
-              setWeeklySummary(weekly);
-
-              if (trendsCount && (trendsCount.weekly_count > 0 || trendsCount.weekly_count > 0 )) {
-                setIsBannerVisible(true);
-                setTrendsCount(trendsCount);
-              }
-            } catch (error) {
-              console.error("Failed to fetch summaries:", error);
-              setDailySummary(null);
-              setWeeklySummary(null);
+            setDailySummary(daily);
+            setWeeklySummary(weekly);
+            if (trendsCount && (trendsCount.daily_count > 0 || trendsCount.weekly_count > 0)) {
+              setTrendsCount(trendsCount);
             }
-          };
-          fetchData();
+          } catch (error) {
+            console.error("Failed to fetch summaries:", error);
+          }
+        }
+
+        if (token) {
+          fetchSummaries();
+        }
     }, [token]);
 
-    const scrollToTrends = () => {
+    const scrollToTrends = async () => {
+        console.log('Scrolling to trends and fetching data...');
+
+        if (trendTabsComponentRef.current){
+          await trendTabsComponentRef.current.fetchTrends();
+        }
+
         trendTabsRef.current?.scrollIntoView({behavior: 'smooth', block: 'start'});
     };
 
@@ -57,15 +64,15 @@ const Dashboard = () => {
        
         <div className="bg-background min-h-screen">
 
-            <div className={`notification-container ${isBannerVisible ? 'visible' : ''}`}>
-                <NotificationBanner 
+            <CarouselHeader />
+            
+            {trendsCount && (trendsCount.daily_count > 0 || trendsCount.weekly_count > 0) && (
+            <NotificationBanner 
                   onDismiss={() => setIsBannerVisible(false)} 
                   trendsCount={trendsCount}
                   onViewTrends={scrollToTrends}
                 />
-            </div>
-
-            <CarouselHeader />
+            )}
 
             <SessionControl
                 sessionType={sessionType}
@@ -81,7 +88,7 @@ const Dashboard = () => {
             </div>
             
             <div ref={trendTabsRef}>
-              <TrendTabs />
+              <TrendTabs ref={trendTabsComponentRef} shouldFetchOnMount={false} />
             </div>
         </div>
     );

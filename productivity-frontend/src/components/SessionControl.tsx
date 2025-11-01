@@ -27,7 +27,7 @@ const SessionControl = ({sessionType, lastSession, setSessionType, setDailySumma
           setSessionStarted(true);
           timerRef.current = setInterval(() => setElapsed((prev) => prev + 1), 1000);
         } catch {
-          alert("❌ Failed to start session");
+          alert("Failed to start session");
         } finally {
           setLoading(false);
         }
@@ -44,7 +44,7 @@ const SessionControl = ({sessionType, lastSession, setSessionType, setDailySumma
           setLastSession(session);
           await setDailySummary();
         } catch {
-          alert("❌ Failed to stop session");
+          alert("Failed to stop session");
         } finally {
           setLoading(false);
         }
@@ -96,10 +96,16 @@ const SessionControl = ({sessionType, lastSession, setSessionType, setDailySumma
             </div>
           </div>
 
+          {sessionStarted && (
+            <div className="bg-yellow-50 border border-yellow-200 rounded p-3 mt-4 text-sm text-yellow-800">
+              <p>Session will automatically stop at midnight and be recorded for today.</p>
+            </div>
+          )}
+
           {lastSession && (
             <div className="bg-white text-text border border-border rounded p-4 shadow mt-6 text-sm">
-                <h3 className="text-lg font-semibold text-text mb-2">Last Session</h3>
-                <p><strong>Type:</strong> {lastSession.type}</p>
+              <h3 className="text-lg font-semibold text-text mb-2">Last Session</h3>
+              <p><strong>Type:</strong> {lastSession.type}</p>
                 <p><strong>Start:</strong> {new Date(lastSession.start_time).toLocaleString()}</p>
                 <p><strong>End:</strong> {new Date(lastSession.end_time).toLocaleString()}</p>
                 <p><strong>Duration:</strong> {formatDuration(lastSession.start_time, lastSession.end_time)}</p>
