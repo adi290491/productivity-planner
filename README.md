@@ -125,21 +125,6 @@ Service Service  Service     Service
 - Services read directly from environment variables
 - `godotenv` is used only for local development
 
-### Common Environment Variables
-
-```env
-PORT=8080
-JWT_SECRET=...
-DB_HOST=...
-DB_PORT=5432
-DB_NAME=...
-DB_USERNAME=...
-DB_PASSWORD=...
-DB_SSLMODE=disable
-```
-
-> **Note:** Secrets in production are injected via Google Secret Manager.
-
 ---
 
 ## 🔁 CI/CD Strategy
