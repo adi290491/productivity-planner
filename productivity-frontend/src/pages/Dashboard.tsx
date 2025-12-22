@@ -17,7 +17,6 @@ const Dashboard = () => {
     const [lastSession, setLastSession] = useState<SessionResponse | null>(null);
     const [dailySummary, setDailySummary] = useState<DailySummaryType | null>(null);
     const [weeklySummary, setWeeklySummary] = useState<WeeklySummaryResponse | null>(null);
-    const [isBannerVisible, setIsBannerVisible] = useState(false);
     const [trendsCount, setTrendsCount] = useState<UnviewedTrendsCount | null> (null);
     const trendTabsRef = useRef<HTMLDivElement>(null);
     const trendTabsComponentRef = useRef<TrendTabsHandle>(null);
@@ -65,10 +64,10 @@ const Dashboard = () => {
         <div className="bg-background min-h-screen">
 
             <CarouselHeader />
-            
+
             {trendsCount && (trendsCount.daily_count > 0 || trendsCount.weekly_count > 0) && (
             <NotificationBanner 
-                  onDismiss={() => setIsBannerVisible(false)} 
+                  onDismiss={() => setTrendsCount(null)} 
                   trendsCount={trendsCount}
                   onViewTrends={scrollToTrends}
                 />
