@@ -11,10 +11,11 @@ func RegisterRoutes(r *gin.Engine, cfg *config.AppConfig) {
 
 	
 	r.Use(middleware.CorsMiddleware())
+
+	usersRouter := r.Group("/users")
 	{
-		usersRouter := r.Group("/")
-		usersRouter.POST("/users/signup", proxy.ProxyToUserService)
-		usersRouter.POST("/users/login", proxy.ProxyToUserService)
+		usersRouter.POST("/signup", proxy.ProxyToUserService)
+		usersRouter.POST("/login", proxy.ProxyToUserService)
 	}
 
 	{

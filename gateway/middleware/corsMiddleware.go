@@ -34,7 +34,7 @@ func CorsMiddleware() gin.HandlerFunc {
 		originAllowed := false
 		for _, allowedOrigin := range allowedOrigins {
 			if origin == allowedOrigin {
-				c.Writer.Header().Set("Access-Control-Allow-Origin", origin)
+				// c.Writer.Header().Set("Access-Control-Allow-Origin", origin)
 				originAllowed = true
 				break
 			}
@@ -42,9 +42,11 @@ func CorsMiddleware() gin.HandlerFunc {
 
 		// Always set other CORS headers for valid origins
 		if originAllowed {
+			c.Writer.Header().Set("Access-Control-Allow-Origin", origin)
 			c.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
 			c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-USER-ID")
 			c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
+			c.Writer.Header().Set("Access-Control-Max-Age", "86400")
 		}
 
 		if c.Request.Method == "OPTIONS" {
