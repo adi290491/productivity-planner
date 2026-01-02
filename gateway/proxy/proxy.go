@@ -61,10 +61,13 @@ func ProxyToTrendService(c *gin.Context) {
 }
 
 func forward(c *gin.Context, targetUrl string) {
+	log.Printf("Forwarding request to %s\n", targetUrl)
+
 	var reqBody []byte
 	if c.Request.Body != nil {
 		var err error
 		reqBody, err = io.ReadAll(c.Request.Body)
+		log.Printf("Request body: %s", string(reqBody))
 		if err != nil {
 			log.Printf("Error reading request body: %v", err)
 			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request body"})
