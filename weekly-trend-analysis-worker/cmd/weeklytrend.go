@@ -127,12 +127,14 @@ func (p *PostgresRepository) fetchUserEmailsInBatch(app *Application, userIDs []
 	)
 
 	if err != nil {
+		log.Printf("[DEBUG] error from user service: %v", err)
 		return nil, err
 	}
 
 	users, err := io.ReadAll(resp.Body)
 
 	if err != nil {
+		log.Printf("[DEBUG] error reading response body: %v", err)
 		return nil, err
 	}
 
@@ -142,6 +144,7 @@ func (p *PostgresRepository) fetchUserEmailsInBatch(app *Application, userIDs []
 	err = json.Unmarshal(users, &userInfo)
 
 	if err != nil {
+		log.Printf("[DEBUG] error unmarshalling response body: %v", err)
 		return nil, err
 	}
 
