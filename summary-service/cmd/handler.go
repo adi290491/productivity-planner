@@ -34,7 +34,7 @@ func (h *Handler) GetDailySummary(c *gin.Context) {
 	}
 	log.Println("Summary Response: ", summaryResponse)
 	if err != nil && strings.Contains(err.Error(), "no sessions found for the given day") {
-		HandleError(c, fmt.Errorf("no sessions found for user: %s on date: %s", userId, queryDate), http.StatusNotFound)
+		HandleError(c, fmt.Errorf("no sessions found for user: %s on date: %s", userId, queryDate), http.StatusNoContent)
 		return
 	}
 
@@ -65,7 +65,7 @@ func (h *Handler) GetWeeklySummary(c *gin.Context) {
 	}
 
 	if err != nil && strings.Contains(err.Error(), "no sessions found") {
-		HandleError(c, fmt.Errorf("no sessions found for user: %s", userId), http.StatusNotFound)
+		HandleError(c, fmt.Errorf("no sessions found for user: %s", userId), http.StatusNoContent)
 		return
 	}
 
