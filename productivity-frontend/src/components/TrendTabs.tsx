@@ -53,35 +53,35 @@ const dummyDailyTrends: DailyTrend[] = [
     }
 ];
 
-const dummyWeeklyTrends: WeeklyTrend[] = [
-    {
-      week_start: "2025-08-25",
-      total_time: "32h 15m",
-      breakdown: {
-        focus: "24h 30m",
-        meeting: "6h 45m",
-        break: "1h 0m"
-      },
-    },
-    {
-      week_start: "2025-08-18",
-      total_time: "28h 45m",
-      breakdown: {
-        focus: "20h 15m",
-        meeting: "7h 30m",
-        break: "1h 0m"
-      },
-    },
-    {
-        week_start: "2025-08-11",
-        total_time: "35h 0m",
-        breakdown: {
-          focus: "28h 0m",
-          meeting: "5h 0m",
-          break: "2h 0m"
-        },
-    },
-]; 
+// const dummyWeeklyTrends: WeeklyTrend[] = [
+//     {
+//       week_start: "2025-08-25",
+//       total_time: "32h 15m",
+//       breakdown: {
+//         focus: "24h 30m",
+//         meeting: "6h 45m",
+//         break: "1h 0m"
+//       },
+//     },
+//     {
+//       week_start: "2025-08-18",
+//       total_time: "28h 45m",
+//       breakdown: {
+//         focus: "20h 15m",
+//         meeting: "7h 30m",
+//         break: "1h 0m"
+//       },
+//     },
+//     {
+//         week_start: "2025-08-11",
+//         total_time: "35h 0m",
+//         breakdown: {
+//           focus: "28h 0m",
+//           meeting: "5h 0m",
+//           break: "2h 0m"
+//         },
+//     },
+// ]; 
 
 export interface TrendTabsHandle {
   fetchTrends: () => Promise<void>;
@@ -140,7 +140,7 @@ const TrendTabs = forwardRef<TrendTabsHandle, TrendTabsProps>(({ shouldFetchOnMo
         try {
           const weeklyData: WeeklyTrendResponse = await fetchWeeklyTrends(token, 4);
           console.log("Weekly Trends Data:", weeklyData);
-          setWeeklyTrends(weeklyData.weeklyTrends || dummyWeeklyTrends);
+          setWeeklyTrends(weeklyData.weeklyTrends || []);
         } catch (weeklyErr: any) {
           console.log("Weekly trends error - treating as no data available");
           

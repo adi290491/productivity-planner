@@ -49,6 +49,34 @@ const Dashboard = () => {
         }
     }, [token]);
 
+    useEffect(() => {
+      const handleVisibilityChange = () => {
+        if (document.hidden) {
+          console.log('Page hidden - timer continues running in background');
+        } else {
+          console.log('Page visible - timer display will update automatically');
+        }
+      };
+
+      const handleFocus = () => {
+        console.log('Window focused - refreshing display');
+      };
+
+      const handleBlur = () => {
+        console.log('Window blurred - timer continues in the background');
+      };
+
+      document.addEventListener('visibilitychange', handleVisibilityChange);
+      window.addEventListener('focus', handleFocus);
+      window.addEventListener('blur', handleBlur);
+
+      return () => {
+        document.removeEventListener('visibilitychange', handleVisibilityChange);
+        window.removeEventListener('focus', handleFocus);
+        window.removeEventListener('blur', handleBlur);
+      };
+    },[]);
+
     const scrollToTrends = async () => {
         console.log('Scrolling to trends and fetching data...');
 

@@ -1,4 +1,5 @@
 import type { DailySummary as DailySummaryType } from "../types/summary";
+import { isValidDate } from "../utils/format";
 
 const formatDate = (dateString: string) => new Date(dateString).toLocaleDateString('en-CA');
 const formatDuration = (time: string | number) => typeof time === 'number' ? `${time}s` : time;
@@ -6,7 +7,10 @@ const formatDuration = (time: string | number) => typeof time === 'number' ? `${
 const DailySummary = ({ data }: { data: DailySummaryType | null }) => {
   const noSessions = !data || !data.breakdown || Object.keys(data.breakdown).length === 0;
 
-  const displayDate = data ? data.date : new Date().toISOString();
+  const displayDate = data?.date || new Date().toISOString().split('T')[0];
+
+  const formattedDate = isValidDate(displayDate) ? formatDate(displayDate) : 'Invalid Date';
+
 
   return (
     <div className="summary-card-wrapper">
@@ -14,7 +18,7 @@ const DailySummary = ({ data }: { data: DailySummaryType | null }) => {
         <h3>Daily Summary</h3>
         <div className="summary-details">
    
-          <p>Date: {formatDate(displayDate)}</p>
+          <p>Date: {formatDate(formattedDate)}</p>
           
   
           {data && (

@@ -3,6 +3,7 @@ import type { SessionResponse } from "../types/summary";
 import { startSession, stopSession } from "../api/session";
 import { formatDuration } from "../utils/format";
 
+
 type Props = {
     sessionType: string;
     setSessionType: (type: string) => void;
@@ -15,7 +16,9 @@ const SessionControl = ({sessionType, lastSession, setSessionType, setDailySumma
     const [sessionStarted, setSessionStarted] = useState(false);
     const [elapsed, setElapsed] = useState(0);
     const [loading, setLoading] = useState(false);
-    const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+    const startTimeRef = useRef<number | null>(null);
+    const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
     const token = localStorage.getItem("token")
 
@@ -23,9 +26,18 @@ const SessionControl = ({sessionType, lastSession, setSessionType, setDailySumma
         try {
           setLoading(true);
           await startSession(sessionType, token!);
+
+          startTimeRef.current = Date.now();
           setElapsed(0);
           setSessionStarted(true);
-          timerRef.current = setInterval(() => setElapsed((prev) => prev + 1), 1000);
+   
+          intervalRef.current = setInterval(() => {
+            if (startTimeRef.current !== null) {
+              const now = Date.now();
+              const elapsedSeconds = Math.floor((now - startTimeRef.current) / 1000);
+              setElapsed(elapsedSeconds)
+            }
+          }, 100);
         } catch {
           alert("Failed to start session");
         } finally {
@@ -37,7 +49,12 @@ const SessionControl = ({sessionType, lastSession, setSessionType, setDailySumma
         try {
           setLoading(true);
           const session = await stopSession(sessionType, token!);
-          if (timerRef.current) clearInterval(timerRef.current);
+          if (intervalRef.current) {
+            clearInterval(intervalRef.current);
+            intervalRef.current = null;
+          }
+
+          startTimeRef.current = null;
           setElapsed(0);
           setSessionStarted(false);
 
