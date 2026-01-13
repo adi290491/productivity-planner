@@ -1,16 +1,49 @@
 import type { DailySummary as DailySummaryType } from "../types/summary";
-import { isValidDate } from "../utils/format";
 
-const formatDate = (dateString: string) => new Date(dateString).toLocaleDateString('en-CA');
 const formatDuration = (time: string | number) => typeof time === 'number' ? `${time}s` : time;
+
+const formatDateSafe = (dateString: string): string => {
+  if (!dateString || typeof dateString !== 'string') {
+    console.error('Invalid date string:', dateString);
+    return 'Today'
+  }
+
+  try{
+    const [year, month, day] = dateString.split('-').map(Number);
+    if (!year || !month || !day) {
+      throw new Error('Invalid date format');
+    }
+
+    const date = new Date(year, month - 1, day);
+    if (isNaN(date.getTime())) {
+      throw new Error('Invalid date')
+    }
+
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  }catch(error){
+    console.error('Error formatting date:', dateString, error);
+    return 'Today';
+  }
+}
 
 const DailySummary = ({ data }: { data: DailySummaryType | null }) => {
   const noSessions = !data || !data.breakdown || Object.keys(data.breakdown).length === 0;
 
-  const displayDate = data?.date || new Date().toISOString().split('T')[0];
+  const getCurrentDate = (): string => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`
+  }
 
-  const formattedDate = isValidDate(displayDate) ? formatDate(displayDate) : 'Invalid Date';
+  const displayDate = data?.date || getCurrentDate();
 
+  const formattedDate = formatDateSafe(displayDate)
 
   return (
     <div className="summary-card-wrapper">
@@ -18,7 +51,7 @@ const DailySummary = ({ data }: { data: DailySummaryType | null }) => {
         <h3>Daily Summary</h3>
         <div className="summary-details">
    
-          <p>Date: {formatDate(formattedDate)}</p>
+          <p>Date: {formattedDate}</p>
           
   
           {data && (
