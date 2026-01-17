@@ -12,7 +12,7 @@ export const startSession = async (type: string, token: string): Promise<void> =
   });
 };
 
-export const stopSession = async (type: string, token: string): Promise<SessionResponse> => {
+export const  stopSession = async (type: string, token: string): Promise<SessionResponse> => {
   const res = await api.patch(`/sessions/v1/stop-session`, {
     "session_type": type
    }, {
