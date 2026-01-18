@@ -77,10 +77,3 @@ func (tb *TokenBucket) AvailableTokens() float64 {
 	tb.refill()
 	return tb.tokens
 }
-
-// func min(a, b float64) float64 {
-// 	if a < b {
-// 		return a
-// 	}
-// 	return b
-// }
