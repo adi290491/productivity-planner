@@ -40,7 +40,7 @@ func Middleware(manager *RateLimiterManager, config *Config) func(http.Handler) 
 					"remaining", int(availableTokens),
 				)
 
-				w.Header().Set("Content-Type", "applicatio/json")
+				w.Header().Set("Content-Type", "application/json")
 				w.WriteHeader(http.StatusTooManyRequests)
 
 				response := map[string]interface{}{
