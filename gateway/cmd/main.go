@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"log"
+	"log/slog"
 	"net/http"
 	"os"
 	"os/signal"
@@ -16,25 +17,43 @@ import (
 
 func init() {
 
-	// if err := godotenv.Load(); err != nil {
-	// 	log.Fatalf("No .env file found")
-	// }
-	// LoadEnv()
+	setupLogging()
+}
+
+func setupLogging() {
+	profile := os.Getenv("PROFILE")
+
+	var logger *slog.Logger
+	if profile == "prod" {
+		logger = slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
+			Level: slog.LevelInfo, AddSource: false,
+		}))
+	} else {
+		logger = slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
+			Level: slog.LevelDebug,
+		}))
+	}
+
+	slog.SetDefault(logger)
 }
 
 func main() {
 
 	appConfig := config.Load()
 
+	slog.Info("Loading configuration",
+		"profile", appConfig.Profile,
+		"port", appConfig.Port,
+	)
+
 	if appConfig.Profile == "prod" {
 		gin.SetMode(gin.ReleaseMode)
 	}
+
 	gin.ForceConsoleColor()
 	srv := gin.Default()
 
 	RegisterRoutes(srv, appConfig)
-	log.Println("Port:", appConfig.Port)
-
 	s := &http.Server{
 		Addr:         ":" + appConfig.Port,
 		ReadTimeout:  appConfig.ReadTimeout,
@@ -42,12 +61,11 @@ func main() {
 		Handler:      srv,
 	}
 
-	// srv.Run(":8000")
-
 	go func() {
-		log.Println("Server running on port", appConfig.Port)
+		slog.Info("Server starting", "port", appConfig.Port, "profile", appConfig.Profile)
 		if err := s.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			log.Fatalf("listen: %s\n", err)
+			slog.Error("Server failed to start", "error", err)
+			os.Exit(1)
 		}
 	}()
 
@@ -55,16 +73,17 @@ func main() {
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
 	<-quit
 
-	log.Println("Shutting down...")
+	slog.Info("Shutting down...")
 
 	//Graceful shutdown with timeout
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	if err := s.Shutdown(ctx); err != nil {
-		log.Fatal("Server forced to shutdown:", err)
+		slog.Error("Server forced to shutdown", "error", err)
+		os.Exit(1)
 	}
+
 	<-ctx.Done()
-	log.Println("timeout of 5 seconds")
-	log.Println("Server Exiting")
+	log.Println("Server Exited")
 }
