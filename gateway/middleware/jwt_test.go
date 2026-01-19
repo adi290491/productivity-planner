@@ -52,7 +52,7 @@ func TestJWTMiddleware(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			r := gin.New()
-			r.Use(JWTMiddleware(cfg))
+			r.Use(JWTMiddleware1(cfg))
 			r.GET("/protected", func(c *gin.Context) {
 				c.JSON(http.StatusOK, gin.H{"message": "authorized"})
 			})
