@@ -20,13 +20,39 @@ func init() {
 	slog.SetDefault(slog.New(slog.NewTextHandler(io.Discard, nil)))
 }
 
-func setupTestRouter() http.Handler {
-	// Set up test config
+// setupTestRouter creates a router with mock backend services
+func setupTestRouter() (http.Handler, []*httptest.Server) {
+	// Create mock backend servers
+	userBackend := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"service":"user-service","path":"` + r.URL.Path + `"}`))
+	}))
+
+	sessionBackend := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"service":"session-service","path":"` + r.URL.Path + `"}`))
+	}))
+
+	summaryBackend := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"service":"summary-service","path":"` + r.URL.Path + `"}`))
+	}))
+
+	trendBackend := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"service":"trend-service","path":"` + r.URL.Path + `"}`))
+	}))
+
+	// Set environment variables to point to mock servers
 	os.Setenv("JWT_SECRET", "test-secret")
-	os.Setenv("USER_SERVICE_URL", "http://user-service:8081")
-	os.Setenv("SESSION_SERVICE_URL", "http://session-service:8085")
-	os.Setenv("SUMMARY_SERVICE_URL", "http://summary-service:8082")
-	os.Setenv("TREND_SERVICE_URL", "http://trend-service:8083")
+	os.Setenv("USER_SERVICE_URL", userBackend.URL)
+	os.Setenv("SESSION_SERVICE_URL", sessionBackend.URL)
+	os.Setenv("SUMMARY_SERVICE_URL", summaryBackend.URL)
+	os.Setenv("TREND_SERVICE_URL", trendBackend.URL)
 
 	cfg := &config.AppConfig{
 		JWT_SECRET:   "test-secret",
@@ -50,7 +76,11 @@ func setupTestRouter() http.Handler {
 		rateLimitCfg.TTL,
 	)
 
-	return NewRouter(cfg, rateLimiterMgr, rateLimitCfg)
+	router := NewRouter(cfg, rateLimiterMgr, rateLimitCfg)
+
+	// Return router and backend servers (so tests can close them)
+	backends := []*httptest.Server{userBackend, sessionBackend, summaryBackend, trendBackend}
+	return router, backends
 }
 
 func generateTestToken(secret, userId string) string {
@@ -63,7 +93,12 @@ func generateTestToken(secret, userId string) string {
 }
 
 func TestRouter_PublicRoute_NoAuth(t *testing.T) {
-	router := setupTestRouter()
+	router, backends := setupTestRouter()
+	defer func() {
+		for _, backend := range backends {
+			backend.Close()
+		}
+	}()
 
 	req := httptest.NewRequest("POST", "/users/signup", nil)
 	req.Header.Set("Origin", "http://localhost:5173")
@@ -76,17 +111,22 @@ func TestRouter_PublicRoute_NoAuth(t *testing.T) {
 		t.Errorf("Expected status 200, got %d", w.Code)
 	}
 
-	// Check it's the user service placeholder
+	// Check it's the user service
 	var response map[string]string
 	json.NewDecoder(w.Body).Decode(&response)
 
-	if response["message"] != "user-service - placeholder" {
+	if response["service"] != "user-service" {
 		t.Errorf("Expected user-service response, got %v", response)
 	}
 }
 
 func TestRouter_ProtectedRoute_WithAuth(t *testing.T) {
-	router := setupTestRouter()
+	router, backends := setupTestRouter()
+	defer func() {
+		for _, backend := range backends {
+			backend.Close()
+		}
+	}()
 
 	token := generateTestToken("test-secret", "user123")
 
@@ -104,7 +144,12 @@ func TestRouter_ProtectedRoute_WithAuth(t *testing.T) {
 }
 
 func TestRouter_ProtectedRoute_WithoutAuth(t *testing.T) {
-	router := setupTestRouter()
+	router, backends := setupTestRouter()
+	defer func() {
+		for _, backend := range backends {
+			backend.Close()
+		}
+	}()
 
 	req := httptest.NewRequest("POST", "/sessions/v1/start-session", nil)
 	req.Header.Set("Origin", "http://localhost:5173")
@@ -120,7 +165,12 @@ func TestRouter_ProtectedRoute_WithoutAuth(t *testing.T) {
 }
 
 func TestRouter_CORS_Preflight(t *testing.T) {
-	router := setupTestRouter()
+	router, backends := setupTestRouter()
+	defer func() {
+		for _, backend := range backends {
+			backend.Close()
+		}
+	}()
 
 	req := httptest.NewRequest("OPTIONS", "/users/signup", nil)
 	req.Header.Set("Origin", "http://localhost:5173")
@@ -141,7 +191,12 @@ func TestRouter_CORS_Preflight(t *testing.T) {
 }
 
 func TestRouter_RateLimiting(t *testing.T) {
-	router := setupTestRouter()
+	router, backends := setupTestRouter()
+	defer func() {
+		for _, backend := range backends {
+			backend.Close()
+		}
+	}()
 
 	// Make requests up to capacity (10)
 	for i := 0; i < 10; i++ {
@@ -171,7 +226,13 @@ func TestRouter_RateLimiting(t *testing.T) {
 }
 
 func TestRouter_AllRoutes(t *testing.T) {
-	router := setupTestRouter()
+	router, backends := setupTestRouter()
+	defer func() {
+		for _, backend := range backends {
+			backend.Close()
+		}
+	}()
+
 	token := generateTestToken("test-secret", "user123")
 
 	tests := []struct {
@@ -216,7 +277,12 @@ func TestRouter_AllRoutes(t *testing.T) {
 }
 
 func TestRouter_ProtectedRoute_InvalidToken(t *testing.T) {
-	router := setupTestRouter()
+	router, backends := setupTestRouter()
+	defer func() {
+		for _, backend := range backends {
+			backend.Close()
+		}
+	}()
 
 	req := httptest.NewRequest("POST", "/sessions/v1/start-session", nil)
 	req.Header.Set("Origin", "http://localhost:5173")
@@ -231,7 +297,12 @@ func TestRouter_ProtectedRoute_InvalidToken(t *testing.T) {
 }
 
 func TestRouter_ProtectedRoute_ExpiredToken(t *testing.T) {
-	router := setupTestRouter()
+	router, backends := setupTestRouter()
+	defer func() {
+		for _, backend := range backends {
+			backend.Close()
+		}
+	}()
 
 	// Create expired token
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
@@ -253,7 +324,12 @@ func TestRouter_ProtectedRoute_ExpiredToken(t *testing.T) {
 }
 
 func TestRouter_DifferentIPsIndependent(t *testing.T) {
-	router := setupTestRouter()
+	router, backends := setupTestRouter()
+	defer func() {
+		for _, backend := range backends {
+			backend.Close()
+		}
+	}()
 
 	// Exhaust rate limit for IP1
 	for i := 0; i < 10; i++ {
@@ -286,6 +362,6 @@ func TestRouter_DifferentIPsIndependent(t *testing.T) {
 	router.ServeHTTP(w2, req2)
 
 	if w2.Code != http.StatusOK {
-		t.Errorf("IP2 should work, got %d", w2.Code)
+		t.Errorf("IP2 should work, got %d (body: %s)", w2.Code, w2.Body.String())
 	}
 }

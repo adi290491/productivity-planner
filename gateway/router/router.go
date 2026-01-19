@@ -1,11 +1,13 @@
 package router
 
 import (
+	"log/slog"
 	"net/http"
 	"os"
 
 	"github.com/adi290491/productivity-planner/gateway/config"
 	"github.com/adi290491/productivity-planner/gateway/middleware"
+	"github.com/adi290491/productivity-planner/gateway/proxy"
 	"github.com/adi290491/productivity-planner/gateway/ratelimiter"
 )
 
@@ -24,10 +26,10 @@ func NewRouter(cfg *config.AppConfig, rateLimiterMgr *ratelimiter.RateLimiterMan
 	summaryServiceURL := os.Getenv("SUMMARY_SERVICE_URL")
 	trendServiceURL := os.Getenv("TREND_SERVICE_URL")
 
-	userHandler := createPlaceholderHandler("user-service", userServiceURL)
-	sessionHandler := createPlaceholderHandler("session-service", sessionServiceURL)
-	summaryHandler := createPlaceholderHandler("summary-service", summaryServiceURL)
-	trendHandler := createPlaceholderHandler("trend-service", trendServiceURL)
+	userHandler := createProxyHandler("user-service", userServiceURL, proxy.NewUserServiceProxy)
+	sessionHandler := createProxyHandler("session-service", sessionServiceURL, proxy.NewSessionServiceProxy)
+	summaryHandler := createProxyHandler("summary-service", summaryServiceURL, proxy.NewSummaryServiceProxy)
+	trendHandler := createProxyHandler("trend-service", trendServiceURL, proxy.NewTrendServiceProxy)
 
 	// Public routes
 	// user-service
@@ -66,6 +68,31 @@ func NewRouter(cfg *config.AppConfig, rateLimiterMgr *ratelimiter.RateLimiterMan
 
 	return mux
 
+}
+
+func createProxyHandler(serviceName, serviceURL string, proxyFactory func(string) (http.Handler, error)) http.Handler {
+	if serviceURL == "" {
+		slog.Warn("Service URL not configured, using placeholder",
+			"service", serviceName,
+		)
+		return createPlaceholderHandler(serviceName, "URL not configured")
+	}
+
+	handler, err := proxyFactory(serviceURL)
+	if err != nil {
+		slog.Error("Failed to create proxy, using placeholder",
+			"service", serviceName,
+			"error", err,
+		)
+		return createPlaceholderHandler(serviceName, serviceURL)
+	}
+
+	slog.Info("Proxy created",
+		"service", serviceName,
+		"target", serviceURL,
+	)
+
+	return handler
 }
 
 func createPlaceholderHandler(serviceName, serviceURL string) http.Handler {

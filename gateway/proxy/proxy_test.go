@@ -1,122 +1,290 @@
 package proxy
 
 import (
-	"bytes"
+	"context"
+	"encoding/json"
 	"io"
+	"log/slog"
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"testing"
-
-	"github.com/gin-gonic/gin"
 )
 
-func TestProxyToUserService(t *testing.T) {
-	t.Parallel()
-	mockServer := startMockBackend(t)
-	defer mockServer.Close()
-
-	os.Setenv("USER_SERVICE_URL", mockServer.URL)
-
-	router := gin.New()
-	router.POST("/users/signup", ProxyToUserService)
-
-	body := []byte(`{"email":"test@example.com","password":"pass","name":"Test User"}`)
-	req, _ := http.NewRequest("POST", "/users/signup", bytes.NewReader(body))
-	req.Header.Set("Content-Type", "application/json")
-
-	w := httptest.NewRecorder()
-	router.ServeHTTP(w, req)
-
-	if w.Code != http.StatusOK {
-		t.Errorf("Expected status 200, got %d", w.Code)
-	}
+func init() {
+	// Suppress logs during tests
+	slog.SetDefault(slog.New(slog.NewTextHandler(io.Discard, nil)))
 }
 
-func TestProxyToSessionService(t *testing.T) {
-	mockServer := startMockBackend(t)
-	defer mockServer.Close()
-
-	os.Setenv("SESSION_SERVICE_URL", mockServer.URL)
-
-	router := gin.New()
-	router.POST("/sessions/v1/start-session", func(c *gin.Context) {
-		// Add fake userId to context
-		c.Set("userId", "mock-user-id")
-		ProxyToSessionService(c)
-	})
-
-	body := []byte(`{"session_type":"focus"}`)
-	req, _ := http.NewRequest("POST", "/sessions/v1/start-session", bytes.NewReader(body))
-	req.Header.Set("Content-Type", "application/json")
-
-	w := httptest.NewRecorder()
-	router.ServeHTTP(w, req)
-
-	if w.Code != http.StatusOK {
-		t.Errorf("Expected status 200, got %d", w.Code)
-	}
-	if w.Header().Get("X-USER-ID") == "" {
-		t.Errorf("Expected X-USER-ID header to be set")
-	}
-}
-
-func TestProxyToSummaryService(t *testing.T) {
-	mockServer := startMockBackend(t)
-	defer mockServer.Close()
-
-	os.Setenv("SUMMARY_SERVICE_URL", mockServer.URL)
-
-	router := gin.New()
-	router.GET("/summary/daily", func(c *gin.Context) {
-		c.Set("userId", "mock-user-id")
-		ProxyToSummaryService(c)
-	})
-
-	req, _ := http.NewRequest("GET", "/summary/daily?date=2025-05-01", nil)
-
-	w := httptest.NewRecorder()
-	router.ServeHTTP(w, req)
-
-	if w.Code != http.StatusOK {
-		t.Errorf("Expected status 200, got %d", w.Code)
-	}
-}
-
-func TestProxyToTrendService(t *testing.T) {
-	mockServer := startMockBackend(t)
-	defer mockServer.Close()
-
-	os.Setenv("TREND_SERVICE_URL", mockServer.URL)
-
-	router := gin.New()
-	router.GET("/trend/weekly", func(c *gin.Context) {
-		c.Set("userId", "mock-user-id")
-		ProxyToTrendService(c)
-	})
-
-	req, _ := http.NewRequest("GET", "/trend/weekly?weeks=2", nil)
-
-	w := httptest.NewRecorder()
-	router.ServeHTTP(w, req)
-
-	if w.Code != http.StatusOK {
-		t.Errorf("Expected status 200, got %d", w.Code)
-	}
-}
-
-func startMockBackend(t *testing.T) *httptest.Server {
-	handler := http.NewServeMux()
-	handler.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		userID := r.Header.Get("X-USER-ID")
-		w.Header().Set("X-USER-ID", userID) // Echo it back for testing
-
-		body, _ := io.ReadAll(r.Body)
-		defer r.Body.Close()
-
-		w.Header().Set("Content-Type", "application/json")
+func TestNewReverseProxy_ValidURL(t *testing.T) {
+	// Create a mock backend server
+	backend := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
-		w.Write(body) // Just echoing the request body back
+		w.Write([]byte(`{"message":"success"}`))
+	}))
+	defer backend.Close()
+
+	proxy, err := NewReverseProxy(ProxyConfig{
+		TargetURL: backend.URL,
+		Service:   "test-service",
 	})
-	return httptest.NewServer(handler)
+
+	if err != nil {
+		t.Fatalf("Failed to create proxy: %v", err)
+	}
+
+	if proxy == nil {
+		t.Fatal("Expected non-nil proxy")
+	}
+}
+
+func TestNewReverseProxy_InvalidURL(t *testing.T) {
+	_, err := NewReverseProxy(ProxyConfig{
+		TargetURL: "://invalid-url",
+		Service:   "test-service",
+	})
+
+	if err == nil {
+		t.Error("Expected error for invalid URL")
+	}
+}
+
+func TestNewReverseProxy_ForwardsRequest(t *testing.T) {
+	// Track what the backend receives
+	var receivedMethod string
+	var receivedPath string
+	var receivedHeaders http.Header
+
+	backend := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		receivedMethod = r.Method
+		receivedPath = r.URL.Path
+		receivedHeaders = r.Header.Clone()
+
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"message":"backend response"}`))
+	}))
+	defer backend.Close()
+
+	proxy, err := NewReverseProxy(ProxyConfig{
+		TargetURL: backend.URL,
+		Service:   "test-service",
+	})
+	if err != nil {
+		t.Fatalf("Failed to create proxy: %v", err)
+	}
+
+	// Make request through proxy
+	req := httptest.NewRequest("POST", "/api/test", nil)
+	req.Header.Set("Content-Type", "application/json")
+
+	w := httptest.NewRecorder()
+	proxy.ServeHTTP(w, req)
+
+	// Check response
+	if w.Code != http.StatusOK {
+		t.Errorf("Expected status 200, got %d", w.Code)
+	}
+
+	// Check backend received correct method and path
+	if receivedMethod != "POST" {
+		t.Errorf("Expected method POST, backend received %s", receivedMethod)
+	}
+
+	if receivedPath != "/api/test" {
+		t.Errorf("Expected path /api/test, backend received %s", receivedPath)
+	}
+
+	// Check Content-Type was forwarded
+	if ct := receivedHeaders.Get("Content-Type"); ct != "application/json" {
+		t.Errorf("Expected Content-Type application/json, backend received %s", ct)
+	}
+}
+
+func TestNewReverseProxy_AddsUserIDHeader(t *testing.T) {
+	var receivedUserID string
+
+	backend := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		receivedUserID = r.Header.Get("X-USER-ID")
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer backend.Close()
+
+	proxy, err := NewReverseProxy(ProxyConfig{
+		TargetURL: backend.URL,
+		Service:   "test-service",
+	})
+	if err != nil {
+		t.Fatalf("Failed to create proxy: %v", err)
+	}
+
+	// Create request with userId in context
+	req := httptest.NewRequest("GET", "/test", nil)
+	ctx := context.WithValue(req.Context(), "userId", "user123")
+	req = req.WithContext(ctx)
+
+	w := httptest.NewRecorder()
+	proxy.ServeHTTP(w, req)
+
+	// Check X-USER-ID was added
+	if receivedUserID != "user123" {
+		t.Errorf("Expected X-USER-ID: user123, backend received %s", receivedUserID)
+	}
+}
+
+func TestNewReverseProxy_NoUserIDInContext(t *testing.T) {
+	var receivedUserID string
+
+	backend := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		receivedUserID = r.Header.Get("X-USER-ID")
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer backend.Close()
+
+	proxy, err := NewReverseProxy(ProxyConfig{
+		TargetURL: backend.URL,
+		Service:   "test-service",
+	})
+	if err != nil {
+		t.Fatalf("Failed to create proxy: %v", err)
+	}
+
+	// Create request WITHOUT userId in context
+	req := httptest.NewRequest("GET", "/test", nil)
+
+	w := httptest.NewRecorder()
+	proxy.ServeHTTP(w, req)
+
+	// X-USER-ID should not be set
+	if receivedUserID != "" {
+		t.Errorf("Expected no X-USER-ID header, but got %s", receivedUserID)
+	}
+}
+
+func TestNewReverseProxy_ErrorHandler(t *testing.T) {
+	// Create a proxy pointing to a non-existent backend
+	proxy, err := NewReverseProxy(ProxyConfig{
+		TargetURL: "http://localhost:99999", // Invalid port
+		Service:   "test-service",
+	})
+	if err != nil {
+		t.Fatalf("Failed to create proxy: %v", err)
+	}
+
+	req := httptest.NewRequest("GET", "/test", nil)
+	w := httptest.NewRecorder()
+
+	proxy.ServeHTTP(w, req)
+
+	// Should return 502 Bad Gateway
+	if w.Code != http.StatusBadGateway {
+		t.Errorf("Expected status 502, got %d", w.Code)
+	}
+
+	// Check error response
+	var response map[string]string
+	json.NewDecoder(w.Body).Decode(&response)
+
+	if response["error"] != "service unavailable" {
+		t.Errorf("Expected error message, got %v", response)
+	}
+}
+
+func TestNewUserServiceProxy(t *testing.T) {
+	backend := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer backend.Close()
+
+	proxy, err := NewUserServiceProxy(backend.URL)
+	if err != nil {
+		t.Fatalf("Failed to create user service proxy: %v", err)
+	}
+
+	if proxy == nil {
+		t.Fatal("Expected non-nil proxy")
+	}
+}
+
+func TestNewSessionServiceProxy(t *testing.T) {
+	backend := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer backend.Close()
+
+	proxy, err := NewSessionServiceProxy(backend.URL)
+	if err != nil {
+		t.Fatalf("Failed to create session service proxy: %v", err)
+	}
+
+	if proxy == nil {
+		t.Fatal("Expected non-nil proxy")
+	}
+}
+
+func TestNewSummaryServiceProxy(t *testing.T) {
+	backend := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer backend.Close()
+
+	proxy, err := NewSummaryServiceProxy(backend.URL)
+	if err != nil {
+		t.Fatalf("Failed to create summary service proxy: %v", err)
+	}
+
+	if proxy == nil {
+		t.Fatal("Expected non-nil proxy")
+	}
+}
+
+func TestNewTrendServiceProxy(t *testing.T) {
+	backend := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer backend.Close()
+
+	proxy, err := NewTrendServiceProxy(backend.URL)
+	if err != nil {
+		t.Fatalf("Failed to create trend service proxy: %v", err)
+	}
+
+	if proxy == nil {
+		t.Fatal("Expected non-nil proxy")
+	}
+}
+
+func TestGetUserIDFromContext_String(t *testing.T) {
+	ctx := context.WithValue(context.Background(), "userId", "user123")
+
+	userID, ok := GetUserIDFromContext(ctx)
+	if !ok {
+		t.Error("Expected to find userID in context")
+	}
+
+	if userID != "user123" {
+		t.Errorf("Expected userID 'user123', got %s", userID)
+	}
+}
+
+func TestGetUserIDFromContext_NotPresent(t *testing.T) {
+	ctx := context.Background()
+
+	_, ok := GetUserIDFromContext(ctx)
+	if ok {
+		t.Error("Expected userID to not be in context")
+	}
+}
+
+func TestGetUserIDFromContext_Interface(t *testing.T) {
+	// Test with interface{} type (simulating what JWT middleware might set)
+	var userID interface{} = "user456"
+	ctx := context.WithValue(context.Background(), "userId", userID)
+
+	result, ok := GetUserIDFromContext(ctx)
+	if !ok {
+		t.Error("Expected to find userID in context")
+	}
+
+	if result != "user456" {
+		t.Errorf("Expected userID 'user456', got %s", result)
+	}
 }
