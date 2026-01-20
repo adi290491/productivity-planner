@@ -21,26 +21,7 @@ func Middleware(manager *RateLimiterManager, config *Config) func(http.Handler) 
 			clientIP := extractClientIP(r)
 			key := "ip:" + clientIP
 
-			// slog.Debug("Rate limit check",
-			// 	"clientIP", clientIP,
-			// 	"key", key,
-			// 	"remoteAddr", r.RemoteAddr,
-			// 	"xff", r.Header.Get("X-Forwarded-For"),
-			// 	"xri", r.Header.Get("X-Real-IP"),
-			// )
-			// // Check rate limit
-			// allowed := manager.Allow(key)
-
-			// // Get available tokens for headers
-			// availableTokens := manager.AvailableTokens(key)
 			allowed, availableTokens := manager.AllowWithRemaining(key)
-
-			slog.Debug("Rate limit check",
-				"ip", clientIP,
-				"path", r.URL.Path,
-				"method", r.Method,
-				"remaining", availableTokens,
-			)
 
 			// Set rate limit headers
 			w.Header().Set("X-RateLimit-Limit", fmt.Sprintf("%.0f", config.Capacity))
@@ -66,14 +47,6 @@ func Middleware(manager *RateLimiterManager, config *Config) func(http.Handler) 
 				json.NewEncoder(w).Encode(response)
 				return
 			}
-
-			// Request allowed
-			slog.Debug("Rate limit check passed",
-				"ip", clientIP,
-				"path", r.URL.Path,
-				"method", r.Method,
-				"remaining", int(availableTokens),
-			)
 
 			// Continue to next handler
 			next.ServeHTTP(w, r)

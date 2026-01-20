@@ -19,7 +19,7 @@ func init() {
 }
 
 func main() {
-	slog.Info("🚀 Gateway starting - VERSION 2.0 WITH ALLOWWITHREMAINING FIX")
+
 	appConfig := config.Load()
 
 	slog.Info("Starting gateway",

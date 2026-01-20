@@ -8,6 +8,7 @@ import (
 	"github.com/adi290491/productivity-planner/gateway/config"
 	"github.com/adi290491/productivity-planner/gateway/middleware"
 	"github.com/adi290491/productivity-planner/gateway/proxy"
+
 	"github.com/adi290491/productivity-planner/gateway/ratelimiter"
 )
 
@@ -30,6 +31,12 @@ func NewRouter(cfg *config.AppConfig, rateLimiterMgr *ratelimiter.RateLimiterMan
 	sessionHandler := createProxyHandler("session-service", sessionServiceURL, proxy.NewSessionServiceProxy)
 	summaryHandler := createProxyHandler("summary-service", summaryServiceURL, proxy.NewSummaryServiceProxy)
 	trendHandler := createProxyHandler("trend-service", trendServiceURL, proxy.NewTrendServiceProxy)
+
+	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"status": "healthy"}`))
+	})
 
 	// Public routes
 	// user-service
