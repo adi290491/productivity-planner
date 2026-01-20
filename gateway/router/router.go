@@ -43,7 +43,7 @@ func NewRouter(cfg *config.AppConfig, rateLimiterMgr *ratelimiter.RateLimiterMan
 	mux.Handle("/users/", middleware.Chain(
 		userHandler,
 		corsMiddleware,
-		rateLimitMiddleware,
+		// rateLimitMiddleware,
 	))
 
 	// JWT protected routes

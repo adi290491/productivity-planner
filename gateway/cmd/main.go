@@ -20,6 +20,14 @@ func init() {
 
 func main() {
 
+	slog.Info("Environment variables",
+		"PROFILE", os.Getenv("PROFILE"),
+		"PORT", os.Getenv("PORT"),
+		"USER_SERVICE_URL", os.Getenv("USER_SERVICE_URL"),
+		"FRONTEND_ORIGIN", os.Getenv("FRONTEND_ORIGIN"),
+		"FRONTEND_ORIGIN_2", os.Getenv("FRONTEND_ORIGIN_2"),
+	)
+
 	appConfig := config.Load()
 
 	slog.Info("Starting gateway",

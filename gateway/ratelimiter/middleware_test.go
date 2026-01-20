@@ -366,3 +366,53 @@ func TestMiddleware_HandlerNotCalledWhenRateLimited(t *testing.T) {
 		t.Errorf("Expected status 429, got %d", w2.Code)
 	}
 }
+
+func TestMiddleware_SkipsOptionsRequests(t *testing.T) {
+	config := &Config{
+		Enabled:         true,
+		Capacity:        2.0,
+		RefillRate:      1.0,
+		CleanupInterval: 1 * time.Minute,
+		TTL:             30 * time.Minute,
+	}
+
+	manager := NewRateLimiterManager(config.Capacity, config.RefillRate, config.CleanupInterval, config.TTL)
+	defer manager.Shutdown()
+
+	middleware := Middleware(manager, config)
+
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	})
+
+	wrappedHandler := middleware(handler)
+
+	clientIP := "192.168.1.1:12345"
+
+	// Make multiple OPTIONS requests - should not consume tokens
+	for i := 0; i < 5; i++ {
+		req := httptest.NewRequest("OPTIONS", "/test", nil)
+		req.RemoteAddr = clientIP
+		w := httptest.NewRecorder()
+		wrappedHandler.ServeHTTP(w, req)
+
+		if w.Code != http.StatusOK {
+			t.Errorf("OPTIONS request %d should pass through, got %d", i+1, w.Code)
+		}
+	}
+
+	// Should still have full capacity for real requests
+	req := httptest.NewRequest("POST", "/test", nil)
+	req.RemoteAddr = clientIP
+	w := httptest.NewRecorder()
+	wrappedHandler.ServeHTTP(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Error("POST request should be allowed after OPTIONS requests")
+	}
+
+	remaining := w.Header().Get("X-RateLimit-Remaining")
+	if remaining != "1" {
+		t.Errorf("Expected 1 token remaining, got %s", remaining)
+	}
+}

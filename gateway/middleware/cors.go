@@ -14,6 +14,12 @@ func CorsMiddleware() func(http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			origin := r.Header.Get("Origin")
 
+			slog.Info("🌐 CORS middleware ENTRY",
+				"origin", origin,
+				"method", r.Method,
+				"path", r.URL.Path,
+			)
+
 			// Define allowed origins (fallback for local development)
 			allowedOrigins := []string{
 				"https://systemic-productivity-planner.web.app",
@@ -32,6 +38,7 @@ func CorsMiddleware() func(http.Handler) http.Handler {
 				allowedOrigins = append([]string{frontendOrigin2}, allowedOrigins...)
 			}
 
+			slog.Info("Allowed origins", "origins", allowedOrigins)
 			// Check if origin is in allowed list
 			originAllowed := false
 			for _, allowedOrigin := range allowedOrigins {
@@ -40,6 +47,8 @@ func CorsMiddleware() func(http.Handler) http.Handler {
 					break
 				}
 			}
+
+			slog.Info("Origin check result", "originAllowed", originAllowed)
 
 			// Always set other CORS headers for valid origins
 			if originAllowed {
@@ -52,15 +61,18 @@ func CorsMiddleware() func(http.Handler) http.Handler {
 
 			if r.Method == http.MethodOptions {
 				if originAllowed {
+					slog.Info("OPTIONS preflight - allowed", "origin", origin)
 					w.WriteHeader(http.StatusNoContent)
 				} else {
-					slog.Warn("CORS preflight rejected", "origin", origin, "path", r.URL.Path)
+					slog.Info("CORS preflight rejected", "origin", origin, "path", r.URL.Path)
 					w.WriteHeader(http.StatusForbidden)
 				}
 				return
 			}
 
+			slog.Info("Calling next handler")
 			next.ServeHTTP(w, r)
+			slog.Info("🌐 CORS middleware EXIT")
 		})
 	}
 }

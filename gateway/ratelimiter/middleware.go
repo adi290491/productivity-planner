@@ -17,11 +17,38 @@ func Middleware(manager *RateLimiterManager, config *Config) func(http.Handler) 
 				return
 			}
 
+			if r.Method == http.MethodOptions {
+				next.ServeHTTP(w, r)
+				return
+			}
+
+			if r.URL.Path == "/health" {
+				next.ServeHTTP(w, r)
+				return
+			}
+
 			// Extract client IP
 			clientIP := extractClientIP(r)
 			key := "ip:" + clientIP
 
+			// Log BEFORE checking rate limit
+			currentTokens := manager.AvailableTokens(key)
+			slog.Info("Rate limit check START",
+				"ip", clientIP,
+				"path", r.URL.Path,
+				"method", r.Method,
+				"tokensBefore", currentTokens,
+			)
+
 			allowed, availableTokens := manager.AllowWithRemaining(key)
+
+			slog.Info("Rate limit check END",
+				"ip", clientIP,
+				"path", r.URL.Path,
+				"method", r.Method,
+				"allowed", allowed,
+				"tokensAfter", availableTokens,
+			)
 
 			// Set rate limit headers
 			w.Header().Set("X-RateLimit-Limit", fmt.Sprintf("%.0f", config.Capacity))

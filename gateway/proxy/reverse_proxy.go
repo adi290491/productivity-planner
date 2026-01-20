@@ -40,7 +40,24 @@ func NewReverseProxy(cfg ProxyConfig) (http.Handler, error) {
 			"method", req.Method,
 			"service", cfg.Service,
 			"target", targetURL.String(),
+			"fullURL", req.URL.String(),
 		)
+
+		proxy.ModifyResponse = func(resp *http.Response) error {
+			slog.Info("Received response from backend",
+				"service", cfg.Service,
+				"status", resp.StatusCode,
+				"contentLength", resp.ContentLength,
+			)
+			resp.Header.Del("Access-Control-Allow-Origin")
+			resp.Header.Del("Access-Control-Allow-Methods")
+			resp.Header.Del("Access-Control-Allow-Headers")
+			resp.Header.Del("Access-Control-Allow-Credentials")
+			resp.Header.Del("Access-Control-Max-Age")
+			resp.Header.Del("Access-Control-Expose-Headers")
+
+			return nil
+		}
 	}
 
 	// Custom error handler
@@ -61,6 +78,7 @@ func NewReverseProxy(cfg ProxyConfig) (http.Handler, error) {
 
 // Proxy for user service
 func NewUserServiceProxy(targetURL string) (http.Handler, error) {
+	slog.Info("Creating USER SERVICE PROXY")
 	return NewReverseProxy(ProxyConfig{
 		TargetURL: targetURL,
 		Service:   "user-service",
@@ -69,6 +87,7 @@ func NewUserServiceProxy(targetURL string) (http.Handler, error) {
 
 // Proxy for session service
 func NewSessionServiceProxy(targetURL string) (http.Handler, error) {
+	slog.Info("Creating SESSION SERVICE PROXY")
 	return NewReverseProxy(ProxyConfig{
 		TargetURL: targetURL,
 		Service:   "session-service",
@@ -77,6 +96,7 @@ func NewSessionServiceProxy(targetURL string) (http.Handler, error) {
 
 // Proxy for summary service
 func NewSummaryServiceProxy(targetURL string) (http.Handler, error) {
+	slog.Info("Creating SUMMARY SERVICE PROXY")
 	return NewReverseProxy(ProxyConfig{
 		TargetURL: targetURL,
 		Service:   "summary-service",
@@ -85,6 +105,7 @@ func NewSummaryServiceProxy(targetURL string) (http.Handler, error) {
 
 // Proxy for trend service
 func NewTrendServiceProxy(targetURL string) (http.Handler, error) {
+	slog.Info("Creating TREND SERVICE PROXY")
 	return NewReverseProxy(ProxyConfig{
 		TargetURL: targetURL,
 		Service:   "trend-service",
