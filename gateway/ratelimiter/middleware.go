@@ -29,11 +29,11 @@ func Middleware(manager *RateLimiterManager, config *Config) func(http.Handler) 
 			// 	"xri", r.Header.Get("X-Real-IP"),
 			// )
 			// // Check rate limit
-			allowed := manager.Allow(key)
+			// allowed := manager.Allow(key)
 
 			// // Get available tokens for headers
-			availableTokens := manager.AvailableTokens(key)
-			// allowed, availableTokens := manager.AllowWithRemaining(key)
+			// availableTokens := manager.AvailableTokens(key)
+			allowed, availableTokens := manager.AllowWithRemaining(key)
 
 			slog.Debug("Rate limit check",
 				"ip", clientIP,
