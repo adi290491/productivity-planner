@@ -1,6 +1,7 @@
 package ratelimiter
 
 import (
+	"log/slog"
 	"sync"
 	"time"
 )
@@ -64,11 +65,42 @@ func (tb *TokenBucket) refill() {
 
 	// add tokens but don't exceed capacity
 	tb.tokens = min(tb.tokens+tokensToAdd, tb.capacity)
-	
+
 	tb.lastRefill = now
 }
 
-// AvailableTokens returns the current number of availalbe tokens
+func (tb *TokenBucket) AllowWithRemaining() (allowed bool, remaining float64) {
+	tb.mu.Lock()
+	defer tb.mu.Unlock()
+
+	tokensBefore := tb.tokens
+	lastRefillBefore := tb.lastRefill
+
+	tb.refill()
+	tokensAfter := tb.tokens
+
+	slog.Info("🔍 AllowWithRemaining called",
+		"tokensBefore", tokensBefore,
+		"tokensAfterRefill", tokensAfter,
+		"timeSinceLastRefill", time.Since(lastRefillBefore),
+	)
+
+	if tb.tokens >= 1.0 {
+		tb.tokens -= 1.0
+		slog.Info("Token consumed",
+			"tokensRemaining", tb.tokens,
+		)
+		return true, tb.tokens
+	}
+
+	slog.Warn("No tokens available",
+		"tokensRemaining", tb.tokens,
+	)
+
+	return false, tb.tokens
+}
+
+// AvailableTokens returns the current number of available tokens
 // Useful for debugging and rate limit headers
 func (tb *TokenBucket) AvailableTokens() float64 {
 	tb.mu.Lock()

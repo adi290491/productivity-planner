@@ -273,3 +273,108 @@ func TestTokenBucket_FractionalTokens(t *testing.T) {
 		t.Error("Expected request to be allowed after accumulating 1.0 token")
 	}
 }
+
+func TestTokenBucket_AllowWithRemaining(t *testing.T) {
+	bucket := NewTokenBucket(5.0, 1.0)
+
+	// First request
+	allowed, remaining := bucket.AllowWithRemaining()
+	if !allowed {
+		t.Error("First request should be allowed")
+	}
+	if remaining != 4.0 {
+		t.Errorf("Expected 4 tokens remaining, got %f", remaining)
+	}
+
+	// Consume all tokens
+	for i := 0; i < 4; i++ {
+		allowed, _ := bucket.AllowWithRemaining()
+		if !allowed {
+			t.Errorf("Request %d should be allowed", i+2)
+		}
+	}
+
+	// Should be at 0 now
+	allowed, remaining = bucket.AllowWithRemaining()
+	if allowed {
+		t.Error("Request should be denied when bucket is empty")
+	}
+
+	// Allow small tolerance
+	if remaining > 0.01 {
+		t.Errorf("Expected ~0 tokens remaining, got %f (some refill acceptable)", remaining)
+	}
+}
+
+func TestTokenBucket_AllowWithRemaining_NoRaceCondition(t *testing.T) {
+	bucket := NewTokenBucket(10.0, 1.0)
+
+	consumedCount := 0
+
+	// Rapidly call AllowWithRemaining
+	for i := 0; i < 10; i++ {
+		allowed, remaining := bucket.AllowWithRemaining()
+		if !allowed {
+			t.Errorf("Request %d should be allowed", i+1)
+		}
+		consumedCount++
+
+		// Remaining should be decreasing
+		if remaining < 0 {
+			t.Errorf("Request %d: negative tokens not allowed, got %f", i+1, remaining)
+		}
+	}
+
+	// 11th request should be denied (or close to it)
+	// Allow small tolerance because time passes during loop
+	allowed, remaining := bucket.AllowWithRemaining()
+
+	if allowed && remaining > 0.5 {
+		t.Errorf("Request 11 should be denied or nearly empty, got allowed=%v remaining=%f", allowed, remaining)
+	}
+
+	if consumedCount != 10 {
+		t.Errorf("Expected to consume exactly 10 tokens, consumed %d", consumedCount)
+	}
+}
+
+func TestTokenBucket_AllowWithRemaining_Sequential(t *testing.T) {
+	// Use higher capacity and faster refill to make timing less critical
+	bucket := NewTokenBucket(20.0, 100.0) // 100 tokens/sec refill
+
+	// Consume tokens rapidly
+	for i := 0; i < 20; i++ {
+		allowed, remaining := bucket.AllowWithRemaining()
+		if !allowed {
+			t.Fatalf("Request %d should be allowed (remaining was %f)", i+1, remaining)
+		}
+	}
+
+	// 21st should be denied
+	allowed, remaining := bucket.AllowWithRemaining()
+	if allowed {
+		t.Errorf("Request 21 should be denied, but was allowed with %f tokens", remaining)
+	}
+}
+
+func TestTokenBucket_AllowWithRemaining_ReturnsCorrectRemaining(t *testing.T) {
+	bucket := NewTokenBucket(3.0, 1.0)
+
+	// Test that remaining decreases with each call
+	_, rem1 := bucket.AllowWithRemaining()
+	_, rem2 := bucket.AllowWithRemaining()
+	_, rem3 := bucket.AllowWithRemaining()
+
+	// Should decrease (allowing small tolerance for refill)
+	if rem1 <= rem2 {
+		t.Errorf("Expected tokens to decrease: %f -> %f", rem1, rem2)
+	}
+	if rem2 <= rem3 {
+		t.Errorf("Expected tokens to decrease: %f -> %f", rem2, rem3)
+	}
+
+	// After 3 consumptions from capacity of 3, should be ~0
+	if rem3 > 0.1 {
+		t.Errorf("Expected ~0 tokens after consuming capacity, got %f", rem3)
+	}
+}

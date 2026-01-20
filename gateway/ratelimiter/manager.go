@@ -85,6 +85,11 @@ func (m *RateLimiterManager) AllowN(key string, n int) bool {
 	return bucket.AllowN(n)
 }
 
+func (m *RateLimiterManager) AllowWithRemaining(key string) (allowed bool, remaining float64) {
+	bucket := m.GetLimiter(key)
+	return bucket.AllowWithRemaining()
+}
+
 // AvailableTokens return the number of available tokens for a key
 func (m *RateLimiterManager) AvailableTokens(key string) float64 {
 	bucket := m.GetLimiter(key)
