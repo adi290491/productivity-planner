@@ -42,22 +42,22 @@ func NewReverseProxy(cfg ProxyConfig) (http.Handler, error) {
 			"target", targetURL.String(),
 			"fullURL", req.URL.String(),
 		)
+	}
 
-		proxy.ModifyResponse = func(resp *http.Response) error {
-			slog.Info("Received response from backend",
-				"service", cfg.Service,
-				"status", resp.StatusCode,
-				"contentLength", resp.ContentLength,
-			)
-			resp.Header.Del("Access-Control-Allow-Origin")
-			resp.Header.Del("Access-Control-Allow-Methods")
-			resp.Header.Del("Access-Control-Allow-Headers")
-			resp.Header.Del("Access-Control-Allow-Credentials")
-			resp.Header.Del("Access-Control-Max-Age")
-			resp.Header.Del("Access-Control-Expose-Headers")
+	proxy.ModifyResponse = func(resp *http.Response) error {
+		slog.Info("Received response from backend",
+			"service", cfg.Service,
+			"status", resp.StatusCode,
+			"contentLength", resp.ContentLength,
+		)
+		resp.Header.Del("Access-Control-Allow-Origin")
+		resp.Header.Del("Access-Control-Allow-Methods")
+		resp.Header.Del("Access-Control-Allow-Headers")
+		resp.Header.Del("Access-Control-Allow-Credentials")
+		resp.Header.Del("Access-Control-Max-Age")
+		resp.Header.Del("Access-Control-Expose-Headers")
 
-			return nil
-		}
+		return nil
 	}
 
 	// Custom error handler

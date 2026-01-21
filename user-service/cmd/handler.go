@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"log"
+	"log/slog"
 	"net/http"
 	"sync"
 	"sync/atomic"
@@ -25,7 +25,8 @@ var (
 )
 
 func (h *Handler) Signup(c *gin.Context) {
-	log.Println("--------Called Signup function---------")
+	slog.Info("Signup request received")
+
 	var req user.SignupDTO
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -36,8 +37,12 @@ func (h *Handler) Signup(c *gin.Context) {
 	user, err := h.Svc.Signup(req)
 
 	if err != nil {
-		log.Println("--------Error on Signup---------")
-		log.Printf("Signup failed method=%s path=%s ip=%s err=%v", c.Request.Method, c.FullPath(), c.ClientIP(), err)
+		slog.Error("Signup failed",
+			"method", c.Request.Method,
+			"path", c.FullPath(),
+			"ip", c.ClientIP(),
+			"error", err,
+		)
 		HandleError(c, err, 500)
 		return
 	}
@@ -52,28 +57,43 @@ func (h *Handler) Signup(c *gin.Context) {
 }
 
 func (h *Handler) Login(c *gin.Context) {
-	log.Println("--------Called Login function---------")
+	slog.Info("Login request received")
+
 	var req user.LoginRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
+		slog.Error("Failed to parse login request", "error", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
 		return
 	}
 
+	slog.Debug("Attempting login", "email", req.Email)
+
 	user, err := h.Svc.Login(req)
 
 	if err != nil {
+		slog.Error("Login service failed",
+			"email", req.Email,
+			"error", err,
+		)
 		HandleError(c, err, 400)
 		return
 	}
 
+	slog.Debug("Login successful, generating token", "userId", user.ID)
+
 	token, err := h.JwtUtil.GenerateToken(user)
 
 	if err != nil {
+		slog.Error("Token generation failed",
+			"userId", user.ID,
+			"error", err,
+		)
 		HandleError(c, err, 500)
 		return
 	}
 
+	slog.Info("Login completed successfully", "userId", user.ID)
 	c.JSON(http.StatusOK, gin.H{"token": token})
 }
 
@@ -101,7 +121,6 @@ func (h *Handler) GetUsersBatch(c *gin.Context) {
 }
 
 func (h *Handler) HealthCheck(c *gin.Context) {
-
 	if dbInitialized.Load() {
 		c.JSON(http.StatusOK, gin.H{
 			"status":    "healthy",

@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"log"
+	"log/slog"
 	"time"
 
 	"github.com/adi290491/productivity-planner/user-service/config"
@@ -11,8 +11,8 @@ import (
 )
 
 func InitDB(appConfig *config.AppConfig) error {
-	log.Println("---------Initializing Database----------")
-	// log.Printf("DSN: %s", appConfig.DSN)
+	slog.Info("Initializing Database")
+
 	if appConfig == nil {
 		return fmt.Errorf("InitDB: appConfig is nil")
 	}
@@ -20,8 +20,8 @@ func InitDB(appConfig *config.AppConfig) error {
 	if appConfig.DSN == "" {
 		return fmt.Errorf("InitDB: DSN is empty")
 	}
-	db, err := gorm.Open(postgres.Open(appConfig.DSN), &gorm.Config{})
 
+	db, err := gorm.Open(postgres.Open(appConfig.DSN), &gorm.Config{})
 	if err != nil {
 		return fmt.Errorf("open db: %w", err)
 	}
@@ -42,7 +42,7 @@ func InitDB(appConfig *config.AppConfig) error {
 		return fmt.Errorf("ping db: %w", err)
 	}
 
-	log.Printf("Database connection successful")
+	slog.Info("Database connection successful")
 	appConfig.DB = db
 	return nil
 }

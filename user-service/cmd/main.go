@@ -2,7 +2,7 @@ package main
 
 import (
 	"context"
-	"log"
+	"log/slog"
 	"net/http"
 	"os"
 	"os/signal"
@@ -15,57 +15,65 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+func init() {
+	setupLogging()
+}
+
 func main() {
-
 	appConfig, err := config.Load()
-
 	if err != nil {
-		log.Fatalf("Application stopped due to error: %v", err)
+		slog.Error("Application stopped due to error", "error", err)
+		os.Exit(1)
 	}
 
 	if appConfig.Profile == "prod" {
 		gin.SetMode(gin.ReleaseMode)
 	}
+
+	slog.Info("Starting user-service",
+		"profile", appConfig.Profile,
+		"port", appConfig.Port,
+	)
+
+	// CRITICAL FIX: Initialize database BEFORE starting server
+	slog.Info("Starting database initialization...")
+	if err := InitDB(appConfig); err != nil {
+		slog.Error("Database initialization failed", "error", err)
+		os.Exit(1)
+	}
+	dbInitialized.Store(true)
+	slog.Info("Database initialization complete")
+
+	// Create service with initialized DB
+	svc := &user.UserService{
+		Repo: &models.PostgresRepository{
+			DB: appConfig.DB,
+		},
+	}
+
+	handler := &Handler{
+		Svc: svc,
+		JwtUtil: utils.JWTUtil{
+			Secret: []byte(appConfig.JWT_SECRET),
+		},
+	}
+
+	// Create server and register ALL endpoints BEFORE starting
 	server := gin.Default()
-
-	go func() {
-		log.Println("Starting database initialization...")
-		if err := InitDB(appConfig); err != nil {
-			log.Fatalf("Database initialization failed: %v", err)
-		}
-
-		svc := &user.UserService{
-			Repo: &models.PostgresRepository{
-				DB: appConfig.DB,
-			},
-		}
-		handler := &Handler{Svc: svc,
-			JwtUtil: utils.JWTUtil{
-				Secret: []byte(appConfig.JWT_SECRET),
-			},
-		}
-
-		RegisterEndpoints(server, handler)
-		dbInitialized.Store(true)
-		log.Println("Database initialization complete, service ready")
-
-	}()
+	RegisterEndpoints(server, handler)
 
 	s := &http.Server{
-		Addr:         "0.0.0.0:" + appConfig.Port,
+		Addr:         ":" + appConfig.Port,
 		ReadTimeout:  appConfig.ReadTimeout,
 		WriteTimeout: appConfig.WriteTimeout,
 		Handler:      server,
 	}
 
-	// if err := s.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-	// 	log.Fatalf("Server failed: %v", err)
-	// }
-
 	go func() {
-		log.Println("Server running on port", appConfig.Port)
+		slog.Info("Server listening", "port", appConfig.Port)
 		if err := s.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			log.Fatalf("listen: %s\n", err)
+			slog.Error("Server failed", "error", err)
+			os.Exit(1)
 		}
 	}()
 
@@ -73,15 +81,34 @@ func main() {
 	signal.Notify(quit, os.Interrupt)
 	<-quit
 
-	log.Println("Shutting down...")
+	slog.Info("Shutting down server...")
 
-	//Graceful shutdown with timeout
+	// Graceful shutdown with timeout
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	if err := s.Shutdown(ctx); err != nil {
-		log.Fatal("Server forced to shutdown:", err)
+		slog.Error("Server forced to shutdown", "error", err)
+		os.Exit(1)
 	}
-	log.Println("Server Exiting")
 
+	slog.Info("Server stopped gracefully")
+}
+
+func setupLogging() {
+	profile := os.Getenv("PROFILE")
+
+	var logger *slog.Logger
+	if profile == "prod" {
+		logger = slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
+			Level:     slog.LevelInfo,
+			AddSource: false,
+		}))
+	} else {
+		logger = slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
+			Level: slog.LevelDebug,
+		}))
+	}
+
+	slog.SetDefault(logger)
 }

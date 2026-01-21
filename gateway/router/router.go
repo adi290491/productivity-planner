@@ -17,8 +17,8 @@ func NewRouter(cfg *config.AppConfig, rateLimiterMgr *ratelimiter.RateLimiterMan
 	mux := http.NewServeMux()
 
 	// Middleware setup
-	corsMiddleware := middleware.CorsMiddleware()
-	rateLimitMiddleware := ratelimiter.Middleware(rateLimiterMgr, rateLimitCfg)
+
+	// rateLimitMiddleware := ratelimiter.Middleware(rateLimiterMgr, rateLimitCfg)
 	jwtMiddleware := middleware.JWTMiddleware(cfg)
 
 	// Service URLs from env
@@ -40,40 +40,35 @@ func NewRouter(cfg *config.AppConfig, rateLimiterMgr *ratelimiter.RateLimiterMan
 
 	// Public routes
 	// user-service
-	mux.Handle("/users/", middleware.Chain(
-		userHandler,
-		corsMiddleware,
-		// rateLimitMiddleware,
-	))
+	mux.Handle("/users/", userHandler)
 
 	// JWT protected routes
-	// session-service
+	// // session-service
 	mux.Handle("/sessions/", middleware.Chain(
 		sessionHandler,
-		corsMiddleware,
-		rateLimitMiddleware,
 		jwtMiddleware,
 	))
 
-	// JWT protected routes
-	// summary service
+	// // JWT protected routes
+	// // summary service
 	mux.Handle("/summary/", middleware.Chain(
 		summaryHandler,
-		corsMiddleware,
-		rateLimitMiddleware,
 		jwtMiddleware,
 	))
 
-	// JWT protected routes
-	// trend-service
+	// // JWT protected routes
+	// // trend-service
 	mux.Handle("/trend/", middleware.Chain(
 		trendHandler,
-		corsMiddleware,
-		rateLimitMiddleware,
 		jwtMiddleware,
 	))
 
-	return mux
+	corsMiddleware := middleware.CorsMiddleware()
+	rateLimitMiddleware := ratelimiter.Middleware(rateLimiterMgr, rateLimitCfg)
+	handler := corsMiddleware(mux)
+	handler = rateLimitMiddleware(handler)
+
+	return handler
 
 }
 
