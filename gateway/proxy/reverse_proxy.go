@@ -8,6 +8,8 @@ import (
 	"net/http/httputil"
 	"net/url"
 	"os"
+
+	"google.golang.org/api/idtoken"
 )
 
 // ProxyConfig holds configuration for reverse proxy
@@ -36,7 +38,18 @@ func NewReverseProxy(cfg ProxyConfig) (http.Handler, error) {
 			"service", cfg.Service,
 		)
 
-		transport, err := NewAuthenticatedTransport(cfg.TargetURL)
+		// transport, err := NewAuthenticatedTransport(cfg.TargetURL)
+		// if err != nil {
+		// 	slog.Warn("Failed to create authenticated transport, falling back to default",
+		// 		"service", cfg.Service,
+		// 		"error", err,
+		// 	)
+		// 	proxy.Transport = http.DefaultTransport
+		// } else {
+		// 	proxy.Transport = transport
+		// }
+		ctx := context.Background()
+		client, err := idtoken.NewClient(ctx, cfg.TargetURL)
 		if err != nil {
 			slog.Warn("Failed to create authenticated transport, falling back to default",
 				"service", cfg.Service,
@@ -44,7 +57,10 @@ func NewReverseProxy(cfg ProxyConfig) (http.Handler, error) {
 			)
 			proxy.Transport = http.DefaultTransport
 		} else {
-			proxy.Transport = transport
+			proxy.Transport = client.Transport
+			slog.Info("Using idtoken authenticated client",
+				"service", cfg.Service,
+			)
 		}
 	} else {
 		slog.Info("Running in local environment - disabling authentication",
