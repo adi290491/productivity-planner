@@ -7,12 +7,37 @@ import (
 	"log/slog"
 	"net/http"
 	"net/http/httptest"
+	"net/http/httputil"
 	"testing"
+	"time"
 )
 
 func init() {
 	// Suppress logs during tests
 	slog.SetDefault(slog.New(slog.NewTextHandler(io.Discard, nil)))
+}
+
+// createTestProxy creates a proxy with mocked authentication for testing
+func createTestProxy(targetURL, service string) (http.Handler, error) {
+	proxy, err := NewReverseProxy(ProxyConfig{
+		TargetURL: targetURL,
+		Service:   service,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	// Mock the token fetcher to avoid needing real Google Cloud credentials
+	// This is safe because httptest servers don't check authentication
+	if reverseProxy, ok := proxy.(*httputil.ReverseProxy); ok {
+		if transport, ok := reverseProxy.Transport.(*AuthenticatedTransport); ok {
+			transport.tokenFetcher = func(ctx context.Context, audience string) (string, time.Time, error) {
+				return "test-token", time.Now().Add(1 * time.Hour), nil
+			}
+		}
+	}
+
+	return proxy, nil
 }
 
 func TestNewReverseProxy_ValidURL(t *testing.T) {
@@ -23,10 +48,7 @@ func TestNewReverseProxy_ValidURL(t *testing.T) {
 	}))
 	defer backend.Close()
 
-	proxy, err := NewReverseProxy(ProxyConfig{
-		TargetURL: backend.URL,
-		Service:   "test-service",
-	})
+	proxy, err := createTestProxy(backend.URL, "test-service")
 
 	if err != nil {
 		t.Fatalf("Failed to create proxy: %v", err)
@@ -64,10 +86,7 @@ func TestNewReverseProxy_ForwardsRequest(t *testing.T) {
 	}))
 	defer backend.Close()
 
-	proxy, err := NewReverseProxy(ProxyConfig{
-		TargetURL: backend.URL,
-		Service:   "test-service",
-	})
+	proxy, err := createTestProxy(backend.URL, "test-service")
 	if err != nil {
 		t.Fatalf("Failed to create proxy: %v", err)
 	}
@@ -99,19 +118,40 @@ func TestNewReverseProxy_ForwardsRequest(t *testing.T) {
 	}
 }
 
-func TestNewReverseProxy_AddsUserIDHeader(t *testing.T) {
-	var receivedUserID string
+func TestNewReverseProxy_AddsAuthorizationHeader(t *testing.T) {
+	var receivedAuth string
 
 	backend := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		receivedUserID = r.Header.Get("X-USER-ID")
+		receivedAuth = r.Header.Get("Authorization")
 		w.WriteHeader(http.StatusOK)
 	}))
 	defer backend.Close()
 
-	proxy, err := NewReverseProxy(ProxyConfig{
-		TargetURL: backend.URL,
-		Service:   "test-service",
-	})
+	proxy, err := createTestProxy(backend.URL, "test-service")
+	if err != nil {
+		t.Fatalf("Failed to create proxy: %v", err)
+	}
+
+	req := httptest.NewRequest("GET", "/test", nil)
+	w := httptest.NewRecorder()
+	proxy.ServeHTTP(w, req)
+
+	// Check Authorization header was added
+	if receivedAuth != "Bearer test-token" {
+		t.Errorf("Expected Authorization: Bearer test-token, got %s", receivedAuth)
+	}
+}
+
+func TestNewReverseProxy_AddsUserIDHeader(t *testing.T) {
+	var receivedUserID string
+
+	backend := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		receivedUserID = r.Header.Get("X-User-ID")
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer backend.Close()
+
+	proxy, err := createTestProxy(backend.URL, "test-service")
 	if err != nil {
 		t.Fatalf("Failed to create proxy: %v", err)
 	}
@@ -124,9 +164,9 @@ func TestNewReverseProxy_AddsUserIDHeader(t *testing.T) {
 	w := httptest.NewRecorder()
 	proxy.ServeHTTP(w, req)
 
-	// Check X-USER-ID was added
+	// Check X-User-ID was added
 	if receivedUserID != "user123" {
-		t.Errorf("Expected X-USER-ID: user123, backend received %s", receivedUserID)
+		t.Errorf("Expected X-User-ID: user123, backend received %s", receivedUserID)
 	}
 }
 
@@ -134,15 +174,12 @@ func TestNewReverseProxy_NoUserIDInContext(t *testing.T) {
 	var receivedUserID string
 
 	backend := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		receivedUserID = r.Header.Get("X-USER-ID")
+		receivedUserID = r.Header.Get("X-User-ID")
 		w.WriteHeader(http.StatusOK)
 	}))
 	defer backend.Close()
 
-	proxy, err := NewReverseProxy(ProxyConfig{
-		TargetURL: backend.URL,
-		Service:   "test-service",
-	})
+	proxy, err := createTestProxy(backend.URL, "test-service")
 	if err != nil {
 		t.Fatalf("Failed to create proxy: %v", err)
 	}
@@ -153,18 +190,40 @@ func TestNewReverseProxy_NoUserIDInContext(t *testing.T) {
 	w := httptest.NewRecorder()
 	proxy.ServeHTTP(w, req)
 
-	// X-USER-ID should not be set
+	// X-User-ID should not be set
 	if receivedUserID != "" {
-		t.Errorf("Expected no X-USER-ID header, but got %s", receivedUserID)
+		t.Errorf("Expected no X-User-ID header, but got %s", receivedUserID)
+	}
+}
+
+func TestNewReverseProxy_StripsCORSHeaders(t *testing.T) {
+	backend := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Backend sets CORS headers
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer backend.Close()
+
+	proxy, err := createTestProxy(backend.URL, "test-service")
+	if err != nil {
+		t.Fatalf("Failed to create proxy: %v", err)
+	}
+
+	req := httptest.NewRequest("GET", "/test", nil)
+	w := httptest.NewRecorder()
+	proxy.ServeHTTP(w, req)
+
+	// CORS headers should be stripped
+	if w.Header().Get("Access-Control-Allow-Origin") != "" {
+		t.Error("Expected CORS headers to be stripped")
 	}
 }
 
 func TestNewReverseProxy_ErrorHandler(t *testing.T) {
 	// Create a proxy pointing to a non-existent backend
-	proxy, err := NewReverseProxy(ProxyConfig{
-		TargetURL: "http://localhost:99999", // Invalid port
-		Service:   "test-service",
-	})
+	proxy, err := createTestProxy("http://localhost:99999", "test-service")
 	if err != nil {
 		t.Fatalf("Failed to create proxy: %v", err)
 	}
@@ -201,6 +260,24 @@ func TestNewUserServiceProxy(t *testing.T) {
 
 	if proxy == nil {
 		t.Fatal("Expected non-nil proxy")
+	}
+
+	// Mock the token fetcher
+	if reverseProxy, ok := proxy.(*httputil.ReverseProxy); ok {
+		if transport, ok := reverseProxy.Transport.(*AuthenticatedTransport); ok {
+			transport.tokenFetcher = func(ctx context.Context, audience string) (string, time.Time, error) {
+				return "test-token", time.Now().Add(1 * time.Hour), nil
+			}
+		}
+	}
+
+	// Test it works
+	req := httptest.NewRequest("GET", "/test", nil)
+	w := httptest.NewRecorder()
+	proxy.ServeHTTP(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Errorf("Expected status 200, got %d", w.Code)
 	}
 }
 

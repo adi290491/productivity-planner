@@ -7,8 +7,6 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
-
-	"google.golang.org/api/idtoken"
 )
 
 // ProxyConfig holds configuration for reverse proxy
@@ -23,17 +21,15 @@ func NewReverseProxy(cfg ProxyConfig) (http.Handler, error) {
 		return nil, fmt.Errorf("invalid target URL %s: %w", cfg.TargetURL, err)
 	}
 
-	// Create authenticated HTTP client with identity token
-	ctx := context.Background()
-	client, err := idtoken.NewClient(ctx, cfg.TargetURL)
+	transport, err := NewAuthenticatedTransport(cfg.TargetURL)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create authenticated client for %s: %w", cfg.TargetURL, err)
+		return nil, fmt.Errorf("failed to create authenticated transport for %s: %w", cfg.TargetURL, err)
 	}
 
 	proxy := httputil.NewSingleHostReverseProxy(targetURL)
 
 	// Use authenticated client instead of default transport
-	proxy.Transport = client.Transport
+	proxy.Transport = transport
 
 	// Customize the Director to modify outbound requests
 	originalDirector := proxy.Director
