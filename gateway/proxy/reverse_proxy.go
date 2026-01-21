@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"os"
 )
 
 // ProxyConfig holds configuration for reverse proxy
@@ -15,21 +16,43 @@ type ProxyConfig struct {
 	Service   string
 }
 
+func useCloudAuth() bool {
+	if os.Getenv("USE_CLOUD_AUTH") == "true" {
+		return true
+	}
+	return false
+}
+
 func NewReverseProxy(cfg ProxyConfig) (http.Handler, error) {
 	targetURL, err := url.Parse(cfg.TargetURL)
 	if err != nil {
 		return nil, fmt.Errorf("invalid target URL %s: %w", cfg.TargetURL, err)
 	}
 
-	transport, err := NewAuthenticatedTransport(cfg.TargetURL)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create authenticated transport for %s: %w", cfg.TargetURL, err)
-	}
-
 	proxy := httputil.NewSingleHostReverseProxy(targetURL)
 
-	// Use authenticated client instead of default transport
-	proxy.Transport = transport
+	if useCloudAuth() {
+		slog.Info("Running in cloud environment - enabling authentication",
+			"service", cfg.Service,
+		)
+
+		transport, err := NewAuthenticatedTransport(cfg.TargetURL)
+		if err != nil {
+			slog.Warn("Failed to create authenticated transport, falling back to default",
+				"service", cfg.Service,
+				"error", err,
+			)
+			proxy.Transport = http.DefaultTransport
+		} else {
+			proxy.Transport = transport
+		}
+	} else {
+		slog.Info("Running in local environment - disabling authentication",
+			"service", cfg.Service,
+		)
+
+		proxy.Transport = http.DefaultTransport
+	}
 
 	// Customize the Director to modify outbound requests
 	originalDirector := proxy.Director

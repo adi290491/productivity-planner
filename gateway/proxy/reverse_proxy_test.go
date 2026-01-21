@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/http/httputil"
+	"os"
 	"testing"
 	"time"
 )
@@ -119,6 +120,11 @@ func TestNewReverseProxy_ForwardsRequest(t *testing.T) {
 }
 
 func TestNewReverseProxy_AddsAuthorizationHeader(t *testing.T) {
+	// Force cloud mode for this test
+	originalUseCloudAuth := os.Getenv("USE_CLOUD_AUTH")
+	os.Setenv("USE_CLOUD_AUTH", "true")
+	defer os.Setenv("USE_CLOUD_AUTH", originalUseCloudAuth)
+
 	var receivedAuth string
 
 	backend := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -262,16 +268,9 @@ func TestNewUserServiceProxy(t *testing.T) {
 		t.Fatal("Expected non-nil proxy")
 	}
 
-	// Mock the token fetcher
-	if reverseProxy, ok := proxy.(*httputil.ReverseProxy); ok {
-		if transport, ok := reverseProxy.Transport.(*AuthenticatedTransport); ok {
-			transport.tokenFetcher = func(ctx context.Context, audience string) (string, time.Time, error) {
-				return "test-token", time.Now().Add(1 * time.Hour), nil
-			}
-		}
-	}
-
-	// Test it works
+	// In local mode, no authentication is used
+	// In cloud mode, we'd need to mock the token fetcher
+	// For this basic test, just verify the proxy works
 	req := httptest.NewRequest("GET", "/test", nil)
 	w := httptest.NewRecorder()
 	proxy.ServeHTTP(w, req)
@@ -363,5 +362,130 @@ func TestGetUserIDFromContext_Interface(t *testing.T) {
 
 	if result != "user456" {
 		t.Errorf("Expected userID 'user456', got %s", result)
+	}
+}
+
+func TestIsRunningInCloud(t *testing.T) {
+	// This test modifies environment variables, so run it serially
+	if testing.Short() {
+		t.Skip("Skipping in short mode")
+	}
+
+	// Save original env vars
+	originalUseCloudAuth := os.Getenv("USE_CLOUD_AUTH")
+
+	// Clean up after test
+	defer func() {
+
+		os.Setenv("USE_CLOUD_AUTH", originalUseCloudAuth)
+
+	}()
+
+	tests := []struct {
+		name     string
+		envVars  map[string]string
+		expected bool
+	}{
+		{
+			name:     "No cloud env vars",
+			envVars:  map[string]string{},
+			expected: false,
+		},
+		{
+			name: "USE_CLOUD_AUTH override",
+			envVars: map[string]string{
+				"USE_CLOUD_AUTH": "true",
+			},
+			expected: true,
+		},
+	}
+
+	for _, tt := range tests {
+		// Run each subtest sequentially, not in parallel
+		t.Run(tt.name, func(t *testing.T) {
+			// Clear all cloud env vars
+			os.Unsetenv("USE_CLOUD_AUTH")
+
+			// Set test env vars
+			for k, v := range tt.envVars {
+				os.Setenv(k, v)
+			}
+
+			result := useCloudAuth()
+			if result != tt.expected {
+				t.Errorf("isRunningInCloud() = %v, want %v", result, tt.expected)
+			}
+		})
+	}
+}
+
+func TestNewReverseProxy_LocalEnvironment(t *testing.T) {
+	// Ensure we're in "local" mode
+	originalKService := os.Getenv("K_SERVICE")
+	originalUseCloudAuth := os.Getenv("USE_CLOUD_AUTH")
+	os.Unsetenv("K_SERVICE")
+	os.Unsetenv("USE_CLOUD_AUTH")
+	defer func() {
+		os.Setenv("K_SERVICE", originalKService)
+		os.Setenv("USE_CLOUD_AUTH", originalUseCloudAuth)
+	}()
+
+	backend := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// In local mode, no Authorization header should be present
+		auth := r.Header.Get("Authorization")
+		if auth != "" {
+			t.Errorf("Expected no Authorization header in local mode, got %s", auth)
+		}
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer backend.Close()
+
+	proxy, err := NewReverseProxy(ProxyConfig{
+		TargetURL: backend.URL,
+		Service:   "test-service",
+	})
+	if err != nil {
+		t.Fatalf("Failed to create proxy: %v", err)
+	}
+
+	req := httptest.NewRequest("GET", "/test", nil)
+	w := httptest.NewRecorder()
+	proxy.ServeHTTP(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Errorf("Expected status 200, got %d", w.Code)
+	}
+}
+
+func TestNewReverseProxy_CloudEnvironment(t *testing.T) {
+	// Force cloud mode
+	originalUseCloudAuth := os.Getenv("USE_CLOUD_AUTH")
+	os.Setenv("USE_CLOUD_AUTH", "true")
+	defer os.Setenv("USE_CLOUD_AUTH", originalUseCloudAuth)
+
+	var receivedAuth string
+
+	backend := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		receivedAuth = r.Header.Get("Authorization")
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer backend.Close()
+
+	proxy, err := createTestProxy(backend.URL, "test-service")
+	if err != nil {
+		t.Fatalf("Failed to create proxy: %v", err)
+	}
+
+	req := httptest.NewRequest("GET", "/test", nil)
+	w := httptest.NewRecorder()
+	proxy.ServeHTTP(w, req)
+
+	// In cloud mode, Authorization header should be present
+	if receivedAuth != "Bearer test-token" {
+		t.Errorf("Expected Authorization: Bearer test-token in cloud mode, got %s", receivedAuth)
+	}
+
+	if w.Code != http.StatusOK {
+		t.Errorf("Expected status 200, got %d", w.Code)
 	}
 }
