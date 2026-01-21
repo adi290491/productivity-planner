@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"net"
 	"net/http"
 	"sync"
 	"time"
@@ -75,8 +76,21 @@ func NewAuthenticatedTransport(audience string, opts ...TransportOption) (*Authe
 		return nil, fmt.Errorf("audience cannot be empty")
 	}
 
+	baseTransport := &http.Transport{
+		Proxy: http.ProxyFromEnvironment,
+		DialContext: (&net.Dialer{
+			Timeout:   30 * time.Second,
+			KeepAlive: 30 * time.Second,
+		}).DialContext,
+		ForceAttemptHTTP2:     true,
+		MaxIdleConns:          100,
+		IdleConnTimeout:       90 * time.Second,
+		TLSHandshakeTimeout:   10 * time.Second,
+		ExpectContinueTimeout: 1 * time.Second,
+	}
+
 	t := &AuthenticatedTransport{
-		base:         http.DefaultTransport,
+		base:         baseTransport,
 		audience:     audience,
 		expiryBuffer: 5 * time.Minute,
 		fetchTimeout: 10 * time.Second,
