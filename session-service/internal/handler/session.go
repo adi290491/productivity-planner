@@ -117,6 +117,11 @@ func (h *Handler) StopSession(w http.ResponseWriter, r *http.Request) {
 
 // HealthCheck handles GET /health
 func (h *Handler) HealthCheck(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		httperr.WriteError(w, fmt.Errorf("method not allowed"), http.StatusMethodNotAllowed)
+		return
+	}
+
 	response := map[string]interface{}{
 		"status":  "healthy",
 		"service": "session-service",
@@ -126,6 +131,10 @@ func (h *Handler) HealthCheck(w http.ResponseWriter, r *http.Request) {
 
 // ReadyCheck handles GET /ready
 func (h *Handler) ReadyCheck(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		httperr.WriteError(w, fmt.Errorf("method not allowed"), http.StatusMethodNotAllowed)
+		return
+	}
 	response := map[string]string{
 		"status": "ready",
 	}
