@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS sessions (
     end_time TIMESTAMP
 );
 
--- User for CreateSession test
+-- Test users
 INSERT INTO users (id, email, name, password_hash, created_at)
 VALUES (
   'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
@@ -26,7 +26,6 @@ VALUES (
   NOW()
 );
 
--- User for StopSession test
 INSERT INTO users (id, email, name, password_hash, created_at)
 VALUES (
   'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
@@ -36,7 +35,6 @@ VALUES (
   NOW()
 );
 
--- User for StopSession negative test
 INSERT INTO users (id, email, name, password_hash, created_at)
 VALUES (
   'cccccccc-cccc-cccc-cccc-cccccccccccc',

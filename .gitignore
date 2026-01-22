@@ -43,3 +43,11 @@ scripts/run-daily-trend-worker.sh
 scripts/run-weekly-trend-worker.sh
 
 *.old
+
+session-service-new/**
+session-service-backup/**
+session-service-refactored**
+
+gateway.yaml
+user-service.yaml
+test_script.sh

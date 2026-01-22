@@ -54,8 +54,6 @@ func TestLoad_DefaultPortAndSSLMode(t *testing.T) {
 		os.Unsetenv("DB_NAME")
 		os.Unsetenv("DB_USERNAME")
 		os.Unsetenv("DB_PASSWORD")
-		os.Unsetenv("DB_SSLMODE")
-		os.Unsetenv("PORT")
 	}()
 
 	cfg := Load()
