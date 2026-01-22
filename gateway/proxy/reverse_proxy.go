@@ -8,6 +8,7 @@ import (
 	"net/http/httputil"
 	"net/url"
 	"os"
+	"strconv"
 
 	"google.golang.org/api/idtoken"
 )
@@ -19,10 +20,17 @@ type ProxyConfig struct {
 }
 
 func useCloudAuth() bool {
-	if os.Getenv("USE_CLOUD_AUTH") == "true" {
-		return true
+	useCloudAuth := os.Getenv("USE_CLOUD_AUTH")
+	if useCloudAuth == "" {
+		return false
 	}
-	return false
+
+	boolVal, err := strconv.ParseBool(useCloudAuth)
+
+	if err != nil {
+		return false
+	}
+	return boolVal
 }
 
 func NewReverseProxy(cfg ProxyConfig) (http.Handler, error) {
@@ -48,19 +56,23 @@ func NewReverseProxy(cfg ProxyConfig) (http.Handler, error) {
 		// } else {
 		// 	proxy.Transport = transport
 		// }
-		ctx := context.Background()
-		client, err := idtoken.NewClient(ctx, cfg.TargetURL)
-		if err != nil {
-			slog.Warn("Failed to create authenticated transport, falling back to default",
-				"service", cfg.Service,
-				"error", err,
-			)
-			proxy.Transport = http.DefaultTransport
-		} else {
-			proxy.Transport = client.Transport
-			slog.Info("Using idtoken authenticated client",
-				"service", cfg.Service,
-			)
+		// ctx := context.Background()
+		// client, err := idtoken.NewClient(ctx, cfg.TargetURL)
+		// if err != nil {
+		// 	slog.Warn("Failed to create authenticated transport, falling back to default",
+		// 		"service", cfg.Service,
+		// 		"error", err,
+		// 	)
+		// 	proxy.Transport = http.DefaultTransport
+		// } else {
+		// 	proxy.Transport = client.Transport
+		// 	slog.Info("Using idtoken authenticated client",
+		// 		"service", cfg.Service,
+		// 	)
+		// }
+		proxy.Transport = &perRequestAuthTransport{
+			targetURL: cfg.TargetURL,
+			service:   cfg.Service,
 		}
 	} else {
 		slog.Info("Running in local environment - disabling authentication",
@@ -76,17 +88,20 @@ func NewReverseProxy(cfg ProxyConfig) (http.Handler, error) {
 		// Call original director
 		originalDirector(req)
 
+		req.Host = targetURL.Host
+		req.Header.Set("Host", targetURL.Host)
+
 		// Add custom header
 		// Extract userId from context
 		if userID := req.Context().Value("userId"); userID != nil {
 			req.Header.Set("X-User-ID", fmt.Sprintf("%v", userID))
 		}
 
-		slog.Debug("Proxying request",
+		slog.Info("Proxying request",
 			"path", req.URL.Path,
 			"method", req.Method,
 			"service", cfg.Service,
-			"target", targetURL.String(),
+			"host", req.Host, // Should now be user-service host
 			"fullURL", req.URL.String(),
 		)
 	}
@@ -123,9 +138,48 @@ func NewReverseProxy(cfg ProxyConfig) (http.Handler, error) {
 	return proxy, nil
 }
 
+type perRequestAuthTransport struct {
+	targetURL string
+	service   string
+}
+
+func (t *perRequestAuthTransport) RoundTrip(req *http.Request) (*http.Response, error) {
+	ctx := req.Context()
+	client, err := idtoken.NewClient(ctx, t.targetURL)
+	if err != nil {
+		slog.Error("Failed to create idtoken client",
+			"service", t.service,
+			"error", err,
+		)
+		return nil, fmt.Errorf("failed to create authenticated client: %w", err)
+	}
+
+	slog.Info("About to make request",
+		"url", req.URL.String(),
+		"method", req.Method,
+		"host", req.Host,
+		"headers", req.Header,
+	)
+
+	resp, err := client.Transport.RoundTrip(req)
+
+	if err != nil {
+		slog.Error("RoundTrip failed",
+			"error", err,
+			"url", req.URL.String(),
+		)
+		return nil, err
+	}
+
+	slog.Info("RoundTrip succeeded",
+		"status", resp.StatusCode,
+	)
+	return resp, nil
+}
+
 // Proxy for user service
 func NewUserServiceProxy(targetURL string) (http.Handler, error) {
-	slog.Info("Creating USER SERVICE PROXY")
+	slog.Info("Creating USER SERVICE PROXY", "Target URL", targetURL)
 	return NewReverseProxy(ProxyConfig{
 		TargetURL: targetURL,
 		Service:   "user-service",

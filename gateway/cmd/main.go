@@ -98,6 +98,7 @@ func main() {
 		os.Exit(1)
 	}
 
+	<-ctx.Done()
 	slog.Info("Server stopped gracefully")
 }
 
