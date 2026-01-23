@@ -3,18 +3,18 @@
 package postgres
 
 import (
+	"database/sql"
 	"fmt"
-	"log"
+	"log/slog"
 	"os"
 	"testing"
 	"time"
 
 	"github.com/adi290491/productivity-planner/session-service/internal/model"
 	"github.com/google/uuid"
+	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/ory/dockertest/v3"
 	"github.com/ory/dockertest/v3/docker"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
 )
 
 var (
@@ -24,19 +24,21 @@ var (
 	dbName   = "productivity_planner_test"
 )
 
-var testDB *gorm.DB
+var testDB *sql.DB
 var testRepo *SessionRepository
 
 func TestMain(m *testing.M) {
 	// Create Docker pool
 	pool, err := dockertest.NewPool("")
 	if err != nil {
-		log.Fatalf("Could not connect to Docker: %s", err)
+		slog.Error("Could not connect to Docker", "error", err)
+		os.Exit(1)
 	}
 
 	err = pool.Client.Ping()
 	if err != nil {
-		log.Fatalf("Could not connect to Docker: %s", err)
+		slog.Error("Could not connect to Docker", "error", err)
+		os.Exit(1)
 	}
 
 	// Start PostgreSQL container
@@ -57,54 +59,50 @@ func TestMain(m *testing.M) {
 			config.RestartPolicy = docker.RestartPolicy{Name: "no"}
 		})
 	if err != nil {
-		log.Fatalf("Could not start PostgreSQL container: %s", err)
+		slog.Error("Could not start PostgreSQL container", "error", err)
+		os.Exit(1)
 	}
 
 	defer func() {
 		if err := pool.Purge(resource); err != nil {
-			log.Fatalf("Could not purge resource: %s", err)
+			slog.Error("Could not purge resource", "error", err)
 		}
 	}()
 
 	resource.Expire(60)
 
-	log.Println("Waiting for PostgreSQL to be ready...")
+	slog.Info("Waiting for PostgreSQL to be ready...")
 	time.Sleep(2 * time.Second)
 
 	hostPort := resource.GetPort("5432/tcp")
-	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=UTC",
-		host, user, password, dbName, hostPort)
+	dsn := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable",
+		user, password, host, hostPort, dbName)
 
-	log.Println("Connecting to database:", dsn)
+	slog.Info("Connecting to database", "dsn", dsn)
 
 	pool.MaxWait = 60 * time.Second
 
 	// Retry connection
-	var db *gorm.DB
+	var db *sql.DB
 	if err = pool.Retry(func() error {
 		var openErr error
-		db, openErr = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+		db, openErr = sql.Open("pgx", dsn)
 		if openErr != nil {
-			log.Printf("Failed to open GORM connection (retrying): %v", openErr)
+			slog.Warn("Failed to open connection (retrying)", "error", openErr)
 			return openErr
 		}
 
-		sqlDB, sqlErr := db.DB()
-		if sqlErr != nil {
-			log.Printf("Failed to get underlying SQL DB (retrying): %v", sqlErr)
-			return sqlErr
-		}
-
-		pingErr := sqlDB.Ping()
+		pingErr := db.Ping()
 		if pingErr != nil {
-			log.Printf("Failed to ping database (retrying): %v", pingErr)
+			slog.Warn("Failed to ping database (retrying)", "error", pingErr)
 			return pingErr
 		}
 
-		log.Println("Successfully connected to database")
+		slog.Info("Successfully connected to database")
 		return nil
 	}); err != nil {
-		log.Fatalf("Could not establish connection to PostgreSQL: %s", err)
+		slog.Error("Could not establish connection to PostgreSQL", "error", err)
+		os.Exit(1)
 	}
 
 	testDB = db
@@ -112,9 +110,10 @@ func TestMain(m *testing.M) {
 	// Create tables
 	err = createTables()
 	if err != nil {
-		log.Fatalf("Could not create tables: %s", err)
+		slog.Error("Could not create tables", "error", err)
+		os.Exit(1)
 	}
-	log.Println("✅ Tables initialized successfully")
+	slog.Info("Tables initialized successfully")
 
 	testRepo = NewSessionRepository(testDB)
 
@@ -123,12 +122,13 @@ func TestMain(m *testing.M) {
 }
 
 func createTables() error {
-	tableSQL, err := os.ReadFile("../../testdata/schema.sql")
+	tableSQL, err := os.ReadFile("../../../testdata/schema.sql")
 	if err != nil {
 		return fmt.Errorf("error reading schema.sql: %w", err)
 	}
 
-	if err := testDB.Exec(string(tableSQL)).Error; err != nil {
+	_, err = testDB.Exec(string(tableSQL))
+	if err != nil {
 		return fmt.Errorf("executing schema failed: %w", err)
 	}
 
@@ -136,12 +136,7 @@ func createTables() error {
 }
 
 func TestPingDB(t *testing.T) {
-	sqlDB, err := testDB.DB()
-	if err != nil {
-		t.Fatalf("Failed to get database instance: %v", err)
-	}
-
-	err = sqlDB.Ping()
+	err := testDB.Ping()
 	if err != nil {
 		t.Fatalf("Failed to ping database: %v", err)
 	}
@@ -168,7 +163,7 @@ func TestSessionRepository_Create_Success(t *testing.T) {
 	}
 
 	// Clean up
-	testDB.Exec("DELETE FROM sessions WHERE user_id = ?", userID.String())
+	_, _ = testDB.Exec("DELETE FROM sessions WHERE user_id = $1", userID)
 }
 
 func TestSessionRepository_Create_AlreadyActive(t *testing.T) {
@@ -203,7 +198,7 @@ func TestSessionRepository_Create_AlreadyActive(t *testing.T) {
 	}
 
 	// Clean up
-	testDB.Exec("DELETE FROM sessions WHERE user_id = ?", userID.String())
+	_, _ = testDB.Exec("DELETE FROM sessions WHERE user_id = $1", userID)
 }
 
 func TestSessionRepository_Stop_Success(t *testing.T) {
@@ -241,7 +236,7 @@ func TestSessionRepository_Stop_Success(t *testing.T) {
 	}
 
 	// Clean up
-	testDB.Exec("DELETE FROM sessions WHERE user_id = ?", userID.String())
+	_, _ = testDB.Exec("DELETE FROM sessions WHERE user_id = $1", userID)
 }
 
 func TestSessionRepository_Stop_NoActiveSession(t *testing.T) {

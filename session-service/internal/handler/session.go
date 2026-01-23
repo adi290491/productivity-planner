@@ -26,12 +26,6 @@ func NewHandler(sessionService service.SessionServiceInterface) *Handler {
 // StartSession handles POST /sessions/v1/start-session
 func (h *Handler) StartSession(w http.ResponseWriter, r *http.Request) {
 	// Extract user ID from header (set by gateway)
-
-	if r.Method != http.MethodPost {
-		httperr.WriteError(w, fmt.Errorf("method not allowed"), http.StatusMethodNotAllowed)
-		return
-	}
-
 	userID := strings.TrimSpace(r.Header.Get("X-USER-ID"))
 	if userID == "" {
 		httperr.WriteError(w, fmt.Errorf("missing user ID"), http.StatusBadRequest)
@@ -71,11 +65,6 @@ func (h *Handler) StartSession(w http.ResponseWriter, r *http.Request) {
 
 // StopSession handles PATCH /sessions/v1/stop-session
 func (h *Handler) StopSession(w http.ResponseWriter, r *http.Request) {
-
-	if r.Method != http.MethodPatch {
-		httperr.WriteError(w, fmt.Errorf("method not allowed"), http.StatusMethodNotAllowed)
-		return
-	}
 
 	// Extract user ID from header (set by gateway)
 	userID := strings.TrimSpace(r.Header.Get("X-USER-ID"))
@@ -117,10 +106,6 @@ func (h *Handler) StopSession(w http.ResponseWriter, r *http.Request) {
 
 // HealthCheck handles GET /health
 func (h *Handler) HealthCheck(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		httperr.WriteError(w, fmt.Errorf("method not allowed"), http.StatusMethodNotAllowed)
-		return
-	}
 
 	response := map[string]interface{}{
 		"status":  "healthy",
@@ -131,10 +116,7 @@ func (h *Handler) HealthCheck(w http.ResponseWriter, r *http.Request) {
 
 // ReadyCheck handles GET /ready
 func (h *Handler) ReadyCheck(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		httperr.WriteError(w, fmt.Errorf("method not allowed"), http.StatusMethodNotAllowed)
-		return
-	}
+
 	response := map[string]string{
 		"status": "ready",
 	}

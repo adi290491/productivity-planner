@@ -45,19 +45,6 @@ func TestHealthCheck(t *testing.T) {
 	}
 }
 
-func TestHealthCheck_WrongMethod(t *testing.T) {
-	mux, _ := setupTestHandler()
-
-	req := httptest.NewRequest(http.MethodPost, "/health", nil)
-	w := httptest.NewRecorder()
-
-	mux.ServeHTTP(w, req)
-
-	if w.Code != http.StatusMethodNotAllowed {
-		t.Errorf("expected status 405, got %d", w.Code)
-	}
-}
-
 func TestReadyCheck(t *testing.T) {
 	mux, _ := setupTestHandler()
 
@@ -164,26 +151,6 @@ func TestStartSession_InvalidSessionType(t *testing.T) {
 	}
 }
 
-func TestStartSession_WrongMethod(t *testing.T) {
-	mux, _ := setupTestHandler()
-
-	body := map[string]string{
-		"session_type": "focus",
-	}
-	jsonBody, _ := json.Marshal(body)
-
-	req := httptest.NewRequest(http.MethodGet, "/sessions/v1/start-session", bytes.NewBuffer(jsonBody))
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("X-USER-ID", "11111111-1111-1111-1111-111111111111")
-
-	w := httptest.NewRecorder()
-	mux.ServeHTTP(w, req)
-
-	if w.Code != http.StatusMethodNotAllowed {
-		t.Errorf("expected status 405, got %d", w.Code)
-	}
-}
-
 func TestStopSession_Success(t *testing.T) {
 	mux, _ := setupTestHandler()
 
@@ -264,26 +231,6 @@ func TestStopSession_InvalidSessionType(t *testing.T) {
 
 	if w.Code != http.StatusBadRequest {
 		t.Errorf("expected status 400, got %d", w.Code)
-	}
-}
-
-func TestStopSession_WrongMethod(t *testing.T) {
-	mux, _ := setupTestHandler()
-
-	body := map[string]string{
-		"session_type": "focus",
-	}
-	jsonBody, _ := json.Marshal(body)
-
-	req := httptest.NewRequest(http.MethodPost, "/sessions/v1/stop-session", bytes.NewBuffer(jsonBody))
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("X-USER-ID", "11111111-1111-1111-1111-111111111111")
-
-	w := httptest.NewRecorder()
-	mux.ServeHTTP(w, req)
-
-	if w.Code != http.StatusMethodNotAllowed {
-		t.Errorf("expected status 405, got %d", w.Code)
 	}
 }
 

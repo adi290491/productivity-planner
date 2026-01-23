@@ -2,12 +2,13 @@ package main
 
 import (
 	"context"
-	"log"
 	"log/slog"
 	"net/http"
 	"os"
 	"os/signal"
 	"time"
+
+	_ "github.com/jackc/pgx/v5/stdlib"
 
 	"github.com/adi290491/productivity-planner/session-service/internal/config"
 	"github.com/adi290491/productivity-planner/session-service/internal/handler"
@@ -29,6 +30,7 @@ func main() {
 		slog.Info("Failed to connect to database", "error", err)
 		os.Exit(1)
 	}
+	defer db.Close()
 	slog.Info("Database connection successful")
 
 	// Initialize repository layer
@@ -54,7 +56,11 @@ func main() {
 
 	// Start server in goroutine
 	go func() {
-		log.Printf("Server running on port %s", cfg.Port)
+		slog.Info("Starting HTTP server",
+			"port", cfg.Port,
+			"read_timeout", cfg.ReadTimeout,
+			"write_timeout", cfg.WriteTimeout)
+
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			slog.Error("Server failed", "error", err)
 			os.Exit(1)
@@ -90,9 +96,12 @@ func setupLogging() {
 		}))
 	} else {
 		logger = slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
-			Level: slog.LevelDebug,
+			Level:     slog.LevelDebug,
+			AddSource: true,
 		}))
 	}
 
 	slog.SetDefault(logger)
+
+	slog.Info("Logging initialized", "profile", profile)
 }

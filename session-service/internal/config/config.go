@@ -2,7 +2,7 @@ package config
 
 import (
 	"fmt"
-	"log"
+	"log/slog"
 	"os"
 	"time"
 
@@ -30,7 +30,7 @@ func Load() *Config {
 	_ = godotenv.Load()
 
 	profile := os.Getenv("PROFILE")
-	log.Printf("Loading configurations for %s\n", profile)
+	slog.Info("Loading configurations", "profile", profile)
 
 	dbConfig := &DBConfig{
 		Host:     os.Getenv("DB_HOSTNAME"),
@@ -44,7 +44,9 @@ func Load() *Config {
 	// Validate required fields
 	if dbConfig.Host == "" || dbConfig.Port == "" || dbConfig.DBName == "" ||
 		dbConfig.User == "" || dbConfig.Password == "" {
-		log.Fatal("Missing required database configuration. Please ensure DB_HOSTNAME, DB_PORT, DB_NAME, DB_USERNAME, and DB_PASSWORD are set")
+		slog.Error("Missing required database configuration",
+			"required", []string{"DB_HOSTNAME", "DB_PORT", "DB_NAME", "DB_USERNAME", "DB_PASSWORD"})
+		os.Exit(1)
 	}
 
 	// Set default for optional fields
@@ -55,7 +57,7 @@ func Load() *Config {
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
-		log.Printf("PORT not specified, using default: %s", port)
+		slog.Warn("PORT not specified, using default", "port", port)
 	}
 
 	cfg := &Config{
@@ -65,7 +67,12 @@ func Load() *Config {
 		WriteTimeout: 10 * time.Second,
 	}
 
-	log.Println("Configuration loaded successfully")
+	slog.Info("Configuration loaded",
+		"port", cfg.Port,
+		"db_host", dbConfig.Host,
+		"db_port", dbConfig.Port,
+		"db_name", dbConfig.DBName, // ← Check this value
+		"dsn", cfg.DSN) // ← See the full DSN
 	return cfg
 }
 
