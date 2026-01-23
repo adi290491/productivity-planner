@@ -6,6 +6,24 @@ This project is intentionally backend- and infrastructure-focused, showcasing sc
 
 ---
 
+## 🚀 Engineering Highlights
+
+### 1. Custom API Gateway (No Frameworks)
+- **Location:** [`/gateway`](./gateway)
+- **Implementation:** Built a custom Reverse Proxy using `httputil` to route traffic to backend services.
+- **Rate Limiting:** Implemented a **Token Bucket algorithm** from scratch (using `sync.Mutex` for concurrency safety) to protect downstream services from burst traffic.
+
+### 2. High-Performance Database Layer
+- **Location:** [`/session-service/internal/repository/postgres`](./session-service/internal/repository/postgres)
+- **Optimization:** Removed ORM (GORM) overhead in favor of **Raw SQL** using `database/sql` to optimize insert latency and control memory allocations.
+- **Resilience:** Implemented `context.Context` propagation to ensure database queries are cancelled immediately if the HTTP client disconnects.
+
+### 3. Automated Load Testing
+- **Location:** [`/session-service/load_test.sh`](./session-service/load_test.sh)
+- **Tooling:** Automated Bash scripts to seed data, generate JWTs, and execute `hey` load tests to benchmark P99 latency.
+
+---
+
 ## ✨ Key Features
 
 ### Core Functionality
