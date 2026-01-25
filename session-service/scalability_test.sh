@@ -110,9 +110,10 @@ for CONCURRENCY in 10 25 50 100 150 200 300 500; do
             "${AVG}ms" \
             "${P95}ms" \
             "${P99}ms" \
-            "$STATUS" 
-
-        echo "$CONCURRENCY users|${THROUGHPUT} req/s|${AVG}ms|${P95}ms|${P99}ms|$STATUS" >> /tmp/scalability_results.txt
+            "$STATUS"
+        
+        # Also append to results file
+echo "$CONCURRENCY users|${THROUGHPUT} req/s|${AVG}ms|${P95}ms|${P99}ms|$STATUS" >> /tmp/scalability_results.txt
         
         # Clean up
         rm /tmp/test_${CONCURRENCY}_times.txt /tmp/sorted_${CONCURRENCY}.txt
@@ -142,6 +143,10 @@ echo "Your service's capacity is where latency starts increasing significantly."
 echo ""
 echo -e "${GREEN}=== Test Complete ===${NC}"
 
+# Save results to file
+TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+RESULTS_FILE="benchmarks/scalability_test_${TIMESTAMP}.txt"
+
 # Format and append the saved results
 if [ -f /tmp/scalability_results.txt ]; then
     while IFS='|' read -r conc thru avg p95 p99 status; do
@@ -150,10 +155,6 @@ if [ -f /tmp/scalability_results.txt ]; then
     done < /tmp/scalability_results.txt
     rm /tmp/scalability_results.txt
 fi
-
-# Save results to file
-TIMESTAMP=$(date +%Y%m%d_%H%M%S)
-RESULTS_FILE="benchmarks/scalability_test_${TIMESTAMP}.txt"
 
 # The table was already printed to stdout, now save to file
 cat > "$RESULTS_FILE" << 'EOF'

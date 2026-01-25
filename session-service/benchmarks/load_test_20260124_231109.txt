@@ -1,0 +1,41 @@
+=== Session Service Load Test Results ===
+Date: Sat Jan 24 23:11:09 CST 2026
+Test: load_test_with_metrics.sh
+
+Database Sessions Summary:
+ total_sessions | still_active | completed | avg_duration_sec 
+----------------+--------------+-----------+------------------
+             50 |            0 |        50 |             2.23
+(1 row)
+
+Performance Summary:
+  Endpoints Tested: START and STOP sessions
+  Concurrent Users: 50
+  Total Requests:   100 (50 START + 50 STOP)
+
+START Session:
+  Success Rate:  100%
+  Avg Latency:   3ms
+  Min Latency:   1ms
+  Max Latency:   16ms
+  P50 Latency:   2ms
+  P95 Latency:   2ms
+  P99 Latency:   2ms
+  Throughput:    277.77 req/s
+  Total Time:    181ms
+
+STOP Session:
+  Success Rate:  100%
+  Avg Latency:   2ms
+  Min Latency:   1ms
+  Max Latency:   4ms
+  P50 Latency:   1ms
+  P95 Latency:   1ms
+  P99 Latency:   1ms
+  Throughput:    312.50 req/s
+  Total Time:    162ms
+
+Performance Assessment:
+  START Latency: Excellent (p95: 2ms < 50ms)
+  STOP  Latency: Excellent (p95: 1ms < 50ms)
+

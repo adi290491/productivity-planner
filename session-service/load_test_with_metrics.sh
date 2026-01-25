@@ -269,7 +269,7 @@ echo "Results saved to: $RESULTS_FILE"
 # Also create/update latest.txt symlink
 ln -sf "$(basename $RESULTS_FILE)" benchmarks/load_test_latest.txt
 
-echo "Latest results: ./load_test_latest.txt"
+echo "Latest results: benchmarks/load_test_latest.txt"
 
 echo ""
 echo -e "${GREEN}=== Load Test Complete ===${NC}"
