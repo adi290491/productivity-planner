@@ -9,10 +9,10 @@ services:
       - "5433:5432"
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "${POSTGRES_USER}"]
-      interval: 1m30s
-      timeout: 30s
+      interval: 10s
+      timeout: 5s
       retries: 5
-      start_period: 30s
+      start_period: 10s
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./init/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
@@ -66,6 +66,10 @@ services:
         condition: service_healthy
       migrate:
         condition: service_completed_successfully
+    environment:
+      - DB_HOSTNAME=postgres
+      - DB_PORT=5432
+      - PROFILE=dev
     env_file:
       - ./session-service/.env
     networks:

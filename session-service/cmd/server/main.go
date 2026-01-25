@@ -8,6 +8,8 @@ import (
 	"os/signal"
 	"time"
 
+	_ "net/http/pprof"
+
 	_ "github.com/jackc/pgx/v5/stdlib"
 
 	"github.com/adi290491/productivity-planner/session-service/internal/config"
