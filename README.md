@@ -22,8 +22,6 @@ This project is intentionally backend- and infrastructure-focused, showcasing sc
 - **Location:** [`/session-service/load_test.sh`](./session-service/load_test.sh)
 - **Tooling:** Automated Bash scripts to seed data, generate JWTs, and execute `hey` load tests to benchmark P99 latency.
 
----
-
 ### 4. Performance Benchmarks
 Verified on Google Cloud Run (1 vCPU, 512MB RAM) + Cloud SQL (db-f1-micro).
 
