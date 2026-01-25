@@ -87,12 +87,12 @@ Environment variables:
 
 ```bash
 # Database
-DB_HOSTNAME=localhost
-DB_PORT=5432
-DB_NAME=productivity_planner
-DB_USERNAME=postgres
-DB_PASSWORD=postgres
-DB_SSLMODE=disable
+DB_HOSTNAME=<HOSTNAME>
+DB_PORT=<PORT>
+DB_NAME=<DATABASE>
+DB_USERNAME=<USERNAME>
+DB_PASSWORD=<PASSWORD>
+DB_SSLMODE=<SSL_MODE>
 
 # Server
 PORT=8080
