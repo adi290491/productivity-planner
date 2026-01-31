@@ -3,25 +3,28 @@ FROM golang:1.24-alpine AS builder
 
 WORKDIR /app
 
-# Download dependencies
+# Copy go mod files
 COPY go.mod go.sum ./
 RUN go mod download
 
-# Copy all source
+# Copy source code
 COPY . .
 
-# Build the Go binary
-RUN go build -o app ./cmd
+# Build the binary
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o server ./cmd/server
 
-# --- Stage 2: Minimal Runtime ---
+# --- Stage 2: Runtime ---
 FROM alpine:latest
+
+RUN apk --no-cache add ca-certificates
 
 WORKDIR /root/
 
-# Copy binary from build stage
-COPY --from=builder /app/app .
+# Copy binary from builder
+COPY --from=builder /app/server .
 
-# Expose port (optional, mostly for documentation)
-EXPOSE 8080
+# Expose port
+EXPOSE 8081
 
-CMD ["./app"]
+# Run the binary
+CMD ["./server"]

@@ -2,110 +2,98 @@ package config
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"time"
 
 	"github.com/joho/godotenv"
-	"gorm.io/gorm"
 )
 
-type DBConfig struct {
+// Config holds all application configuration
+type Config struct {
+	Profile      string
+	Port         string
+	Database     DatabaseConfig
+	JWT          JWTConfig
+	Server       ServerConfig
+}
+
+// DatabaseConfig holds database-related configuration
+type DatabaseConfig struct {
 	Host     string
 	Port     string
-	DbName   string
+	Name     string
 	User     string
 	Password string
 	SSLMode  string
+	DSN      string
 }
 
-type AppConfig struct {
-	Profile      string
-	DSN          string
-	JWT_SECRET   string
-	Port         string
+// JWTConfig holds JWT-related configuration
+type JWTConfig struct {
+	Secret []byte
+}
+
+// ServerConfig holds server-related configuration
+type ServerConfig struct {
 	ReadTimeout  time.Duration
 	WriteTimeout time.Duration
-	DB           *gorm.DB
 }
 
-// String implements the fmt.Stringer interface for AppConfig.
-func (c *AppConfig) String() string {
-	return "AppConfig{" +
-		"DSN:" + c.DSN +
-		", Port:" + c.Port +
-		", ReadTimeout:" + c.ReadTimeout.String() +
-		", WriteTimeout:" + c.WriteTimeout.String() +
-		", DB:" + dbStatus(c.DB) +
-		"}"
-}
-
-func dbStatus(db *gorm.DB) string {
-	if db == nil {
-		return "nil"
-	}
-	return "initialized"
-}
-
-func Load() (*AppConfig, error) {
-
-	// Load .env file if it exists, but don't fail if it doesn't
+// Load loads configuration from environment variables
+func Load() (*Config, error) {
+	// Load .env file if it exists (ignore error if not found)
 	_ = godotenv.Load()
 
-	profile := os.Getenv("PROFILE")
-	if profile == "" {
-		profile = "local"
+	profile := getEnv("PROFILE", "local")
+
+	dbConfig := DatabaseConfig{
+		Host:     getEnv("DB_HOSTNAME", ""),
+		Port:     getEnv("DB_PORT", ""),
+		Name:     getEnv("DB_NAME", ""),
+		User:     getEnv("DB_USERNAME", ""),
+		Password: getEnv("DB_PASSWORD", ""),
+		SSLMode:  getEnv("DB_SSLMODE", "disable"),
 	}
 
-	log.Printf("Loading configurations for %+s\n", profile)
-
-	dbConfig := &DBConfig{
-		Host:     os.Getenv("DB_HOSTNAME"),
-		Port:     os.Getenv("DB_PORT"),
-		DbName:   os.Getenv("DB_NAME"),
-		User:     os.Getenv("DB_USERNAME"),
-		Password: os.Getenv("DB_PASSWORD"),
-		SSLMode:  os.Getenv("DB_SSLMODE"),
-	}
-
-	// Validate required fields
-	if dbConfig.Host == "" || dbConfig.Port == "" || dbConfig.DbName == "" ||
+	// Validate required database fields
+	if dbConfig.Host == "" || dbConfig.Port == "" || dbConfig.Name == "" ||
 		dbConfig.User == "" || dbConfig.Password == "" {
 		return nil, fmt.Errorf("missing required database configuration. Please ensure DB_HOSTNAME, DB_PORT, DB_NAME, DB_USERNAME, and DB_PASSWORD are set")
 	}
 
-	// Set default for optional fields
-	if dbConfig.SSLMode == "" {
-		dbConfig.SSLMode = "disable"
-	}
-	appConfig := &AppConfig{
-		Profile:      profile,
-		DSN:          dbConfig.DSN(),
-		JWT_SECRET:   os.Getenv("JWT_SECRET"),
-		Port:         os.Getenv("PORT"),
-		ReadTimeout:  10 * time.Second,
-		WriteTimeout: 10 * time.Second,
-		DB:           nil, // DB connection can be set up elsewhere
-	}
+	// Build DSN
+	dbConfig.DSN = fmt.Sprintf(
+		"postgres://%s:%s@%s:%s/%s?sslmode=%s",
+		dbConfig.User, dbConfig.Password, dbConfig.Host, dbConfig.Port, dbConfig.Name, dbConfig.SSLMode,
+	)
 
-	// Validate required application settings
-	if appConfig.JWT_SECRET == "" {
+	jwtSecret := getEnv("JWT_SECRET", "")
+	if jwtSecret == "" {
 		return nil, fmt.Errorf("missing required JWT_SECRET environment variable")
 	}
 
-	if appConfig.Port == "" {
-		appConfig.Port = "8080" // Set default port
-		log.Printf("PORT not specified, using default: %s", appConfig.Port)
+	port := getEnv("PORT", "8081")
+
+	config := &Config{
+		Profile:  profile,
+		Port:     port,
+		Database: dbConfig,
+		JWT: JWTConfig{
+			Secret: []byte(jwtSecret),
+		},
+		Server: ServerConfig{
+			ReadTimeout:  10 * time.Second,
+			WriteTimeout: 10 * time.Second,
+		},
 	}
 
-	log.Println("-------------Exiting application config-------------")
-	return appConfig, nil
-
+	return config, nil
 }
 
-func (d *DBConfig) DSN() string {
-	return fmt.Sprintf(
-		"postgres://%s:%s@%s:%s/%s?sslmode=%s",
-		d.User, d.Password, d.Host, d.Port, d.DbName, d.SSLMode,
-	)
+// getEnv retrieves an environment variable or returns a default value
+func getEnv(key, defaultValue string) string {
+	if value := os.Getenv(key); value != "" {
+		return value
+	}
+	return defaultValue
 }

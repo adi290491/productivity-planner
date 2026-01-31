@@ -48,6 +48,8 @@ session-service-new/**
 session-service-backup/**
 session-service-refactored**
 
+user-service-backup/**
+
 gateway.yaml
 user-service.yaml
 test_script.sh
@@ -57,3 +59,8 @@ echo "# Benchmark temporary files" >> .gitignore
 echo "/tmp/scalability_results.txt" >> .gitignore
 echo "/tmp/*_times.txt" >> .gitignore
 echo "/tmp/sorted_*.txt" >> .gitignore
+prompt.txt
+
+**/benchmark_results/
+**/load_test_results/
+**/test_results.txt

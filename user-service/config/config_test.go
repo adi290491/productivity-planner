@@ -4,99 +4,12 @@ import (
 	"os"
 	"testing"
 	"time"
-
-	"gorm.io/gorm"
 )
 
-func TestDBConfig_DSN(t *testing.T) {
-
-	dbConf := &DBConfig{
-		Host:     "localhost",
-		Port:     "5432",
-		DbName:   "testdb",
-		User:     "testuser",
-		Password: "testpass",
-		SSLMode:  "disable",
-	}
-	expected := "postgres://testuser:testpass@localhost:5432/testdb?sslmode=disable"
-	if dbConf.DSN() != expected {
-		t.Errorf("expected %s, got %s", expected, dbConf.DSN())
-	}
-}
-
-func TestAppConfig_String(t *testing.T) {
-
-	appConf := &AppConfig{
-		DSN:          "dsn",
-		JWT_SECRET:   "secret",
-		Port:         "1234",
-		ReadTimeout:  10 * time.Second,
-		WriteTimeout: 10 * time.Second,
-		DB:           nil,
-	}
-	str := appConf.String()
-	if str == "" || str == "AppConfig{}" {
-		t.Errorf("unexpected string output: %s", str)
-	}
-}
-
-func TestDbStatus(t *testing.T) {
-
-	if dbStatus(nil) != "nil" {
-		t.Errorf("expected nil for nil DB")
-	}
-	// Simulate a non-nil DB (not a real connection)
-	db := &gorm.DB{}
-	if dbStatus(db) != "initialized" {
-		t.Errorf("expected initialized for non-nil DB")
-	}
-}
-
-func TestLoad_WithEnvVars(t *testing.T) {
-
-	os.Setenv("DB_HOSTNAME", "localhost")
-	os.Setenv("DB_PORT", "5432")
-	os.Setenv("DB_NAME", "testdb")
-	os.Setenv("DB_USERNAME", "testuser")
-	os.Setenv("DB_PASSWORD", "testpass")
-	os.Setenv("JWT_SECRET", "secret")
-	os.Setenv("PORT", "1234")
-	defer func() {
-		os.Unsetenv("DB_HOSTNAME")
-		os.Unsetenv("DB_PORT")
-		os.Unsetenv("DB_NAME")
-		os.Unsetenv("DB_USERNAME")
-		os.Unsetenv("DB_PASSWORD")
-		os.Unsetenv("DB_SSLMODE")
-		os.Unsetenv("JWT_SECRET")
-		os.Unsetenv("PORT")
-	}()
-
-	// SSLMode should default to "disable" if not set
-	os.Unsetenv("DB_SSLMODE")
-
-	cfg, err := Load()
-
-	if err != nil {
-		t.Errorf("expected no error, got %v", err)
-	}
-	if cfg.Port != "1234" {
-		t.Errorf("expected port 1234, got %s", cfg.Port)
-	}
-	if cfg.JWT_SECRET != "secret" {
-		t.Errorf("expected JWT_SECRET secret, got %s", cfg.JWT_SECRET)
-	}
-	if cfg.DSN != "postgres://testuser:testpass@localhost:5432/testdb?sslmode=disable" {
-		t.Errorf("unexpected DSN: %s", cfg.DSN)
-	}
-	if cfg.DB != nil {
-		t.Errorf("expected DB to be nil")
-	}
-}
-
-func TestLoad_MissingEnvVars(t *testing.T) {
-	// Save current env vars
-	originalVars := map[string]string{
+func TestLoad(t *testing.T) {
+	// Save original env vars
+	origVars := map[string]string{
+		"PROFILE":     os.Getenv("PROFILE"),
 		"DB_HOSTNAME": os.Getenv("DB_HOSTNAME"),
 		"DB_PORT":     os.Getenv("DB_PORT"),
 		"DB_NAME":     os.Getenv("DB_NAME"),
@@ -107,33 +20,217 @@ func TestLoad_MissingEnvVars(t *testing.T) {
 		"PORT":        os.Getenv("PORT"),
 	}
 
-	// Cleanup function to restore original env vars
+	// Restore env vars after test
 	defer func() {
-		for key, value := range originalVars {
-			if value != "" {
-				os.Setenv(key, value)
+		for key, val := range origVars {
+			if val != "" {
+				os.Setenv(key, val)
 			} else {
 				os.Unsetenv(key)
 			}
 		}
 	}()
 
-	// Clear all env vars
-	os.Unsetenv("DB_HOSTNAME")
-	os.Unsetenv("DB_PORT")
-	os.Unsetenv("DB_NAME")
-	os.Unsetenv("DB_USERNAME")
-	os.Unsetenv("DB_PASSWORD")
-	os.Unsetenv("DB_SSLMODE")
-	os.Unsetenv("JWT_SECRET")
-	os.Unsetenv("PORT")
-
-	// Expect Load to return error due to missing required DB config
-	cfg, err := Load()
-	if err == nil {
-		t.Error("expected error due to missing required env vars, got nil")
+	tests := []struct {
+		name    string
+		envVars map[string]string
+		wantErr bool
+		check   func(*testing.T, *Config)
+	}{
+		{
+			name: "valid configuration",
+			envVars: map[string]string{
+				"PROFILE":     "test",
+				"DB_HOSTNAME": "localhost",
+				"DB_PORT":     "5432",
+				"DB_NAME":     "testdb",
+				"DB_USERNAME": "testuser",
+				"DB_PASSWORD": "testpass",
+				"JWT_SECRET":  "testsecret",
+				"PORT":        "8080",
+			},
+			wantErr: false,
+			check: func(t *testing.T, cfg *Config) {
+				if cfg.Profile != "test" {
+					t.Errorf("Profile = %v, want test", cfg.Profile)
+				}
+				if cfg.Port != "8080" {
+					t.Errorf("Port = %v, want 8080", cfg.Port)
+				}
+				if cfg.Database.Host != "localhost" {
+					t.Errorf("DB Host = %v, want localhost", cfg.Database.Host)
+				}
+				if string(cfg.JWT.Secret) != "testsecret" {
+					t.Errorf("JWT Secret mismatch")
+				}
+			},
+		},
+		{
+			name: "missing DB_HOSTNAME",
+			envVars: map[string]string{
+				"DB_PORT":     "5432",
+				"DB_NAME":     "testdb",
+				"DB_USERNAME": "testuser",
+				"DB_PASSWORD": "testpass",
+				"JWT_SECRET":  "testsecret",
+			},
+			wantErr: true,
+		},
+		{
+			name: "missing JWT_SECRET",
+			envVars: map[string]string{
+				"DB_HOSTNAME": "localhost",
+				"DB_PORT":     "5432",
+				"DB_NAME":     "testdb",
+				"DB_USERNAME": "testuser",
+				"DB_PASSWORD": "testpass",
+			},
+			wantErr: true,
+		},
+		{
+			name: "default port",
+			envVars: map[string]string{
+				"DB_HOSTNAME": "localhost",
+				"DB_PORT":     "5432",
+				"DB_NAME":     "testdb",
+				"DB_USERNAME": "testuser",
+				"DB_PASSWORD": "testpass",
+				"JWT_SECRET":  "testsecret",
+				// PORT not set
+			},
+			wantErr: false,
+			check: func(t *testing.T, cfg *Config) {
+				if cfg.Port != "8081" {
+					t.Errorf("Port = %v, want 8081 (default)", cfg.Port)
+				}
+			},
+		},
+		{
+			name: "default profile",
+			envVars: map[string]string{
+				"DB_HOSTNAME": "localhost",
+				"DB_PORT":     "5432",
+				"DB_NAME":     "testdb",
+				"DB_USERNAME": "testuser",
+				"DB_PASSWORD": "testpass",
+				"JWT_SECRET":  "testsecret",
+				// PROFILE not set
+			},
+			wantErr: false,
+			check: func(t *testing.T, cfg *Config) {
+				if cfg.Profile != "local" {
+					t.Errorf("Profile = %v, want local (default)", cfg.Profile)
+				}
+			},
+		},
+		{
+			name: "default SSL mode",
+			envVars: map[string]string{
+				"DB_HOSTNAME": "localhost",
+				"DB_PORT":     "5432",
+				"DB_NAME":     "testdb",
+				"DB_USERNAME": "testuser",
+				"DB_PASSWORD": "testpass",
+				"JWT_SECRET":  "testsecret",
+				// DB_SSLMODE not set
+			},
+			wantErr: false,
+			check: func(t *testing.T, cfg *Config) {
+				if cfg.Database.SSLMode != "disable" {
+					t.Errorf("SSLMode = %v, want disable (default)", cfg.Database.SSLMode)
+				}
+			},
+		},
 	}
-	if cfg != nil {
-		t.Error("expected nil config when error occurs, got non-nil")
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// Clear all env vars
+			for key := range origVars {
+				os.Unsetenv(key)
+			}
+
+			// Set test env vars
+			for key, val := range tt.envVars {
+				os.Setenv(key, val)
+			}
+
+			cfg, err := Load()
+			if (err != nil) != tt.wantErr {
+				t.Errorf("Load() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if !tt.wantErr {
+				if cfg == nil {
+					t.Error("Load() returned nil config")
+					return
+				}
+				if tt.check != nil {
+					tt.check(t, cfg)
+				}
+			}
+		})
+	}
+}
+
+func TestServerConfig(t *testing.T) {
+	// Set minimum required env vars
+	os.Setenv("DB_HOSTNAME", "localhost")
+	os.Setenv("DB_PORT", "5432")
+	os.Setenv("DB_NAME", "testdb")
+	os.Setenv("DB_USERNAME", "testuser")
+	os.Setenv("DB_PASSWORD", "testpass")
+	os.Setenv("JWT_SECRET", "testsecret")
+
+	defer func() {
+		os.Unsetenv("DB_HOSTNAME")
+		os.Unsetenv("DB_PORT")
+		os.Unsetenv("DB_NAME")
+		os.Unsetenv("DB_USERNAME")
+		os.Unsetenv("DB_PASSWORD")
+		os.Unsetenv("JWT_SECRET")
+	}()
+
+	cfg, err := Load()
+	if err != nil {
+		t.Fatalf("Load() failed: %v", err)
+	}
+
+	if cfg.Server.ReadTimeout != 10*time.Second {
+		t.Errorf("ReadTimeout = %v, want 10s", cfg.Server.ReadTimeout)
+	}
+	if cfg.Server.WriteTimeout != 10*time.Second {
+		t.Errorf("WriteTimeout = %v, want 10s", cfg.Server.WriteTimeout)
+	}
+}
+
+func TestDatabaseDSN(t *testing.T) {
+	os.Setenv("DB_HOSTNAME", "testhost")
+	os.Setenv("DB_PORT", "5433")
+	os.Setenv("DB_NAME", "testdb")
+	os.Setenv("DB_USERNAME", "testuser")
+	os.Setenv("DB_PASSWORD", "testpass")
+	os.Setenv("DB_SSLMODE", "require")
+	os.Setenv("JWT_SECRET", "testsecret")
+
+	defer func() {
+		os.Unsetenv("DB_HOSTNAME")
+		os.Unsetenv("DB_PORT")
+		os.Unsetenv("DB_NAME")
+		os.Unsetenv("DB_USERNAME")
+		os.Unsetenv("DB_PASSWORD")
+		os.Unsetenv("DB_SSLMODE")
+		os.Unsetenv("JWT_SECRET")
+	}()
+
+	cfg, err := Load()
+	if err != nil {
+		t.Fatalf("Load() failed: %v", err)
+	}
+
+	expectedDSN := "postgres://testuser:testpass@testhost:5433/testdb?sslmode=require"
+	if cfg.Database.DSN != expectedDSN {
+		t.Errorf("DSN = %v, want %v", cfg.Database.DSN, expectedDSN)
 	}
 }
