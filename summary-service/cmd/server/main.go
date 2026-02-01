@@ -10,6 +10,7 @@ import (
 	"time"
 
 	_ "github.com/jackc/pgx/v5/stdlib"
+	_ "net/http/pprof"
 
 	"github.com/adi290491/productivity-planner/summary-service/internal/config"
 	"github.com/adi290491/productivity-planner/summary-service/internal/handler"

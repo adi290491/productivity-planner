@@ -1,0 +1,160 @@
+=== Summary Service Load Test Results ===
+Date: Sat Jan 31 21:20:13 CST 2026
+Test: load_test.sh
+Service: http://localhost:8082
+Requests: 10000
+Concurrency: 1000
+
+========================================
+Test 1: GET /summary/daily
+========================================
+
+
+Summary:
+  Total:	3.6680 secs
+  Slowest:	1.0767 secs
+  Fastest:	0.0170 secs
+  Average:	0.3532 secs
+  Requests/sec:	2726.2490
+  
+
+Response time histogram:
+  0.017 [1]	|
+  0.123 [496]	|■■■■■
+  0.229 [1985]	|■■■■■■■■■■■■■■■■■■■■■
+  0.335 [3835]	|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+  0.441 [1203]	|■■■■■■■■■■■■■
+  0.547 [646]	|■■■■■■■
+  0.653 [929]	|■■■■■■■■■■
+  0.759 [405]	|■■■■
+  0.865 [238]	|■■
+  0.971 [227]	|■■
+  1.077 [35]	|
+
+
+Latency distribution:
+  10% in 0.1562 secs
+  25% in 0.2299 secs
+  50% in 0.3009 secs
+  75% in 0.4398 secs
+  90% in 0.6157 secs
+  95% in 0.7597 secs
+  99% in 0.9316 secs
+
+Details (average, fastest, slowest):
+  DNS+dialup:	0.0086 secs, 0.0170 secs, 1.0767 secs
+  DNS-lookup:	0.0025 secs, 0.0000 secs, 0.0638 secs
+  req write:	0.0005 secs, 0.0000 secs, 0.1235 secs
+  resp wait:	0.3423 secs, 0.0055 secs, 1.0767 secs
+  resp read:	0.0000 secs, 0.0000 secs, 0.0023 secs
+
+Status code distribution:
+  [204]	10000 responses
+
+
+
+
+========================================
+Test 2: GET /summary/weekly
+========================================
+
+
+Summary:
+  Total:	4.0230 secs
+  Slowest:	0.8143 secs
+  Fastest:	0.0004 secs
+  Average:	0.3941 secs
+  Requests/sec:	2485.7270
+  
+
+Response time histogram:
+  0.000 [1]	|
+  0.082 [81]	|■■
+  0.163 [243]	|■■■■■
+  0.245 [1150]	|■■■■■■■■■■■■■■■■■■■■■■
+  0.326 [2119]	|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+  0.407 [1952]	|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+  0.489 [2014]	|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+  0.570 [967]	|■■■■■■■■■■■■■■■■■■
+  0.651 [1041]	|■■■■■■■■■■■■■■■■■■■■
+  0.733 [424]	|■■■■■■■■
+  0.814 [8]	|
+
+
+Latency distribution:
+  10% in 0.2268 secs
+  25% in 0.2769 secs
+  50% in 0.3785 secs
+  75% in 0.4835 secs
+  90% in 0.6048 secs
+  95% in 0.6464 secs
+  99% in 0.6832 secs
+
+Details (average, fastest, slowest):
+  DNS+dialup:	0.0027 secs, 0.0004 secs, 0.8143 secs
+  DNS-lookup:	0.0018 secs, 0.0000 secs, 0.0365 secs
+  req write:	0.0000 secs, 0.0000 secs, 0.0276 secs
+  resp wait:	0.3911 secs, 0.0004 secs, 0.7745 secs
+  resp read:	0.0000 secs, 0.0000 secs, 0.0141 secs
+
+Status code distribution:
+  [204]	10000 responses
+
+
+
+
+========================================
+Test 3: GET /health (Baseline)
+========================================
+
+
+Summary:
+  Total:	0.3533 secs
+  Slowest:	0.1742 secs
+  Fastest:	0.0001 secs
+  Average:	0.0324 secs
+  Requests/sec:	28304.1098
+  
+  Total data:	958928 bytes
+  Size/request:	95 bytes
+
+Response time histogram:
+  0.000 [1]	|
+  0.017 [3925]	|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+  0.035 [3277]	|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+  0.052 [1280]	|■■■■■■■■■■■■■
+  0.070 [354]	|■■■■
+  0.087 [156]	|■■
+  0.105 [393]	|■■■■
+  0.122 [367]	|■■■■
+  0.139 [196]	|■■
+  0.157 [37]	|
+  0.174 [14]	|
+
+
+Latency distribution:
+  10% in 0.0075 secs
+  25% in 0.0123 secs
+  50% in 0.0215 secs
+  75% in 0.0402 secs
+  90% in 0.0875 secs
+  95% in 0.1093 secs
+  99% in 0.1310 secs
+
+Details (average, fastest, slowest):
+  DNS+dialup:	0.0008 secs, 0.0001 secs, 0.1742 secs
+  DNS-lookup:	0.0053 secs, 0.0000 secs, 0.1073 secs
+  req write:	0.0007 secs, 0.0000 secs, 0.0889 secs
+  resp wait:	0.0198 secs, 0.0001 secs, 0.0827 secs
+  resp read:	0.0036 secs, 0.0000 secs, 0.0878 secs
+
+Status code distribution:
+  [200]	10000 responses
+
+
+
+
+========================================
+Test completed at: Sat Jan 31 21:20:22 CST 2026
+Results saved to: benchmark/load-test_20260131_212013.txt
+========================================

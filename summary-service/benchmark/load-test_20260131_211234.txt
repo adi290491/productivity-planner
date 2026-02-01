@@ -1,0 +1,280 @@
+=========================================
+Summary Service Load Test Results
+=========================================
+Date: Sat Jan 31 21:12:34 CST 2026
+Service URL: http://localhost:8082
+User ID: 11111111-1111-1111-1111-111111111111
+Test Date: 2026-01-31
+
+Test Parameters:
+  - Total Requests: 1000
+  - Concurrency: 10
+  - Duration: 30s
+
+=========================================
+Test 1: GET /summary/daily
+=========================================
+
+
+Summary:
+  Total:	0.5130 secs
+  Slowest:	0.1149 secs
+  Fastest:	0.0002 secs
+  Average:	0.0048 secs
+  Requests/sec:	1949.3022
+  
+
+Response time histogram:
+  0.000 [1]	|
+  0.012 [907]	|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+  0.023 [50]	|■■
+  0.035 [14]	|■
+  0.046 [2]	|
+  0.058 [19]	|■
+  0.069 [4]	|
+  0.080 [1]	|
+  0.092 [0]	|
+  0.103 [1]	|
+  0.115 [1]	|
+
+
+Latency distribution:
+  10% in 0.0009 secs
+  25% in 0.0013 secs
+  50% in 0.0019 secs
+  75% in 0.0031 secs
+  90% in 0.0081 secs
+  95% in 0.0211 secs
+  99% in 0.0549 secs
+
+Details (average, fastest, slowest):
+  DNS+dialup:	0.0000 secs, 0.0002 secs, 0.1149 secs
+  DNS-lookup:	0.0000 secs, 0.0000 secs, 0.0023 secs
+  req write:	0.0000 secs, 0.0000 secs, 0.0019 secs
+  resp wait:	0.0047 secs, 0.0002 secs, 0.1148 secs
+  resp read:	0.0000 secs, 0.0000 secs, 0.0005 secs
+
+Status code distribution:
+  [204]	1000 responses
+
+
+
+
+
+=========================================
+Test 2: GET /summary/weekly
+=========================================
+
+
+Summary:
+  Total:	0.3287 secs
+  Slowest:	0.0482 secs
+  Fastest:	0.0003 secs
+  Average:	0.0031 secs
+  Requests/sec:	3041.9631
+  
+
+Response time histogram:
+  0.000 [1]	|
+  0.005 [889]	|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+  0.010 [39]	|■■
+  0.015 [26]	|■
+  0.019 [30]	|■
+  0.024 [10]	|
+  0.029 [0]	|
+  0.034 [2]	|
+  0.039 [0]	|
+  0.043 [0]	|
+  0.048 [3]	|
+
+
+Latency distribution:
+  10% in 0.0009 secs
+  25% in 0.0012 secs
+  50% in 0.0017 secs
+  75% in 0.0028 secs
+  90% in 0.0055 secs
+  95% in 0.0143 secs
+  99% in 0.0222 secs
+
+Details (average, fastest, slowest):
+  DNS+dialup:	0.0000 secs, 0.0003 secs, 0.0482 secs
+  DNS-lookup:	0.0000 secs, 0.0000 secs, 0.0012 secs
+  req write:	0.0000 secs, 0.0000 secs, 0.0001 secs
+  resp wait:	0.0031 secs, 0.0003 secs, 0.0482 secs
+  resp read:	0.0000 secs, 0.0000 secs, 0.0021 secs
+
+Status code distribution:
+  [204]	1000 responses
+
+
+
+
+
+=========================================
+Test 3: Mixed Workload
+=========================================
+
+Running daily summary requests...
+
+
+Running weekly summary requests...
+
+
+Summary:
+  Total:	0.6193 secs
+  Slowest:	0.1786 secs
+  Fastest:	0.0004 secs
+  Average:	0.0116 secs
+  Requests/sec:	807.3549
+  
+
+Response time histogram:
+  0.000 [1]	|
+  0.018 [415]	|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+  0.036 [51]	|■■■■■
+  0.054 [15]	|■
+  0.072 [5]	|
+  0.089 [5]	|
+  0.107 [2]	|
+  0.125 [1]	|
+  0.143 [3]	|
+  0.161 [0]	|
+  0.179 [2]	|
+
+
+Latency distribution:
+  10% in 0.0014 secs
+  25% in 0.0029 secs
+  50% in 0.0047 secs
+  75% in 0.0103 secs
+  90% in 0.0297 secs
+  95% in 0.0424 secs
+  99% in 0.1323 secs
+
+Details (average, fastest, slowest):
+  DNS+dialup:	0.0000 secs, 0.0004 secs, 0.1786 secs
+  DNS-lookup:	0.0000 secs, 0.0000 secs, 0.0014 secs
+  req write:	0.0000 secs, 0.0000 secs, 0.0004 secs
+  resp wait:	0.0115 secs, 0.0004 secs, 0.1786 secs
+  resp read:	0.0000 secs, 0.0000 secs, 0.0010 secs
+
+Status code distribution:
+  [204]	500 responses
+
+
+
+
+Summary:
+  Total:	0.6230 secs
+  Slowest:	0.2088 secs
+  Fastest:	0.0004 secs
+  Average:	0.0114 secs
+  Requests/sec:	802.5525
+  
+
+Response time histogram:
+  0.000 [1]	|
+  0.021 [417]	|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+  0.042 [59]	|■■■■■■
+  0.063 [14]	|■
+  0.084 [2]	|
+  0.105 [1]	|
+  0.125 [1]	|
+  0.146 [4]	|
+  0.167 [0]	|
+  0.188 [0]	|
+  0.209 [1]	|
+
+
+Latency distribution:
+  10% in 0.0013 secs
+  25% in 0.0029 secs
+  50% in 0.0049 secs
+  75% in 0.0103 secs
+  90% in 0.0284 secs
+  95% in 0.0406 secs
+  99% in 0.1282 secs
+
+Details (average, fastest, slowest):
+  DNS+dialup:	0.0000 secs, 0.0004 secs, 0.2088 secs
+  DNS-lookup:	0.0000 secs, 0.0000 secs, 0.0015 secs
+  req write:	0.0000 secs, 0.0000 secs, 0.0003 secs
+  resp wait:	0.0113 secs, 0.0004 secs, 0.2088 secs
+  resp read:	0.0000 secs, 0.0000 secs, 0.0005 secs
+
+Status code distribution:
+  [204]	500 responses
+
+
+
+
+
+=========================================
+Test 4: GET /health (Baseline)
+=========================================
+
+
+Summary:
+  Total:	0.0234 secs
+  Slowest:	0.0019 secs
+  Fastest:	0.0001 secs
+  Average:	0.0002 secs
+  Requests/sec:	42757.7299
+  
+  Total data:	95878 bytes
+  Size/request:	95 bytes
+
+Response time histogram:
+  0.000 [1]	|
+  0.000 [800]	|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+  0.000 [129]	|■■■■■■
+  0.001 [30]	|■■
+  0.001 [19]	|■
+  0.001 [8]	|
+  0.001 [3]	|
+  0.001 [0]	|
+  0.002 [0]	|
+  0.002 [4]	|
+  0.002 [6]	|
+
+
+Latency distribution:
+  10% in 0.0001 secs
+  25% in 0.0001 secs
+  50% in 0.0002 secs
+  75% in 0.0002 secs
+  90% in 0.0004 secs
+  95% in 0.0005 secs
+  99% in 0.0017 secs
+
+Details (average, fastest, slowest):
+  DNS+dialup:	0.0000 secs, 0.0001 secs, 0.0019 secs
+  DNS-lookup:	0.0000 secs, 0.0000 secs, 0.0012 secs
+  req write:	0.0000 secs, 0.0000 secs, 0.0003 secs
+  resp wait:	0.0002 secs, 0.0001 secs, 0.0010 secs
+  resp read:	0.0000 secs, 0.0000 secs, 0.0007 secs
+
+Status code distribution:
+  [200]	1000 responses
+
+
+
+
+
+=========================================
+Service Metrics
+=========================================
+
+Memory Statistics:
+
+Goroutine Count:
+404 page not found
+
+
+=========================================
+Test Completed
+=========================================
+Results saved to: benchmark/load-test_20260131_211234.txt
+Completed at: Sat Jan 31 21:12:36 CST 2026
+
