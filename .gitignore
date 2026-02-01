@@ -49,6 +49,7 @@ session-service-backup/**
 session-service-refactored**
 
 user-service-backup/**
+summary-service-backup/**
 
 gateway.yaml
 user-service.yaml

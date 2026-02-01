@@ -2,13 +2,12 @@ package config
 
 import (
 	"fmt"
-	"log"
+	"log/slog"
 	"net/url"
 	"os"
 	"time"
 
 	"github.com/joho/godotenv"
-	"gorm.io/gorm"
 )
 
 type DBConfig struct {
@@ -27,29 +26,17 @@ func (d *DBConfig) DSN() string {
 	)
 }
 
-func dbStatus(db *gorm.DB) string {
-	if db == nil {
-		return "nil"
-	}
-	return "initialized"
-}
-
 type AppConfig struct {
 	DSN          string
 	Port         string
-	DB           *gorm.DB
+	Profile      string
 	ReadTimeout  time.Duration
 	WriteTimeout time.Duration
 }
 
 func (c *AppConfig) String() string {
-	return "AppConfig{" +
-		"DSN:" + redactDSN(c.DSN) +
-		", Port:" + c.Port +
-		", ReadTimeout:" + c.ReadTimeout.String() +
-		", WriteTimeout:" + c.WriteTimeout.String() +
-		", DB:" + dbStatus(c.DB) +
-		"}"
+	return fmt.Sprintf("Config{DSN:%s, Port:%s, ReadTimeout:%s, WriteTimeout:%s, Profile:%s}",
+		redactDSN(c.DSN), c.Port, c.ReadTimeout, c.WriteTimeout, c.Profile)
 }
 
 // redactDSN masks the password in a DSN string. Returns original DSN on parse error or if no user info.
@@ -69,14 +56,16 @@ func redactDSN(dsn string) string {
 func Load() (*AppConfig, error) {
 
 	// Load .env file if it exists, but don't fail if it doesn't
-	err := godotenv.Load()
-	if err != nil {
-		log.Printf("No .env file found or error loading .env file: %v (this is okay, using system environment variables)", err)
+	if err := godotenv.Load(); err != nil {
+		slog.Debug("No .env file found, using system environment variables")
 	}
 
 	profile := os.Getenv("PROFILE")
+	if profile == "" {
+		profile = "local"
+	}
 
-	log.Printf("Loading configurations for %+s\n", profile)
+	slog.Info("Loading configurations", "profilr", profile)
 
 	dbConfig := &DBConfig{
 		Host:     os.Getenv("DB_HOSTNAME"),
@@ -98,19 +87,27 @@ func Load() (*AppConfig, error) {
 	if dbConfig.SSLMode == "" {
 		dbConfig.SSLMode = "disable"
 	}
+
+	port := os.Getenv("PORT")
+
+	if port == "" {
+		port = "8082"
+		slog.Debug("PORT not specified, using default", "port", port)
+	}
+
 	appConfig := &AppConfig{
 		DSN:          dbConfig.DSN(),
 		Port:         os.Getenv("PORT"),
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 10 * time.Second,
-		DB:           nil, // DB connection can be set up elsewhere
+		Profile:      profile,
 	}
 
-	if appConfig.Port == "" {
-		appConfig.Port = "8082" // Set default port
-		log.Printf("PORT not specified, using default: %s", appConfig.Port)
-	}
-
-	log.Println("-------------Exiting application config-------------")
+	slog.Info("Configuration loaded successfully",
+		"port", appConfig.Port,
+		"profile", appConfig.Profile,
+		"db_host", dbConfig.Host,
+		"db_name", dbConfig.DBName,
+	)
 	return appConfig, nil
 }
