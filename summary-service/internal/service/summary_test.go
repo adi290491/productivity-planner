@@ -2,6 +2,8 @@ package service
 
 import (
 	"context"
+	"io"
+	"log/slog"
 	"testing"
 	"time"
 
@@ -10,6 +12,9 @@ import (
 	"github.com/google/uuid"
 )
 
+func init() {
+	slog.SetDefault(slog.New(slog.NewTextHandler(io.Discard, nil)))
+}
 func TestGetDailySummary_Success(t *testing.T) {
 	endTime := time.Now().Add(-46 * time.Hour)
 	mockRepo := &repository.MockRepository{

@@ -97,7 +97,7 @@ func Load() (*AppConfig, error) {
 
 	appConfig := &AppConfig{
 		DSN:          dbConfig.DSN(),
-		Port:         os.Getenv("PORT"),
+		Port:         port,
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 10 * time.Second,
 		Profile:      profile,

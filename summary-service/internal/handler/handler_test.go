@@ -3,6 +3,8 @@ package handler
 import (
 	"context"
 	"fmt"
+	"io"
+	"log/slog"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -10,6 +12,10 @@ import (
 
 	"github.com/adi290491/productivity-planner/summary-service/internal/model"
 )
+
+func init() {
+	slog.SetDefault(slog.New(slog.NewTextHandler(io.Discard, nil)))
+}
 
 // MockService is a mock implementation of the Service interface
 type MockService struct {
@@ -215,4 +221,3 @@ func TestReady(t *testing.T) {
 		t.Errorf("expected 'ready' in response, got: %s", body)
 	}
 }
-

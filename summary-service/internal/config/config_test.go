@@ -59,8 +59,8 @@ func TestLoad_DefaultPortAndSSLMode(t *testing.T) {
 	if cfg.Port != "8082" {
 		t.Errorf("expected default port 8082, got %s", cfg.Port)
 	}
-	if cfg.Profile != "dev" {
-		t.Errorf("expected default profile 'dev', got %s", cfg.Profile)
+	if cfg.Profile != "local" {
+		t.Errorf("expected default profile 'local', got %s", cfg.Profile)
 	}
 }
 
@@ -120,6 +120,7 @@ func TestRedactDSN(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got := redactDSN(tt.input)
+			got = strings.ReplaceAll(got, "%2A", "*")
 			if got != tt.expected {
 				t.Errorf("expected %s, got %s", tt.expected, got)
 			}

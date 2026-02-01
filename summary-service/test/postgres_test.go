@@ -1,6 +1,6 @@
 //go:build integration
 
-package repository
+package integration
 
 import (
 	"context"
@@ -11,13 +11,14 @@ import (
 	"time"
 
 	"github.com/adi290491/productivity-planner/summary-service/internal/model"
-
+	"github.com/adi290491/productivity-planner/summary-service/internal/repository"
+	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/ory/dockertest/v3"
 	"github.com/ory/dockertest/v3/docker"
 )
 
 var (
-	testRepo *PostgresRepository
+	testRepo *repository.PostgresRepository
 	pool     *dockertest.Pool
 	resource *dockertest.Resource
 )
@@ -69,7 +70,7 @@ func TestMain(m *testing.M) {
 	}
 
 	// Load schema
-	schema, err := os.ReadFile("../testdata/schema.sql")
+	schema, err := os.ReadFile("./testdata/schema.sql")
 	if err != nil {
 		log.Fatalf("Could not read schema file: %s", err)
 	}
@@ -164,8 +165,8 @@ func TestPostgresRepository_FindSessionsBetweenDates(t *testing.T) {
 				if session.ID.String() == "" {
 					t.Error("session ID is empty")
 				}
-				if session.UserID.String() != tt.userID {
-					t.Errorf("expected user_id %s, got %s", tt.userID, session.UserID.String())
+				if session.UserId.String() != tt.userID {
+					t.Errorf("expected user_id %s, got %s", tt.userID, session.UserId.String())
 				}
 				if session.SessionType == "" {
 					t.Error("session type is empty")
