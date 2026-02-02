@@ -11,7 +11,7 @@ RUN go mod download
 COPY . .
 
 # Build the Go binary
-RUN go build -o app ./cmd
+RUN CGO_ENABLED=0 GOOS=linux go build -a -ldflags="-w -s" -o app ./cmd/server
 
 # --- Stage 2: Minimal Runtime ---
 FROM alpine:latest

@@ -52,6 +52,10 @@ services:
         condition: service_healthy
       migrate:
         condition: service_completed_successfully
+    environment:
+      - DB_HOSTNAME=postgres
+      - DB_PORT=5432
+      - PROFILE=dev
     env_file:
       - ./user-service/.env
     networks:
@@ -84,6 +88,10 @@ services:
         condition: service_healthy
       migrate:
         condition: service_completed_successfully
+    environment:
+      - DB_HOSTNAME=postgres
+      - DB_PORT=5432
+      - PROFILE=dev
     env_file:
       - ./summary-service/.env
     networks:
